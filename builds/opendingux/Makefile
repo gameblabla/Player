@@ -36,7 +36,7 @@ ifeq ($(BUILD_TARGET), gcwzero)
 	BINDIR = $(TOOLCHAINDIR)/usr/bin
 	CFLAGS = -Ofast -fomit-frame-pointer -fdata-sections -ffunction-sections -mips32r2 -mmxu -std=gnu++11 -DLCF_SUPPORT_ICU 
 	CFLAGS += -DGCW_ZERO -DWANT_FMMIDI=2 -DHAVE_MPG123 -DHAVE_LIBSNDFILE -DWANT_FASTWAV
-	LDFLAGS = -Wl,--as-needed,--gc-sections -flto
+	LDFLAGS = -Wl,--no-as-needed,--gc-sections -flto
 	PKG_CONFIG := $(BINDIR)/pkg-config
 	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
 	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
@@ -49,8 +49,8 @@ ifeq ($(BUILD_TARGET), gcwzero)
 	LIBSNDFILE_CFLAGS := $(shell $(PKG_CONFIG) --cflags sndfile)
 	LIBSNDFILE_LIBS := $(shell $(PKG_CONFIG) --static --libs sndfile)
 	CXXFLAGS = 
-	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl2-config
-	LIBSDLMIXER_LIBS = -lSDL2_mixer
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+	LIBSDLMIXER_LIBS = -lSDL_mixer
 else
 $(error Unknown device $(BUILD_TARGET)! Valid choices: dingoo, gcwzero)
 endif

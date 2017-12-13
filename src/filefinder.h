@@ -21,6 +21,8 @@
 // Headers
 #include "system.h"
 
+#include <stdio.h>
+#include <sys/types.h>
 #include <string>
 #include <cstdio>
 #include <ios>

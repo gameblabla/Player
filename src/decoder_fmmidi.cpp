@@ -20,6 +20,8 @@
 #ifdef WANT_FMMIDI
 
 // Headers
+#include <stdio.h>
+#include <sys/types.h>
 #include <cassert>
 #include "audio_decoder.h"
 #include "output.h"
