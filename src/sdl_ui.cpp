@@ -318,7 +318,7 @@ bool SdlUi::RefreshDisplayMode() {
 		display_height *= 2;
 	}
 
-	int bpp = current_display_mode.bpp;
+	int bpp = 32;
 
 	// Free non zoomed surface
 	main_surface.reset();
