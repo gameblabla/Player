@@ -151,7 +151,18 @@ bool SdlUi::RequestVideoMode(int width, int height, bool fullscreen) {
 	// Note to Zhek, don't delete this fixme again.
 	const SDL_VideoInfo *vinfo;
 	SDL_Rect **modes;
+
+#ifdef OPENDINGUX
+	uint32_t flags = SDL_HWSURFACE
+#ifdef SDL_TRIPLEBUF
+	| SDL_TRIPLEBUF
+#else
+	| SDL_DOUBLEBUF
+#endif
+	;
+#else
 	uint32_t flags = SDL_SWSURFACE;
+#endif
 
 	vinfo = SDL_GetVideoInfo();
 
