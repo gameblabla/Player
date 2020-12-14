@@ -5,7 +5,7 @@
 ##################################################################
 
 # Compiler Device option
-BUILD_TARGET ?= gcwzero
+BUILD_TARGET ?= funkey
 
 # Host toolchain directory and extra flags
 ifeq ($(BUILD_TARGET), dingoo)
@@ -59,6 +59,34 @@ else ifeq ($(BUILD_TARGET), bittboy)
 	SDL_TARGET = 1
 	HUGE_PAGES = 0
 	HOST = $(BINDIR)/arm-linux-
+else ifeq ($(BUILD_TARGET), funkey)
+	TARGET = funkey/EasyRPG
+	TOOLCHAINDIR ?= /opt/funkey-toolchain
+	SYSROOT = $(TOOLCHAINDIR)/usr/arm-buildroot-linux-musleabihf/sysroot
+	BINDIR = $(TOOLCHAINDIR)/usr/bin
+	CFLAGS = -Ofast -fno-math-errno -fomit-frame-pointer -fdata-sections -ffunction-sections  -march=armv7-a+neon-vfpv4 -mtune=cortex-a7 -mfpu=neon-vfpv4 -std=gnu++14 -DLCF_SUPPORT_ICU -flto
+	CFLAGS += -DGCW_ZERO -DHAVE_FREETYPE=1 -DHAVE_LIBSAMPLERATE=1 -DHAVE_LIBSNDFILE=1 -DHAVE_MPG123=1 -DSUPPORT_AUDIO=1 -DHAVE_FLUIDLITE=1 -DFUNKEY
+	LDFLAGS = -flto -Wl,--as-needed,--gc-sections -s
+	PKG_CONFIG := $(BINDIR)/pkg-config
+	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
+	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
+	PIXMAN_LIBS := -Wl,-Bstatic $(shell $(PKG_CONFIG) --static --libs pixman-1)
+	FREETYPE_CFLAGS := $(shell $(PKG_CONFIG) --cflags freetype2)
+	ICU_CFLAGS := $(shell $(PKG_CONFIG) --cflags icu-uc icu-i18n)
+	ICU_LIBS := $(shell $(PKG_CONFIG) --libs icu-uc icu-i18n) -Wl,-Bdynamic
+	LIBMPG123_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmpg123)
+	LIBMPG123_LIBS :=  $(shell $(PKG_CONFIG) --static --libs libmpg123)
+	LIBSNDFILE_CFLAGS := $(shell $(PKG_CONFIG) --cflags sndfile)
+	LIBSNDFILE_LIBS := $(shell $(PKG_CONFIG) --libs sndfile)
+	LIBSAMPLERATE_CFLAGS := $(shell $(PKG_CONFIG) --cflags samplerate)
+	LIBSAMPLERATE_LIBS := $(shell $(PKG_CONFIG) --static --libs samplerate)
+	FLUIDLITE_CFLAGS := $(shell $(PKG_CONFIG) --cflags fluidlite)
+	FLUIDLITE_LIBS := $(shell $(PKG_CONFIG) --static --libs fluidlite)
+	CXXFLAGS = 
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+	SDL_TARGET = 1
+	HUGE_PAGES = 0
+	HOST = $(BINDIR)/arm-linux-
 else ifeq ($(BUILD_TARGET), rs97)
 	TARGET = rs97/EasyRPG
 	TOOLCHAINDIR ?= /opt/rs97-toolchain
@@ -68,6 +96,35 @@ else ifeq ($(BUILD_TARGET), rs97)
 	CFLAGS += -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fno-common -mno-micromips -mno-interlink-compressed -mno-abicalls -fno-PIC
 	CFLAGS += -DGCW_ZERO -DHAVE_FREETYPE=1 -DHAVE_LIBSAMPLERATE=1 -DHAVE_LIBSNDFILE=1 -DHAVE_MPG123=1 -DSUPPORT_AUDIO=1 -DHAVE_FLUIDLITE=1
 	LDFLAGS = -flto -Wl,--as-needed,--gc-sections  -s -flto
+	PKG_CONFIG := $(BINDIR)/pkg-config
+	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
+	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
+	PIXMAN_LIBS := -Wl,-Bstatic $(shell $(PKG_CONFIG) --static --libs pixman-1)
+	FREETYPE_CFLAGS := $(shell $(PKG_CONFIG) --cflags freetype2)
+	ICU_CFLAGS := $(shell $(PKG_CONFIG) --cflags icu-uc icu-i18n)
+	ICU_LIBS := $(shell $(PKG_CONFIG) --libs icu-uc icu-i18n) -Wl,-Bdynamic
+	LIBMPG123_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmpg123)
+	LIBMPG123_LIBS :=  $(shell $(PKG_CONFIG) --static --libs libmpg123)
+	LIBSNDFILE_CFLAGS := $(shell $(PKG_CONFIG) --cflags sndfile)
+	LIBSNDFILE_LIBS := $(shell $(PKG_CONFIG) --libs sndfile)
+	LIBSAMPLERATE_CFLAGS := $(shell $(PKG_CONFIG) --cflags samplerate)
+	LIBSAMPLERATE_LIBS := $(shell $(PKG_CONFIG) --static --libs samplerate)
+	FLUIDLITE_CFLAGS := $(shell $(PKG_CONFIG) --cflags fluidlite)
+	FLUIDLITE_LIBS := $(shell $(PKG_CONFIG) --static --libs fluidlite)
+	CXXFLAGS = 
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+	SDL_TARGET = 1
+	HUGE_PAGES = 0
+	HOST = $(BINDIR)/mipsel-linux-
+else ifeq ($(BUILD_TARGET), 350h)
+	TARGET = gcw-zero/EasyRPG
+	TOOLCHAINDIR ?= /opt/gcw0-toolchain-static
+	SYSROOT = $(TOOLCHAINDIR)/usr/mipsel-buildroot-linux-musl/sysroot
+	BINDIR = $(TOOLCHAINDIR)/usr/bin
+	CFLAGS = -Ofast -mno-abicalls -mno-shared -mno-memcpy -fno-builtin -fno-math-errno -fomit-frame-pointer -fdata-sections -ffunction-sections -march=mips32r2 -mtune=mips32r2 -std=gnu++14 -DLCF_SUPPORT_ICU -flto
+	CFLAGS += -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fno-common -mno-micromips -mno-interlink-compressed
+	CFLAGS += -DGCW_ZERO -DHAVE_LIBSAMPLERATE=1 -DHAVE_LIBSNDFILE=1 -DHAVE_MPG123=1 -DSUPPORT_AUDIO=1 -DHAVE_FLUIDLITE=1
+	LDFLAGS = -flto -Wl,--as-needed,--gc-sections -s
 	PKG_CONFIG := $(BINDIR)/pkg-config
 	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
 	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
@@ -162,7 +219,7 @@ OBJS = $(CPPFILES:.cpp=.o)
 CFLAGS += -Wall -DNDEBUG -DUSE_SDL=$(SDL_TARGET) `$(SDL_CONFIG) --cflags` $(PIXMAN_CFLAGS) $(FREETYPE_CFLAGS) $(ICU_CFLAGS) $(LIBMPG123_CFLAGS) $(LIBSNDFILE_CFLAGS) $(LIBSAMPLERATE_CFLAGS) $(FLUIDLITE_CFLAGS)
 CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -ftree-vectorize
 LDFLAGS += -static-libgcc -lc -lgcc -lm -ldl -lstdc++ -lz -lfmt \
-            `$(SDL_CONFIG) --libs` $(PIXMAN_LIBS) $(ICU_LIBS) $(PNG_LIBS) $(LIBMPG123_LIBS) $(LIBSNDFILE_LIBS) $(LIBSAMPLERATE_LIBS) $(FLUIDLITE_LIBS) -lvorbisidec -logg -lexpat
+            `$(SDL_CONFIG) --libs` $(PIXMAN_LIBS) $(ICU_LIBS) $(PNG_LIBS) $(LIBMPG123_LIBS) $(LIBSNDFILE_LIBS) $(LIBSAMPLERATE_LIBS) $(FLUIDLITE_LIBS) -lvorbisidec -logg
 
 ifeq ($(HUGE_PAGES), 1)
 LDFLAGS		+= -Wl,-zcommon-page-size=2097152 -Wl,-zmax-page-size=2097152 -lhugetlbfs
