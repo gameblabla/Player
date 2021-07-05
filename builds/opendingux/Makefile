@@ -93,10 +93,14 @@ else ifeq ($(BUILD_TARGET), rg99)
 	SYSROOT = $(TOOLCHAINDIR)/usr/mipsel-rs90-linux-musl/sysroot
 	BINDIR = $(TOOLCHAINDIR)/usr/bin
 	#LCF_SUPPORT_ICU isn't enabled as that would greatly increase memory usage and is mostly used for Japanese games
-	CFLAGS = -Os -fdata-sections -ffunction-sections -march=mips32 -mtune=mips32 -mno-shared -std=gnu++14 -flto -mplt
+	CFLAGS = -Ofast -fdata-sections -ffunction-sections -fno-stack-protector -fno-builtin -march=mips32 -mtune=mips32 -mno-shared -std=gnu++14 -flto -mplt
 	CFLAGS += -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fno-common -mno-interlink-compressed -fno-PIC
-	CFLAGS += -DGCW_ZERO -DHAVE_FREETYPE=1 -DHAVE_LIBSAMPLERATE=1 -DHAVE_LIBSNDFILE=1 -DHAVE_MPG123=1 -DSUPPORT_AUDIO=1 -DHAVE_FLUIDLITE=1
-	LDFLAGS = -flto -Wl,--as-needed,--gc-sections  -s -flto
+	CFLAGS += -DGCW_ZERO -DWANT_FASTWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DLOW_MEMORY_DEVICES=1 -DNO_LOG=1
+	CFLAGS += -freorder-functions -freorder-blocks
+	#CFLAGS += -fprofile-generate="/media/mmcblk0p1/easyrpg_gcda"
+	#CFLAGS += -fprofile-use="/my/build/directory" 
+	LDFLAGS = -Wl,-O1,--sort-common,--as-needed,--gc-sections -s -flto -no-pie
+	#LDFLAGS += -lgcov
 	PKG_CONFIG := $(BINDIR)/pkg-config
 	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
 	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
@@ -247,7 +251,7 @@ OBJS = $(CPPFILES:.cpp=.o)
 
 # Compiler flags
 CFLAGS += -Wall -DNDEBUG -DUSE_SDL=$(SDL_TARGET) `$(SDL_CONFIG) --cflags` $(PIXMAN_CFLAGS) $(FREETYPE_CFLAGS) $(ICU_CFLAGS) $(LIBMPG123_CFLAGS) $(LIBSNDFILE_CFLAGS) $(LIBSAMPLERATE_CFLAGS) $(FLUIDLITE_CFLAGS)
-CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -ftree-vectorize -fno-threadsafe-statics -fno-enforce-eh-specs -fstrict-enums
+CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions -ftree-vectorize
 LDFLAGS += -static-libgcc -lc -lgcc -lm -ldl -lstdc++ -lz -lfmt \
             `$(SDL_CONFIG) --libs` $(PIXMAN_LIBS) $(ICU_LIBS) $(PNG_LIBS) $(LIBMPG123_LIBS) $(LIBSNDFILE_LIBS) $(LIBSAMPLERATE_LIBS) $(FLUIDLITE_LIBS) -lvorbisidec -logg
 

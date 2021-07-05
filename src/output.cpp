@@ -135,6 +135,7 @@ void Output::IgnorePause(bool const val) {
 }
 
 static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Color()) {
+#ifndef NO_LOG
 	const char* prefix = GetLogPrefix(lvl);
 	// Skip logging to file in the browser
 #ifndef EMSCRIPTEN
@@ -191,9 +192,11 @@ static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Colo
 	if (lvl != LogLevel::Debug && lvl != LogLevel::Error) {
 		Graphics::GetMessageOverlay().AddMessage(msg, c);
 	}
+#endif
 }
 
 static void HandleErrorOutput(const std::string& err) {
+#ifndef NO_LOG
 	// Drawing directly on the screen because message_overlay is not visible
 	// when faded out
 	BitmapRef surface = DisplayUi->GetDisplaySurface();
@@ -221,9 +224,11 @@ static void HandleErrorOutput(const std::string& err) {
 
 		Input::Update();
 	}
+#endif
 }
 
 void Output::Quit() {
+#ifndef NO_LOG
 	if (LOG_FILE) {
 		LOG_FILE.clear();
 	}
@@ -250,24 +255,31 @@ void Output::Quit() {
 	}
 
 	delete[] buf;
+#endif
 }
 
 bool Output::TakeScreenshot() {
+#ifndef NO_LOG
 	int index = 0;
 	std::string p;
 	do {
 		p = "screenshot_" + std::to_string(index++) + ".png";
 	} while(FileFinder::Save().Exists(p));
 	return TakeScreenshot(p);
+#else
+	return false;
+#endif
 }
 
 bool Output::TakeScreenshot(StringView file) {
+#ifndef NO_LOG
 	auto ret = FileFinder::Save().OpenOutputStream(file, std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
 
 	if (ret) {
 		Output::Debug("Saving Screenshot {}", file);
 		return Output::TakeScreenshot(ret);
 	}
+#endif
 	return false;
 }
 
@@ -276,12 +288,17 @@ bool Output::TakeScreenshot(Filesystem_Stream::OutputStream& os) {
 }
 
 void Output::ToggleLog() {
+#ifndef NO_LOG
 	static bool show_log = true;
 	Graphics::GetMessageOverlay().SetShowAll(show_log);
 	show_log = !show_log;
+#else
+	Graphics::GetMessageOverlay().SetShowAll(false);
+#endif
 }
 
 void Output::ErrorStr(std::string const& err) {
+	#ifndef NO_LOG
 	WriteLog(LogLevel::Error, err);
 	static bool recursive_call = false;
 	if (!recursive_call && DisplayUi) {
@@ -306,27 +323,34 @@ void Output::ErrorStr(std::string const& err) {
 	}
 
 	exit(EXIT_FAILURE);
+	#endif
 }
 
 void Output::WarningStr(std::string const& warn) {
+	#ifndef NO_LOG
 	if (log_level < LogLevel::Warning) {
 		return;
 	}
 	WriteLog(LogLevel::Warning, warn, Color(255, 255, 0, 255));
+	#endif
 }
 
 void Output::InfoStr(std::string const& msg) {
+	#ifndef NO_LOG
 	if (log_level < LogLevel::Info) {
 		return;
 	}
 	WriteLog(LogLevel::Info, msg, Color(255, 255, 255, 255));
+	#endif
 }
 
 void Output::DebugStr(std::string const& msg) {
+	#ifndef NO_LOG
 	if (log_level < LogLevel::Debug) {
 		return;
 	}
 	WriteLog(LogLevel::Debug, msg, Color(128, 128, 128, 255));
+	#endif
 }
 
 #ifdef GEKKO
