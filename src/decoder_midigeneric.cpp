@@ -25,9 +25,11 @@
 
 constexpr int GenericMidiDecoder::midi_default_tempo;
 
+#ifndef MIDI_PERFORMANCE
 // 1 ms of MIDI message resolution for a 44100 Hz samplerate
 constexpr int samples_per_play = 512;
 constexpr int bytes_per_sample = sizeof(int16_t) * 2;
+#endif
 
 GenericMidiDecoder::GenericMidiDecoder(MidiDecoder* mididec)
 	: mididec(mididec) {
@@ -153,6 +155,16 @@ int GenericMidiDecoder::FillBuffer(uint8_t* buffer, int length) {
 		return length;
 	}
 
+	#ifdef MIDI_PERFORMANCE
+	size_t samples = (size_t)length / sizeof(int_least16_t) / 2;
+
+	float delta = (float)samples / (frequency * pitch / 100.0f);
+	seq->play(mtime, this);
+	int res = mididec->FillBuffer(buffer, length);
+	mtime += delta;
+	return res;
+	#else
+
 	int samples_max = length / bytes_per_sample;
 	int written = 0;
 
@@ -177,8 +189,8 @@ int GenericMidiDecoder::FillBuffer(uint8_t* buffer, int length) {
 
 		samples_max -= samples;
 	}
-
 	return written;
+	#endif
 }
 
 void GenericMidiDecoder::midi_message(int, uint_least32_t message) {

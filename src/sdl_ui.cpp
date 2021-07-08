@@ -38,6 +38,10 @@
 
 #include "audio.h"
 
+#ifdef FUNKEY
+static SDL_Surface* sdl_back_screen;
+#endif
+
 #ifdef SUPPORT_AUDIO
 
 #  ifdef HAVE_SDL_MIXER
@@ -143,6 +147,10 @@ SdlUi::SdlUi(long width, long height, const Game_ConfigVideo& cfg) : BaseUi(cfg)
 }
 
 SdlUi::~SdlUi() {
+	if (sdl_surface) SDL_FreeSurface(sdl_surface);
+	#ifdef FUNKEY
+	if (sdl_back_screen) SDL_FreeSurface(sdl_back_screen);
+	#endif
 	SDL_Quit();
 }
 
@@ -311,7 +319,12 @@ bool SdlUi::RefreshDisplayMode() {
 
 	// Free non zoomed surface
 	main_surface.reset();
-	sdl_surface = SDL_SetVideoMode(display_width, display_height, bpp, flags);
+#ifdef FUNKEY
+	sdl_back_screen = SDL_SetVideoMode(0, 0, bpp, flags);
+	sdl_surface = SDL_CreateRGBSurface(SDL_HWSURFACE, 320, 240, 32, 0,0,0,0);
+#else
+ 	sdl_surface = SDL_SetVideoMode(display_width, display_height, bpp, flags);
+#endif
 
 	if (!sdl_surface)
 		return false;
@@ -391,7 +404,12 @@ void SdlUi::UpdateDisplay() {
 		// Blit drawing surface x2 scaled over window surface
 		Blit2X(*main_surface, sdl_surface);
 	}
+#ifdef FUNKEY
+	SDL_SoftStretch(sdl_surface, NULL, sdl_back_screen, NULL);
+	SDL_Flip(sdl_back_screen);
+#else
 	SDL_UpdateRect(sdl_surface, 0, 0, 0, 0);
+#endif
 }
 
 void SdlUi::SetTitle(const std::string &title) {

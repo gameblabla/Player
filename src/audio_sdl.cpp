@@ -72,10 +72,17 @@ SdlAudio::SdlAudio() :
 
 	SDL_AudioSpec want = {};
 	SDL_AudioSpec have = {};
+	#ifdef MIDI_PERFORMANCE
+	want.freq = 11025;
+	want.format = AUDIO_S16;
+	want.channels = 2;
+	want.samples = 1024;
+	#else
 	want.freq = 44100;
 	want.format = AUDIO_S16;
 	want.channels = 2;
 	want.samples = 2048;
+	#endif
 	want.callback = sdl_audio_callback;
 	want.userdata = this;
 

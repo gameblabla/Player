@@ -27,6 +27,12 @@
 #include "filefinder.h"
 #include "output.h"
 
+#ifdef LOW_MEMORY_DEVICES
+#define CACHE_SIZE_DEF 1
+#else
+#define CACHE_SIZE_DEF 3
+#endif
+
 using namespace std::chrono_literals;
 
 namespace {
@@ -34,7 +40,7 @@ namespace {
 
 	cache_type cache;
 
-	constexpr int cache_limit = 3 * 1024 * 1024;
+	constexpr int cache_limit = CACHE_SIZE_DEF * 1024 * 1024;
 	int cache_size = 0;
 
 	void FreeCacheMemory() {

@@ -3,7 +3,6 @@ SOURCE="$1"
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 FILE="$DIR/easyrpg.soundfont"
 
-
 if [ ! -d "$HOME/.easyrpg" ]; then
 mkdir $HOME/.easyrpg
 	if [ ! -d "$HOME/.easyrpg/rtp2k" ]; then

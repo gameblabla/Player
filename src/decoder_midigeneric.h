@@ -117,7 +117,11 @@ private:
 
 	float mtime = 0.0f;
 	float pitch = 1.0f;
+	#ifdef MIDI_PERFORMANCE
+	int frequency = 11025;
+	#else
 	int frequency = 44100;
+	#endif
 	bool loops_to_end = false;
 
 	struct MidiTempoData {
