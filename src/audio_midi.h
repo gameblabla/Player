@@ -24,6 +24,8 @@
 
 #if defined(GEKKO) || defined(_3DS)
 #  define EP_MIDI_FREQ 22050
+#elif defined(MIDI_PERFORMANCE)
+#  define EP_MIDI_FREQ 11025
 #else
 #  define EP_MIDI_FREQ 44100
 #endif
