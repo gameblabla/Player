@@ -38,7 +38,7 @@
 
 #include "audio.h"
 
-#ifdef FUNKEY
+#if defined(FUNKEY) || defined(RETROFW)
 static SDL_Surface* sdl_back_screen;
 #endif
 
@@ -148,7 +148,7 @@ SdlUi::SdlUi(long width, long height, const Game_ConfigVideo& cfg) : BaseUi(cfg)
 
 SdlUi::~SdlUi() {
 	if (sdl_surface) SDL_FreeSurface(sdl_surface);
-	#ifdef FUNKEY
+	#if defined(FUNKEY) || defined(RETROFW)
 	if (sdl_back_screen) SDL_FreeSurface(sdl_back_screen);
 	#endif
 	SDL_Quit();
@@ -322,6 +322,9 @@ bool SdlUi::RefreshDisplayMode() {
 #ifdef FUNKEY
 	sdl_back_screen = SDL_SetVideoMode(0, 0, bpp, flags);
 	sdl_surface = SDL_CreateRGBSurface(SDL_HWSURFACE, 320, 240, 32, 0,0,0,0);
+#elif defined(RETROFW)
+	sdl_back_screen = SDL_SetVideoMode(0, 0, 16, flags);
+	sdl_surface = SDL_CreateRGBSurface(SDL_HWSURFACE, 320, 240, 32, 0,0,0,0);
 #else
  	sdl_surface = SDL_SetVideoMode(display_width, display_height, bpp, flags);
 #endif
@@ -389,6 +392,14 @@ void SdlUi::ToggleZoom() {
 
 void SdlUi::ProcessEvents() {
 	SDL_Event evnt;
+	
+	#ifdef RETROFW
+	Uint8 *keystate = SDL_GetKeyState(NULL);
+	if (keystate[SDLK_RETURN] && keystate[SDLK_ESCAPE])
+	{
+		Player::exit_flag = true;
+	}
+	#endif
 
 	// Poll SDL events and process them
 	while (SDL_PollEvent(&evnt)) {
@@ -406,6 +417,9 @@ void SdlUi::UpdateDisplay() {
 	}
 #ifdef FUNKEY
 	SDL_SoftStretch(sdl_surface, NULL, sdl_back_screen, NULL);
+	SDL_Flip(sdl_back_screen);
+#elif defined(RETROFW)
+	SDL_BlitSurface(sdl_surface, NULL, sdl_back_screen, NULL);
 	SDL_Flip(sdl_back_screen);
 #else
 	SDL_UpdateRect(sdl_surface, 0, 0, 0, 0);
@@ -593,7 +607,13 @@ void SdlUi::ProcessActiveEvent(SDL_Event &evnt) {
 
 void SdlUi::ProcessKeyDownEvent(SDL_Event &evnt) {
 #if defined(USE_KEYBOARD) && defined(SUPPORT_KEYBOARD)
-	if ((evnt.key.keysym.sym == SDLK_F4 && (evnt.key.keysym.mod & KMOD_LALT)) || evnt.key.keysym.sym == SDLK_HOME || evnt.key.keysym.sym == SDLK_PAGEUP) {
+	if ((evnt.key.keysym.sym == SDLK_F4 && (evnt.key.keysym.mod & KMOD_LALT)) || evnt.key.keysym.sym == SDLK_HOME || evnt.key.keysym.sym == SDLK_PAGEUP
+#ifdef BITTBOY
+	|| evnt.key.keysym.sym == SDLK_END
+#elif defined(RETROFW)
+	|| evnt.key.keysym.sym == SDLK_RCTRL
+#endif
+	) {
 		// Close program on LeftAlt+F4
 		Player::exit_flag = true;
 		return;

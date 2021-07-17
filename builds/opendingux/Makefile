@@ -38,7 +38,7 @@ else ifeq ($(BUILD_TARGET), bittboy)
 	SYSROOT = $(TOOLCHAINDIR)/usr/arm-buildroot-linux-musleabi/sysroot
 	BINDIR = $(TOOLCHAINDIR)/usr/bin
 	CFLAGS = -Os -fno-math-errno -fomit-frame-pointer -fdata-sections -ffunction-sections -march=armv5te -mtune=arm926ej-s -std=gnu++14 -flto
-	CFLAGS += -DGCW_ZERO -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DLOW_MEMORY_DEVICES=1 -DWANT_FMMIDI=1 -DLOW_END=1 -DMIDI_PERFORMANCE=1
+	CFLAGS += -DGCW_ZERO -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DLOW_MEMORY_DEVICES=1 -DWANT_FMMIDI=1 -DLOW_END=1 -DMIDI_PERFORMANCE=1 -DRETROFW=1 -DBITTBOY=1
 	LDFLAGS = -flto -Wl,--as-needed,--gc-sections -s
 	PKG_CONFIG := $(BINDIR)/pkg-config
 	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
@@ -100,7 +100,7 @@ else ifeq ($(BUILD_TARGET), rg99)
 	#LCF_SUPPORT_ICU isn't enabled as that would greatly increase memory usage and is mostly used for Japanese games
 	CFLAGS = -Os -fdata-sections -ffunction-sections -fno-stack-protector -fno-builtin -march=mips32 -mtune=mips32 -mno-shared -std=gnu++14 -flto -mplt
 	CFLAGS += -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fno-PIC
-	CFLAGS += -DGCW_ZERO -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DLOW_MEMORY_DEVICES=1 -DWANT_FMMIDI=1 -DLOW_END=1 -DMIDI_PERFORMANCE=1
+	CFLAGS += -DGCW_ZERO -DHAVE_MPG123=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DLOW_MEMORY_DEVICES=1 -DLOW_END=1 -DMIDI_PERFORMANCE=1 -DWANT_FMMIDI=1
 	CFLAGS += -freorder-functions -freorder-blocks
 	ifeq ($(PROFILE), YES)
 	CFLAGS += -fprofile-generate="/media/mmcblk0p1/easyrpg_gcda"
@@ -118,6 +118,37 @@ else ifeq ($(BUILD_TARGET), rg99)
 	ICU_LIBS := $(shell $(PKG_CONFIG) --libs icu-uc icu-i18n) -Wl,-Bdynamic
 	LIBMPG123_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmpg123)
 	LIBMPG123_LIBS :=  $(shell $(PKG_CONFIG) --static --libs libmpg123)
+	LIBSNDFILE_CFLAGS := $(shell $(PKG_CONFIG) --cflags sndfile)
+	LIBSNDFILE_LIBS := $(shell $(PKG_CONFIG) --libs sndfile)
+	LIBSAMPLERATE_CFLAGS := $(shell $(PKG_CONFIG) --cflags samplerate)
+	LIBSAMPLERATE_LIBS := $(shell $(PKG_CONFIG) --static --libs samplerate)
+	FLUIDLITE_CFLAGS := $(shell $(PKG_CONFIG) --cflags fluidlite)
+	FLUIDLITE_LIBS := $(shell $(PKG_CONFIG) --static --libs fluidlite)
+	SPEEX_CFLAGS := $(shell $(PKG_CONFIG) --cflags speexdsp)
+	SPEEX_LIBS := $(shell $(PKG_CONFIG) --static --libs speexdsp)
+	CXXFLAGS = 
+	SDL_CONFIG = $(SYSROOT)/usr/bin/sdl-config
+	SDL_TARGET = 1
+	HUGE_PAGES = 0
+	HOST = $(BINDIR)/mipsel-linux-
+else ifeq ($(BUILD_TARGET), retrofw)
+	TARGET = retrofw/EasyRPG
+	TOOLCHAINDIR ?= /opt/rs97-toolchain
+	SYSROOT = $(TOOLCHAINDIR)/usr/mipsel-buildroot-linux-musl/sysroot
+	BINDIR = $(TOOLCHAINDIR)/usr/bin
+	CFLAGS = -Ofast -fdata-sections -ffunction-sections -march=mips32 -mtune=mips32 -std=gnu++14 -flto
+	CFLAGS += -mno-fp-exceptions -mno-check-zero-division -mframe-header-opt -fno-common -mno-micromips -mno-interlink-compressed -mno-abicalls -fno-PIC
+	CFLAGS += -DGCW_ZERO -DWANT_DRWAV=1 -DHAVE_LIBSPEEXDSP=1 -DSUPPORT_AUDIO=1 -DLOW_MEMORY_DEVICES=1 -DWANT_FMMIDI=1 -DLOW_END=1 -DMIDI_PERFORMANCE=1 -DRETROFW=1 -DHAVE_MPG123=1
+	LDFLAGS = -Wl,--as-needed,--gc-sections -s -flto -no-pie
+	PKG_CONFIG := $(BINDIR)/pkg-config
+	PNG_LIBS := $(shell $(PKG_CONFIG) --libs libpng)
+	PIXMAN_CFLAGS := $(shell $(PKG_CONFIG) --static --cflags pixman-1)
+	PIXMAN_LIBS := $(shell $(PKG_CONFIG) --static --libs pixman-1)
+	FREETYPE_CFLAGS := $(shell $(PKG_CONFIG) --cflags freetype2)
+	ICU_CFLAGS := $(shell $(PKG_CONFIG) --cflags icu-uc icu-i18n)
+	ICU_LIBS := $(shell $(PKG_CONFIG) --libs icu-uc icu-i18n) -Wl,-Bdynamic
+	LIBMPG123_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmpg123)
+	LIBMPG123_LIBS :=  $(shell $(PKG_CONFIG) --libs libmpg123)
 	LIBSNDFILE_CFLAGS := $(shell $(PKG_CONFIG) --cflags sndfile)
 	LIBSNDFILE_LIBS := $(shell $(PKG_CONFIG) --libs sndfile)
 	LIBSAMPLERATE_CFLAGS := $(shell $(PKG_CONFIG) --cflags samplerate)
