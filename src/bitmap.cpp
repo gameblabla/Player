@@ -40,6 +40,11 @@
 #include "bitmap_hslrgb.h"
 #include <iostream>
 
+#ifdef DREAMCAST
+#include <kos.h>
+#include <dc/pvr.h>
+#endif
+
 BitmapRef Bitmap::Create(int width, int height, const Color& color) {
 	BitmapRef surface = Bitmap::Create(width, height, true);
 	surface->Fill(color);
@@ -117,7 +122,8 @@ Bitmap::Bitmap(Filesystem_Stream::InputStream stream, bool transparent, uint32_t
 		Output::Warning("Unsupported image file {} (Magic: {:02X})", stream.GetName(), *reinterpret_cast<uint32_t*>(data));
 
 	if (!img_okay) {
-		free(image_out.pixels);
+		free
+		(image_out.pixels);
 		return;
 	}
 
@@ -150,7 +156,8 @@ Bitmap::Bitmap(const uint8_t* data, unsigned bytes, bool transparent, uint32_t f
 		Output::Warning("Unsupported image (Magic: {:02X})", bytes >= 4 ? *reinterpret_cast<const uint32_t*>(data) : 0);
 
 	if (!img_okay) {
-		free(image_out.pixels);
+		free
+		(image_out.pixels);
 		return;
 	}
 

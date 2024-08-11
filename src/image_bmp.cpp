@@ -21,6 +21,10 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
+#ifdef DREAMCAST
+#include <kos.h>
+#include <dc/pvr.h>
+#endif
 #include "output.h"
 #include "image_bmp.h"
 
@@ -141,7 +145,9 @@ bool ImageBMP::Read(const uint8_t* data, unsigned len, bool transparent, ImageOu
 	int line_width = (hdr.depth == 4) ? (hdr.w + 1) >> 1 : hdr.w;
 	int padding = (-line_width)&3;
 
-	output.pixels = malloc(hdr.w * hdr.h * 4);
+	output.pixels =
+	malloc
+	(hdr.w * hdr.h * 4);
 	if (!output.pixels) {
 		Output::Warning("Error allocating BMP pixel buffer.");
 		return false;

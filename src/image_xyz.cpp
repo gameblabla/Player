@@ -21,6 +21,10 @@
 #include <istream>
 #include <zlib.h>
 #include <vector>
+#ifdef DREAMCAST
+#include <kos.h>
+#include <dc/pvr.h>
+#endif
 #include "output.h"
 #include "image_xyz.h"
 
@@ -46,7 +50,10 @@ bool ImageXYZ::Read(const uint8_t* data, unsigned len, bool transparent, ImageOu
 	}
 	const uint8_t (*palette)[3] = (const uint8_t(*)[3]) &dst_buffer.front();
 
-	output.pixels = malloc(w * h * 4);
+
+	output.pixels = 
+	malloc
+	(w * h * 4);
 	if (!output.pixels) {
 		Output::Warning("Error allocating XYZ pixel buffer.");
 		return false;

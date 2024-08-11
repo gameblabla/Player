@@ -81,6 +81,7 @@ namespace {
 	} last_message;
 
 	void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserData /* userdata */) {
+#ifndef LOW_MEMORY_DEVICES
 		// terminal output
 		std::string prefix = Output::LogLevelToString(lvl) + ":";
 
@@ -108,6 +109,7 @@ namespace {
 		}
 	#endif
 		std::cerr << prefix << " " << msg << std::endl;
+#endif
 	}
 
 	LogCallbackFn log_cb = LogCallback;
@@ -140,6 +142,7 @@ void Output::SetLogCallback(LogCallbackFn fn, LogCallbackUserData userdata) {
 }
 
 static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Color()) {
+#ifndef LOW_MEMORY_DEVICES
 // skip writing log file
 #ifndef EMSCRIPTEN
 	std::string prefix = Output::LogLevelToString(lvl) + ": ";
@@ -193,9 +196,11 @@ static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Colo
 	if (lvl != LogLevel::Debug && lvl != LogLevel::Error) {
 		Graphics::GetMessageOverlay().AddMessage(msg, c);
 	}
+#endif
 }
 
 static void HandleErrorOutput(const std::string& err) {
+#ifndef LOW_MEMORY_DEVICES
 	// Drawing directly on the screen because message_overlay is not visible
 	// when faded out
 	BitmapRef surface = DisplayUi->GetDisplaySurface();
@@ -220,9 +225,11 @@ static void HandleErrorOutput(const std::string& err) {
 
 		Input::Update();
 	}
+#endif
 }
 
 void Output::Quit() {
+#ifndef LOW_MEMORY_DEVICES
 	if (LOG_FILE) {
 		LOG_FILE.Close();
 	}
@@ -251,9 +258,13 @@ void Output::Quit() {
 
 	delete[] buf;
 	init = false;
+#endif
 }
 
 bool Output::TakeScreenshot() {
+#ifdef LOW_MEMORY_DEVICES
+
+#else
 #ifdef EMSCRIPTEN
 	Emscripten_Interface::TakeScreenshot();
 	return true;
@@ -265,15 +276,18 @@ bool Output::TakeScreenshot() {
 	} while(FileFinder::Save().Exists(p));
 	return TakeScreenshot(p);
 #endif
+#endif
 }
 
 bool Output::TakeScreenshot(StringView file) {
+#ifndef LOW_MEMORY_DEVICES
 	auto ret = FileFinder::Save().OpenOutputStream(file, std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
 
 	if (ret) {
 		Output::Debug("Saving Screenshot {}", file);
 		return Output::TakeScreenshot(ret);
 	}
+#endif
 	return false;
 }
 
@@ -288,6 +302,7 @@ void Output::ToggleLog() {
 }
 
 void Output::ErrorStr(std::string const& err) {
+#ifndef LOW_MEMORY_DEVICES
 	WriteLog(LogLevel::Error, err);
 	std::string error = "Error:\n" + err + "\n\nEasyRPG Player will close now.";
 
@@ -318,25 +333,32 @@ void Output::ErrorStr(std::string const& err) {
 
 	// FIXME: No idea how to indicate error from core in libretro
 	exit(Player::exit_code);
+#endif
 }
 
 void Output::WarningStr(std::string const& warn) {
+#ifndef LOW_MEMORY_DEVICES
 	if (log_level < LogLevel::Warning) {
 		return;
 	}
 	WriteLog(LogLevel::Warning, warn, Color(255, 255, 0, 255));
+#endif
 }
 
 void Output::InfoStr(std::string const& msg) {
+#ifndef LOW_MEMORY_DEVICES
 	if (log_level < LogLevel::Info) {
 		return;
 	}
 	WriteLog(LogLevel::Info, msg, Color(255, 255, 255, 255));
+#endif
 }
 
 void Output::DebugStr(std::string const& msg) {
+#ifndef LOW_MEMORY_DEVICES
 	if (log_level < LogLevel::Debug) {
 		return;
 	}
 	WriteLog(LogLevel::Debug, msg, Color(128, 128, 128, 255));
+#endif
 }

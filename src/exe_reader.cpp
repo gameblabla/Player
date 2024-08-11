@@ -16,6 +16,8 @@
  */
 
 // All of this code is unused on EMSCRIPTEN. *Do not use it*!
+#ifndef LOW_MEMORY_DEVICES
+
 #ifndef EMSCRIPTEN
 
 #include "exe_reader.h"
@@ -461,5 +463,8 @@ int EXEReader::FileInfo::GetEngineType(bool& is_maniac_patch) const {
 
 	return Player::EngineNone;
 }
+
+#endif
+
 
 #endif

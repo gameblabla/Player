@@ -59,7 +59,7 @@ CFLAGS += -DOPENDINGUX
 
 # Start compile
 $(TARGET): $(OBJS)
-	kos-cc $(CFLAGS) $(OBJS) -o $@  -lSDL -lstdc++ -lpng -lz -lpixman-1 -lfmt -s
+	kos-cc $(CFLAGS) $(OBJS) -o $@  -lSDL -lstdc++ -lpng -lz -lpixman-1 -lfmt -Wl,--as-needed -Wl,--gc-sections -s
 
 .cpp.o:
 	kos-c++ $(INCDIR) $(CXXFLAGS) -c $< -o $@

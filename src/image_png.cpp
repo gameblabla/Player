@@ -22,7 +22,10 @@
 #include <csetjmp>
 #include <vector>
 #include <fstream>
-
+#ifdef DREAMCAST
+#include <kos.h>
+#include <dc/pvr.h>
+#endif
 #include "output.h"
 #include "image_png.h"
 
@@ -91,7 +94,9 @@ static bool ReadPNGWithReadFunction(png_voidp user_data, png_rw_ptr fn, bool tra
 	png_get_IHDR(png_ptr, info_ptr, &w, &h,
 				 &bit_depth, &color_type, NULL, NULL, NULL);
 
-	output.pixels = malloc(w * h * 4);
+	output.pixels = 
+	malloc
+	(w * h * 4);
 	if (!output.pixels) {
 		Output::Warning("Error allocating PNG pixel buffer.");
 		return false;
@@ -267,14 +272,23 @@ bool ImagePNG::Write(std::ostream& os, uint32_t width, uint32_t height, uint32_t
 		return false;
 	}
 
+#ifdef DREAMCAST
+	png_bytep* ptrs = (png_bytep*)malloc(height);
+#else
 	png_bytep* ptrs = new png_bytep[height];
+#endif
+	
 	for (size_t i = 0; i < height; ++i) {
 		ptrs[i] = reinterpret_cast<png_bytep>(&data[width*i]);
 	}
 
 	if (setjmp(png_jmpbuf(write))) {
 		png_destroy_write_struct(&write, &info);
+#ifdef DREAMCAST
+		free(ptrs);
+#else
 		delete [] ptrs;
+#endif
 		Output::Warning("ImagePNG::WritePNG: error writing PNG file");
 		return false;
 	}
@@ -289,7 +303,11 @@ bool ImagePNG::Write(std::ostream& os, uint32_t width, uint32_t height, uint32_t
 	png_write_end(write, NULL);
 
 	png_destroy_write_struct(&write, &info);
+	
+#ifdef DREAMCAST
+	free(ptrs);
+#else
 	delete [] ptrs;
-
+#endif
 	return true;
 }

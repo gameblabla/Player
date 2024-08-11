@@ -34,6 +34,13 @@
 #  include <coreinit/debug.h>
 #endif
 
+#ifdef DREAMCAST
+#include <kos.h>
+#include <kos/malloc.h>
+KOS_INIT_FLAGS(INIT_DEFAULT);
+#endif
+
+
 #if defined(__ANDROID__) || defined(__WIIU__)
 static void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserData /* userdata */) {
 #  if defined(__ANDROID__)
@@ -63,8 +70,6 @@ static void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserDat
  */
 extern "C" int main(int argc, char* argv[]) {
 	std::vector<std::string> args;
-	
-	printf("maint\n");
 
 #if defined(_WIN32)
 	// Use widestring args
@@ -82,7 +87,6 @@ extern "C" int main(int argc, char* argv[]) {
 #endif
 
 #ifdef DREAMCAST
-#warning "Dreamcast"
 	args.push_back("--project-path");
 	args.push_back("/cd/");
 #endif
@@ -91,9 +95,7 @@ extern "C" int main(int argc, char* argv[]) {
 	Output::SetLogCallback(LogCallback);
 #endif
 
-	printf("Player::Init\n");
 	Player::Init(std::move(args));
-	printf("Init complete\n");
 	Player::Run();
 
 	// Close
