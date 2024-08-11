@@ -52,17 +52,23 @@ static struct {
 std::unique_ptr<AudioDecoderBase> MidiDecoder::Create(bool resample) {
 	std::unique_ptr<AudioDecoderBase> mididec;
 
+#if defined(HAVE_FLUIDSYNTH) || defined(HAVE_FLUIDLITE)
 	if (Audio().GetFluidsynthEnabled()) {
 		mididec = CreateFluidsynth(resample);
 	}
+#endif
 
+#ifdef HAVE_LIBWILDMIDI
 	if (!mididec && Audio().GetWildMidiEnabled()) {
 		mididec = CreateWildMidi(resample);
 	}
+#endif
 
+#if WANT_FMMIDI
 	if (!mididec) {
 		mididec = CreateFmMidi(resample);
 	}
+#endif
 
 	return mididec;
 }

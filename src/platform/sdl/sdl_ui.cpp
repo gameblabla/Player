@@ -346,7 +346,7 @@ bool SdlUi::RefreshDisplayMode() {
 		display_height *= 2;
 	}
 
-	int bpp = current_display_mode.bpp;
+	int bpp = 32;
 
 #ifdef __wii__
 	// force for SDL-wii, otherwise 16 bit is used

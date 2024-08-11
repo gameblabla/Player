@@ -21,6 +21,7 @@
 #include "utils.h"
 #include <cassert>
 #include <utility>
+#include <unistd.h>
 
 #ifndef DT_UNKNOWN
 #define DT_UNKNOWN 0
@@ -49,7 +50,10 @@ bool Platform::File::Exists() const {
 	struct SceIoStat sb;
 	return (::sceIoGetstat(filename.c_str(), &sb) >= 0);
 #else
-	return ::access(filename.c_str(), F_OK) != -1;
+	file_t fp;
+	return fs_open(filename.c_str(), O_RDONLY);
+
+	//return ::access(filename.c_str(), F_OK) != -1;
 #endif
 }
 

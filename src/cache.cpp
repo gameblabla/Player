@@ -37,6 +37,13 @@
 #include "game_clock.h"
 #include "translation.h"
 
+
+#ifdef LOW_MEMORY_DEVICES
+#define CACHE_SIZE_DEF 2
+#else
+#define CACHE_SIZE_DEF 10
+#endif
+
 using namespace std::chrono_literals;
 
 namespace {
@@ -89,7 +96,7 @@ namespace {
 
 	std::string system2_name;
 
-	constexpr int cache_limit = 10 * 1024 * 1024;
+	constexpr int cache_limit = CACHE_SIZE_DEF * 1024 * 1024;
 	size_t cache_size = 0;
 
 	void FreeBitmapMemory() {
