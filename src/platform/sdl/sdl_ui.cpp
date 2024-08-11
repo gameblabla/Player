@@ -346,7 +346,7 @@ bool SdlUi::RefreshDisplayMode() {
 		display_height *= 2;
 	}
 
-	int bpp = current_display_mode.bpp;
+	int bpp = 32;
 
 #ifdef __wii__
 	// force for SDL-wii, otherwise 16 bit is used
@@ -354,11 +354,13 @@ bool SdlUi::RefreshDisplayMode() {
 #endif
 
 	// Free surface
-	sdl_surface = SDL_SetVideoMode(display_width, display_height, bpp, flags);
+	sdl_surface = SDL_SetVideoMode(display_width, display_height, bpp, SDL_HWSURFACE | SDL_DOUBLEBUF);
 
 	if (!sdl_surface)
+	{
+		printf("Can't init Mode\n");
 		return false;
-
+	}
 	// Modes below 15 bpp aren't supported
 	if (sdl_surface->format->BitsPerPixel < 15)
 		return false;
@@ -419,15 +421,23 @@ void SdlUi::ProcessEvents() {
 void SdlUi::UpdateDisplay() {
 	if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
 
+#ifdef DREAMCAST
+	sdl_surface_bmp->BlitFast(0, 0, *main_surface, main_surface->GetRect(), Opacity::Opaque());
+#else
 	if (zoom_available && current_display_mode.zoom == 2) {
 		sdl_surface_bmp->Blit2x(sdl_surface_bmp->GetRect(), *main_surface, main_surface->GetRect());
 	} else {
 		sdl_surface_bmp->BlitFast(0, 0, *main_surface, main_surface->GetRect(), Opacity::Opaque());
 	}
+#endif
 
 	if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
 
+#ifdef DREAMCAST
+	SDL_Flip(sdl_surface);
+#else
 	SDL_UpdateRect(sdl_surface, 0, 0, 0, 0);
+#endif
 }
 
 void SdlUi::SetTitle(const std::string &title) {
@@ -485,7 +495,7 @@ void SdlUi::ProcessActiveEvent(SDL_Event &evnt) {
 
 		Player::Pause();
 
-		bool last = ShowCursor(true);
+		//bool last = ShowCursor(true);
 
 		// Filter SDL events until focus is regained
 		SDL_Event wait_event;
@@ -496,7 +506,7 @@ void SdlUi::ProcessActiveEvent(SDL_Event &evnt) {
 			}
 		}
 
-		ShowCursor(last);
+		//ShowCursor(last);
 
 		Player::Resume();
 		ResetKeys();

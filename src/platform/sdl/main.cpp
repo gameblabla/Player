@@ -63,6 +63,8 @@ static void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserDat
  */
 extern "C" int main(int argc, char* argv[]) {
 	std::vector<std::string> args;
+	
+	printf("maint\n");
 
 #if defined(_WIN32)
 	// Use widestring args
@@ -79,11 +81,19 @@ extern "C" int main(int argc, char* argv[]) {
 	args.assign(argv, argv + argc);
 #endif
 
+#ifdef DREAMCAST
+#warning "Dreamcast"
+	args.push_back("--project-path");
+	args.push_back("/cd/");
+#endif
+
 #if defined(__WIIU__) || defined(__ANDROID__)
 	Output::SetLogCallback(LogCallback);
 #endif
 
+	printf("Player::Init\n");
 	Player::Init(std::move(args));
+	printf("Init complete\n");
 	Player::Run();
 
 	// Close

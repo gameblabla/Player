@@ -181,6 +181,7 @@ void Input::GetSupportedConfig(Game_ConfigInput& cfg) {
 #endif
 }
 
+
 #if USE_SDL==1
 #include "platform/sdl/axis.h"
 SdlAxis Input::GetSdlAxis() {

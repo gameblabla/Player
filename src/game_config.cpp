@@ -150,6 +150,8 @@ FilesystemView Game_Config::GetGlobalConfigFilesystem() {
 		if (!path.empty()) {
 			path = FileFinder::MakePath(path, FileFinder::MakePath(ORGANIZATION_NAME, APPLICATION_NAME));
 		}
+#elif defined(DREAMCAST)
+		path = "/ram/";
 #else
 		char* home = getenv("XDG_CONFIG_HOME");
 		if (home) {

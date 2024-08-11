@@ -78,6 +78,10 @@ namespace Main_Data {
 }
 
 void Main_Data::Init() {
+
+#if defined(DREAMCAST)
+	project_path = "/cd/GAME/";
+#else
 	if (project_path.empty()) {
 		// First use environment variables
 		project_path =
@@ -108,6 +112,7 @@ void Main_Data::Init() {
 #endif
 		}
 	}
+#endif
 }
 
 void Main_Data::Cleanup() {

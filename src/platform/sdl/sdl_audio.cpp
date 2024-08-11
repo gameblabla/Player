@@ -90,15 +90,23 @@ SdlAudio::SdlAudio(const Game_ConfigAudio& cfg) :
 		return context.sampleRate;
 	});
 #else
+#ifdef LOW_MEMORY_DEVICES
+	const int frequency = 11025;
+#else
 	const int frequency = 44100;
+#endif
 #endif
 
 	SDL_AudioSpec want = {};
 	SDL_AudioSpec have = {};
 	want.freq = frequency;
-	want.format = AUDIO_S16;
+	want.format = AUDIO_S16SYS;
 	want.channels = 2;
+#ifdef LOW_MEMORY_DEVICES
+	want.samples = 512;
+#else
 	want.samples = 2048;
+#endif
 	want.callback = sdl_audio_callback;
 	want.userdata = this;
 

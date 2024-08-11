@@ -22,8 +22,11 @@ class AudioDecoderMidi;
 
 #include "audio_decoder_base.h"
 
+
 #if defined(__wii__) || defined(__3DS__)
 #  define EP_MIDI_FREQ 22050
+#elif defined(LOW_MEMORY_DEVICES)
+#  define EP_MIDI_FREQ 11025
 #else
 #  define EP_MIDI_FREQ 44100
 #endif

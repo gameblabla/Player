@@ -435,13 +435,13 @@ inline std::enable_if_t<std::is_arithmetic<Src>::value && std::is_arithmetic<Des
 {
 	if (std::is_integral<Dest>::value) {
 		if (sizeof(Dest) <= sizeof(long)) {
-			return std::lrint(v);
+			return lrint(v);
 		} else {
-			return std::llrint(v);
+			return llrint(v);
 		}
 	}
 
-	return std::rint(v);
+	return rint(v);
 }
 
 template <typename T>

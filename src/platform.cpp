@@ -19,8 +19,11 @@
 #include "platform.h"
 #include "filefinder.h"
 #include "utils.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <cassert>
 #include <utility>
+#include <unistd.h>
 
 #ifndef DT_UNKNOWN
 #define DT_UNKNOWN 0
@@ -48,8 +51,16 @@ bool Platform::File::Exists() const {
 #elif defined(__vita__)
 	struct SceIoStat sb;
 	return (::sceIoGetstat(filename.c_str(), &sb) >= 0);
+#elif defined(DREAMCAST)
+	DIR* dir = opendir(filename.c_str());
+	if (dir)
+	{
+		 closedir(dir);
+		 return 1;
+	}
+	return 0;
 #else
-	return ::access(filename.c_str(), F_OK) != -1;
+	return access(filename.c_str(), F_OK) != -1;
 #endif
 }
 
