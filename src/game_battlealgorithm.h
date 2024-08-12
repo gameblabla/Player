@@ -896,12 +896,12 @@ inline Game_Battler* Game_BattleAlgorithm::AlgorithmBase::GetReflectTarget() con
 }
 
 inline Span<Game_Battler* const> Game_BattleAlgorithm::AlgorithmBase::GetOriginalTargets() const {
-	assert(num_original_targets <= static_cast<int>(targets.size()));
+	REAL_ASSERT(num_original_targets <= static_cast<int>(targets.size()));
 	return Span<Game_Battler* const>(targets.data(), num_original_targets);
 }
 
 inline Game_Battler* Game_BattleAlgorithm::AlgorithmBase::GetOriginalSingleTarget() const {
-	assert(num_original_targets <= static_cast<int>(targets.size()));
+	REAL_ASSERT(num_original_targets <= static_cast<int>(targets.size()));
 	return (GetOriginalPartyTarget() == nullptr && num_original_targets == 1) ? targets.front() : nullptr;
 }
 

@@ -39,7 +39,7 @@ struct DrawableMgr {
 
 inline DrawableList& DrawableMgr::GetLocalList() {
 	auto* local = GetLocalListPtr();
-	assert(local != nullptr);
+	REAL_ASSERT(local != nullptr);
 	return *local;
 }
 

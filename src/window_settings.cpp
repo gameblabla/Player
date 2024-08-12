@@ -66,13 +66,13 @@ void Window_Settings::DrawOption(int index) {
 
 Window_Settings::StackFrame& Window_Settings::GetFrame(int n) {
 	auto i = stack_index - n;
-	assert(i >= 0 && i < static_cast<int>(stack.size()));
+	REAL_ASSERT(i >= 0 && i < static_cast<int>(stack.size()));
 	return stack[i];
 }
 
 const Window_Settings::StackFrame& Window_Settings::GetFrame(int n) const {
 	auto i = stack_index - n;
-	assert(i >= 0 && i < static_cast<int>(stack.size()));
+	REAL_ASSERT(i >= 0 && i < static_cast<int>(stack.size()));
 	return stack[i];
 }
 
@@ -80,7 +80,7 @@ void Window_Settings::Push(UiMode ui, int arg) {
 	SavePosition();
 
 	++stack_index;
-	assert(stack_index < static_cast<int>(stack.size()));
+	REAL_ASSERT(stack_index < static_cast<int>(stack.size()));
 	stack[stack_index] = { ui, arg, 0, 0};
 
 	Refresh();
@@ -90,7 +90,7 @@ void Window_Settings::Push(UiMode ui, int arg) {
 void Window_Settings::Pop() {
 	SavePosition();
 	--stack_index;
-	assert(stack_index >= 0);
+	REAL_ASSERT(stack_index >= 0);
 
 	Refresh();
 	RestorePosition();
@@ -363,7 +363,7 @@ void Window_Settings::RefreshAudioSoundfont() {
 	});
 
 	auto list = fs.ListDirectory();
-	assert(list);
+	REAL_ASSERT(list);
 
 	std::string sf_lower = Utils::LowerCase(Audio().GetFluidsynthSoundfont());
 	for (const auto& item: *list) {
@@ -447,7 +447,7 @@ void Window_Settings::RefreshEngineFont(bool mincho) {
 	std::string font_lower = Utils::LowerCase(Font::Default(mincho)->GetName());
 
 	auto list = fs.ListDirectory();
-	assert(list);
+	REAL_ASSERT(list);
 	for (const auto& item: *list) {
 		bool is_font = std::any_of(FileFinder::FONTS_TYPES.begin(), FileFinder::FONTS_TYPES.end(), [&item](const auto& ext) {
 			return StringView(item.first).ends_with(ext);

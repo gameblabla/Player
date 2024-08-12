@@ -525,7 +525,7 @@ void Game_Windows::Window_User::OnRequestReady(FileRequestResult* result) {
 		return *what == result->request_id;
 	});
 
-	assert(it != request_ids.end());
+	REAL_ASSERT(it != request_ids.end());
 
 	request_ids.erase(it);
 
@@ -534,7 +534,7 @@ void Game_Windows::Window_User::OnRequestReady(FileRequestResult* result) {
 		bool async_wait;
 		Refresh(async_wait);
 
-		assert(!async_wait);
+		REAL_ASSERT(!async_wait);
 	}
 }
 

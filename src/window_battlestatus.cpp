@@ -191,7 +191,7 @@ void Window_BattleStatus::RefreshGauge() {
 
 void Window_BattleStatus::DrawGaugeSystem2(int x, int y, int cur_value, int max_value, int which) {
 	BitmapRef system2 = Cache::System2();
-	assert(system2);
+	REAL_ASSERT(system2);
 
 	if (max_value == 0) {
 		return;
@@ -216,7 +216,7 @@ void Window_BattleStatus::DrawGaugeSystem2(int x, int y, int cur_value, int max_
 
 void Window_BattleStatus::DrawNumberSystem2(int x, int y, int value) {
 	BitmapRef system2 = Cache::System2();
-	assert(system2);
+	REAL_ASSERT(system2);
 
 	bool handle_zero = false;
 
@@ -333,7 +333,7 @@ bool Window_BattleStatus::IsChoiceValid(const Game_Battler& battler) const {
 		case ChoiceMode_None:
 			return false;
 		default:
-			assert(false && "Invalid Choice");
+			REAL_ASSERT(false && "Invalid Choice");
 			return false;
 	}
 }

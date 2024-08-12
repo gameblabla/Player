@@ -22,12 +22,11 @@
 #include "decoder_fmmidi.h"
 #include "decoder_wildmidi.h"
 #include "output.h"
-
+#include "audio.h"
 #ifdef USE_AUDIO_RESAMPLER
 #include "audio_resampler.h"
-#include "audio.h"
-
 #endif
+
 
 void MidiDecoder::GetFormat(int& freq, AudioDecoderBase::Format& format, int& channels) const {
 	freq = frequency;

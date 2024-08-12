@@ -183,7 +183,7 @@ bool Game_Ineluki::Execute(StringView ini_file) {
 
 bool Game_Ineluki::ExecuteScriptList(StringView list_file) {
 	auto is = FileFinder::Game().OpenInputStream(ToString(list_file));
-	assert(async_scripts.empty());
+	REAL_ASSERT(async_scripts.empty());
 
 	if (!is) {
 		return false;
@@ -338,7 +338,7 @@ void Game_Ineluki::OnScriptFileReady(FileRequestResult* result) {
 	auto it = std::find_if(async_scripts.begin(), async_scripts.end(), [&](const auto& a) {
 		return a.script_name == result->file;
 	});
-	assert(it != async_scripts.end());
+	REAL_ASSERT(it != async_scripts.end());
 	it->invoked = true;
 
 	if (std::all_of(async_scripts.begin(), async_scripts.end(), [](const auto& a) {

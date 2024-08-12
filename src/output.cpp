@@ -41,6 +41,8 @@
 #include "font.h"
 #include "baseui.h"
 
+#define NOLOG 1
+
 // fmt 7 has renamed the namespace
 #if FMT_VERSION < 70000
 #  define FMT_COLOR_TYPE fmt::internal::color_type
@@ -81,7 +83,7 @@ namespace {
 	} last_message;
 
 	void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserData /* userdata */) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 		// terminal output
 		std::string prefix = Output::LogLevelToString(lvl) + ":";
 
@@ -142,7 +144,7 @@ void Output::SetLogCallback(LogCallbackFn fn, LogCallbackUserData userdata) {
 }
 
 static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Color()) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 // skip writing log file
 #ifndef EMSCRIPTEN
 	std::string prefix = Output::LogLevelToString(lvl) + ": ";
@@ -200,7 +202,7 @@ static void WriteLog(LogLevel lvl, std::string const& msg, Color const& c = Colo
 }
 
 static void HandleErrorOutput(const std::string& err) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	// Drawing directly on the screen because message_overlay is not visible
 	// when faded out
 	BitmapRef surface = DisplayUi->GetDisplaySurface();
@@ -229,7 +231,7 @@ static void HandleErrorOutput(const std::string& err) {
 }
 
 void Output::Quit() {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	if (LOG_FILE) {
 		LOG_FILE.Close();
 	}
@@ -280,7 +282,7 @@ bool Output::TakeScreenshot() {
 }
 
 bool Output::TakeScreenshot(StringView file) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	auto ret = FileFinder::Save().OpenOutputStream(file, std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
 
 	if (ret) {
@@ -292,7 +294,11 @@ bool Output::TakeScreenshot(StringView file) {
 }
 
 bool Output::TakeScreenshot(std::ostream& os) {
+#ifdef NOLOG
+	return false;
+#else
 	return DisplayUi->GetDisplaySurface()->WritePNG(os);
+#endif
 }
 
 void Output::ToggleLog() {
@@ -302,7 +308,7 @@ void Output::ToggleLog() {
 }
 
 void Output::ErrorStr(std::string const& err) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	WriteLog(LogLevel::Error, err);
 	std::string error = "Error:\n" + err + "\n\nEasyRPG Player will close now.";
 
@@ -337,7 +343,7 @@ void Output::ErrorStr(std::string const& err) {
 }
 
 void Output::WarningStr(std::string const& warn) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	if (log_level < LogLevel::Warning) {
 		return;
 	}
@@ -346,7 +352,7 @@ void Output::WarningStr(std::string const& warn) {
 }
 
 void Output::InfoStr(std::string const& msg) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	if (log_level < LogLevel::Info) {
 		return;
 	}
@@ -355,7 +361,7 @@ void Output::InfoStr(std::string const& msg) {
 }
 
 void Output::DebugStr(std::string const& msg) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOG
 	if (log_level < LogLevel::Debug) {
 		return;
 	}

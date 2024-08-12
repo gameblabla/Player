@@ -15,22 +15,18 @@
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "instrumentation.h"
-#include "utils.h"
+#ifndef EP_AUDIO_SDL_H
+#define EP_AUDIO_SDL_H
 
-#ifdef PLAYER_INSTRUMENTATION_VTUNE
-__itt_domain* Instrumentation::domain = nullptr;
-#endif
+#include "audio_generic.h"
 
-void Instrumentation::Init(const char* name) {
-#ifdef PLAYER_INSTRUMENTATION_VTUNE
-	REAL_ASSERT(!domain);
-#ifdef _WIN32
-	domain = __itt_domain_create(Utils::ToWideString(name).c_str());
-#else
-	domain = __itt_domain_create(name);
+class DreamcastAudio : public GenericAudio {
+public:
+	DreamcastAudio(const Game_ConfigAudio& cfg);
+	~DreamcastAudio();
+
+	void LockMutex() const override;
+	void UnlockMutex() const override;
+};
+
 #endif
-#else
-	(void)name;
-#endif
-}

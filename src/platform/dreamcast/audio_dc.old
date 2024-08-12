@@ -1,0 +1,301 @@
+/*
+ * This file is part of EasyRPG Player.
+ *
+ * EasyRPG Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * EasyRPG Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "system.h"
+
+#ifdef SUPPORT_AUDIO
+
+#include <cassert>
+#include <cstdint>
+#include <chrono>
+
+#include <kos.h>
+#include <dc/pvr.h>
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+
+#include "snd_stream.h"
+
+#include "audio.h"
+#include "output.h"
+
+snd_stream_hnd_t snd_dc = -1;
+static unsigned buffer_frames;
+static unsigned buffer_size;
+static kthread_t *sound_thread;
+static int sound_init = 0;
+static int mutex_initialized = 0;
+
+#define BUF_SIZE 512
+#define AUDIO_FREQ 11025
+#define MONO_SOUND 1
+#define STEREO_SOUND 2
+
+#define SOUND_MODE STEREO_SOUND
+
+//static int16_t* mixbuffs2;
+
+using namespace std::chrono_literals;
+
+mutex_t* platform_mutex;
+
+
+
+#define AICA_BUF_SIZE	(8192)
+int Use_SDL_Audio = 1;
+uint32 aica_left_ch;
+uint32 aica_right_ch;
+
+static short lmixbuff[16*1024];
+static short rmixbuff[16*1024];
+static short lmixret[16*1024];
+static short rmixret[16*1024];
+void * mixbuffs2[2] = {lmixret, rmixret};
+
+static int lastmixused = 0;	//in samples
+static int audio_len = 0;
+
+uint8_t* sound_buffer;
+
+static inline __attribute__((always_inline)) void *sh4_memset (void *dest, const uint8_t val, size_t len)
+{
+  if(!len)
+  {
+    return dest;
+  }
+
+  uint8_t * d = (uint8_t*)dest;
+  uint8_t * nextd = d + len;
+
+  asm volatile (
+    "clrs\n\t" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
+    "dt %[size]\n" // Decrement and test size here once to prevent extra jump (EX 1)
+  ".align 2\n"
+  "1:\n\t"
+    // *--nextd = val
+    "mov.b %[in], @-%[out]\n\t" // (LS 1/1)
+    "bf.s 1b\n\t" // (BR 1/2)
+    " dt %[size]\n" // (--len) ? 0 -> T : 1 -> T (EX 1)
+    : [out] "+r" ((uint32_t)nextd), [size] "+&r" (len) // outputs
+    : [in] "r" (val) // inputs
+    : "t", "memory" // clobbers
+  );
+
+  return dest;
+}
+
+
+// Default (8-bit, 1 byte at a time)
+static inline __attribute__((always_inline)) void * sh4_memmove (void *dest, const void *src, size_t len)
+{
+  if(!len)
+  {
+    return dest;
+  }
+
+  const uint8_t *s = (uint8_t *)src;
+  uint8_t *d = (uint8_t *)dest;
+
+  if (s > d)
+  {
+    uint32_t diff = (uint32_t)d - (uint32_t)(s + 1); // extra offset because input gets incremented before output is calculated
+    // This will underflow and be like adding a negative offset
+
+    // Can use 'd' as a scratch reg now
+    asm volatile (
+      "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
+    ".align 2\n"
+    "0:\n\t"
+      "dt %[size]\n\t" // (--len) ? 0 -> T : 1 -> T (EX 1)
+      "mov.b @%[in]+, %[scratch]\n\t" // scratch = *(s++) (LS 1/2)
+      "bf.s 0b\n\t" // while(s != nexts) aka while(!T) (BR 1/2)
+      " mov.b %[scratch], @(%[offset], %[in])\n" // *(datatype_of_s*) ((char*)s + diff) = scratch, where src + diff = dest (LS)
+      : [in] "+&r" ((uint32_t)s), [scratch] "=&r" ((uint32_t)d), [size] "+&r" (len) // outputs
+      : [offset] "z" (diff) // inputs
+      : "t", "memory" // clobbers
+    );
+  }
+  else // s < d
+  {
+    uint8_t *nextd = d + len;
+
+    uint32_t diff = (uint32_t)s - (uint32_t)(d + 1); // extra offset because input calculation occurs before output is decremented
+    // This will underflow and be like adding a negative offset
+
+    // Can use 's' as a scratch reg now
+    asm volatile (
+      "clrs\n" // Align for parallelism (CO) - SH4a use "stc SR, Rn" instead with a dummy Rn
+    ".align 2\n"
+    "0:\n\t"
+      "dt %[size]\n\t" // (--len) ? 0 -> T : 1 -> T (EX 1)
+      "mov.b @(%[offset], %[out_end]), %[scratch]\n\t" // scratch = *(--nexts) where --nexts is nextd + underflow result (LS 2)
+      "bf.s 0b\n\t" // while(nextd != d) aka while(!T) (BR 1/2)
+      " mov.b %[scratch], @-%[out_end]\n" // *(--nextd) = scratch (LS 1/1)
+      : [out_end] "+&r" ((uint32_t)nextd), [scratch] "=&r" ((uint32_t)s), [size] "+&r" (len) // outputs
+      : [offset] "z" (diff) // inputs
+      : "t", "memory" // clobbers
+    );
+  }
+
+  return dest;
+}
+
+#if 0
+static void *audio_callback2(int samples_requested, int *samples_returned)
+{
+	GenericAudio *audio;
+	audio_len = buffer_frames;
+	if (samples_requested > audio_len) {
+		sh4_memset(lmixret, 0, samples_requested*2);
+		sh4_memset(rmixret, 0, samples_requested*2);
+		*samples_returned = samples_requested;
+	} else {
+
+		audio_len -= samples_requested;
+		audio->Decode((uint8_t*)mixbuffs2, audio_len );
+		
+		
+		/*sh4_memmove(lmixret, lmixbuff, samples_requested*2);
+		sh4_memmove(rmixret, rmixbuff, samples_requested*2);
+		
+		audio_len -= samples_requested;
+		sh4_memmove(lmixbuff, lmixbuff + samples_requested, audio_len*2);
+		sh4_memmove(rmixbuff, rmixbuff + samples_requested, audio_len*2);
+		
+		*samples_returned = samples_requested;*/
+	}
+	//
+	//audio->Decode((uint8_t*)mixbuffs2,  buffer_size);
+	
+	return mixbuffs2;
+}
+#endif
+
+#if 1
+static void *sound_callback(snd_stream_hnd_t hnd, int smp_req, int *smp_recv) {
+    GenericAudio *audio;
+
+	audio_len = std::max(0, smp_req) / (sizeof(int16_t) * SOUND_MODE); 
+    
+    // Ensure that we do not exceed the buffer's capacity
+    if (audio_len > buffer_frames)
+    {
+		audio_len = buffer_frames;
+	}
+	
+	if (smp_req > audio_len) {
+		sh4_memset(sound_buffer, 0, buffer_size);
+		*smp_recv = smp_req;
+	} else {
+		audio->Decode((uint8_t*)sound_buffer, buffer_size );
+		smp_recv = audio_len;
+	}
+	
+	//audio->Decode((uint8_t*)mixbuffs2, buffer_size);
+
+    // Set the number of samples returned (in bytes)
+   // smp_recv = frames * sizeof(int16_t) * SOUND_MODE; // Convert frames back to bytes
+
+    // Return the buffer containing the decoded audio data
+    return sound_buffer;
+}
+#endif
+static void *dc_audio_thread(void *dud)
+{
+	while(1)
+	{
+#if 1
+		snd_stream_poll(snd_dc);
+#else
+		gpdc_snd_stream_poll();
+#endif
+		thd_sleep(10);
+	}
+
+	//snd_stream_destroy(snd_dc);
+	//snd_stream_shutdown();
+
+	free(mixbuffs2);
+
+	return NULL;
+}
+
+DreamcastAudio::DreamcastAudio(const Game_ConfigAudio& cfg) :
+	GenericAudio(cfg)
+{
+	SetFormat(AUDIO_FREQ, AudioDecoder::Format::S16, SOUND_MODE);
+	
+	sound_init = 0;
+	
+#if 1
+	snd_stream_init();
+
+    buffer_frames = BUF_SIZE;
+    buffer_size = buffer_frames * sizeof(int16_t) * SOUND_MODE;
+	sound_buffer = (uint8_t*)aligned_alloc(32, buffer_size);
+    
+    snd_dc = snd_stream_alloc(sound_callback, SND_STREAM_BUFFER_MAX);
+    snd_stream_start(snd_dc, AUDIO_FREQ, (SOUND_MODE - 1));
+#else
+
+	const int ret = gpdc_snd_stream_init(audio_callback2);
+	gpdc_snd_stream_clear();
+	gpdc_snd_stream_start(AUDIO_FREQ, STEREO_SOUND);
+#endif
+   
+    sound_init = 1;
+	
+	//printf("Mutex Init\n");
+	/*if (mutex_initialized == 0)
+	{
+		if(mutex_init(platform_mutex, MUTEX_TYPE_NORMAL))
+		{
+		}
+		mutex_initialized = 1;
+	}*/
+	
+    sound_thread = thd_create(0, dc_audio_thread, NULL);
+    
+    while(sound_init == 0)
+    {
+		
+	}
+}
+
+DreamcastAudio::~DreamcastAudio() {
+	//SDL_CloseAudio();
+}
+
+void DreamcastAudio::LockMutex() const {
+	//SDL_LockAudio();
+	/*if (mutex_initialized == 1)
+	{
+		if(mutex_trylock(platform_mutex))
+		{
+		}
+	}*/
+}
+
+void DreamcastAudio::UnlockMutex() const {
+	//SDL_UnlockAudio();
+	/*if (mutex_initialized == 1)
+	{
+		mutex_unlock(platform_mutex);
+	}*/
+}
+
+#endif

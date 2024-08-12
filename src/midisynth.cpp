@@ -165,8 +165,8 @@ namespace midisynth{
     // Note on. Sound output.
     void channel::note_on(int note, int velocity)
     {
-        assert(note >= 0 && note < NUM_NOTES);
-        assert(velocity >= 0 && velocity <= 127);
+        REAL_ASSERT(note >= 0 && note < NUM_NOTES);
+        REAL_ASSERT(velocity >= 0 && velocity <= 127);
 
         note_off(note, 64);
         if(velocity){
@@ -203,8 +203,8 @@ namespace midisynth{
     // Note off. Sound gets into the release step.
     void channel::note_off(int note, int velocity)
     {
-        assert(note >= 0 && note < NUM_NOTES);
-        assert(velocity >= 0 && velocity <= 127);
+        REAL_ASSERT(note >= 0 && note < NUM_NOTES);
+        REAL_ASSERT(velocity >= 0 && velocity <= 127);
         for(std::vector<NOTE>::iterator i = notes.begin(); i != notes.end(); ++i){
             if(i->key == note && i->status == NOTE::NOTEON){
                 i->status = NOTE::NOTEOFF;
@@ -215,8 +215,8 @@ namespace midisynth{
     // Polyphonic key pressure.
     void channel::polyphonic_key_pressure(int note, int value)
     {
-        assert(note >= 0 && note < NUM_NOTES);
-        assert(value >= 0 && value <= 127);
+        REAL_ASSERT(note >= 0 && note < NUM_NOTES);
+        REAL_ASSERT(value >= 0 && value <= 127);
         for(std::vector<NOTE>::iterator i = notes.begin(); i != notes.end(); ++i){
             if(i->key == note && i->status == NOTE::NOTEON){
                 i->note->set_tremolo(value, tremolo_frequency);
@@ -226,7 +226,7 @@ namespace midisynth{
     // Channel Pressure.
     void channel::channel_pressure(int value)
     {
-        assert(value >= 0 && value <= 127);
+        REAL_ASSERT(value >= 0 && value <= 127);
         if(pressure != value){
             pressure = value;
             for(std::vector<NOTE>::iterator i = notes.begin(); i != notes.end(); ++i){
@@ -239,7 +239,7 @@ namespace midisynth{
     // Control Change.
     void channel::control_change(int control, int value)
     {
-        assert(value >= 0 && value <= 0x7F);
+        REAL_ASSERT(value >= 0 && value <= 0x7F);
         switch(control){
         case 0x00:
             bank_select((bank & 0x7F) | (value << 7));
@@ -450,7 +450,7 @@ namespace midisynth{
     // Gets channel.
     channel* synthesizer::get_channel(int ch)
     {
-        assert(ch >= 0 && ch < NUM_CHANNELS);
+        REAL_ASSERT(ch >= 0 && ch < NUM_CHANNELS);
         return channels[ch].get();
     }
     // Sound synthesis. Returns the number of notes.
@@ -763,12 +763,12 @@ namespace midisynth{
         if(DR >= 63) DR = 63;
         if(SR >= 63) SR = 63;
         if(RR >= 63) RR = 63;
-        assert(AR >= 0);
-        assert(DR >= 0);
-        assert(SR >= 0);
-        assert(RR >= 0);
-        assert(SL >= 0 && SL <= 15);
-        assert(TL >= 0 && TL <= 127);
+        REAL_ASSERT(AR >= 0);
+        REAL_ASSERT(DR >= 0);
+        REAL_ASSERT(SR >= 0);
+        REAL_ASSERT(RR >= 0);
+        REAL_ASSERT(SL >= 0 && SL <= 15);
+        REAL_ASSERT(TL >= 0 && TL <= 127);
 
         fTL = envelope_table.TL[TL];
         fSS = fSL = envelope_table.SL[SL][TL];
@@ -1057,17 +1057,17 @@ namespace midisynth{
            SL,
            TL)
     {
-        assert(AR >= 0 && AR <= 31);
-        assert(DR >= 0 && DR <= 31);
-        assert(SR >= 0 && SR <= 31);
-        assert(RR >= 0 && RR <= 15);
-        assert(SL >= 0);
-        assert(TL >= 0);
-        assert(KS >= 0 && KS <= 3);
-        assert(ML_ >= 0 && ML_ <= 15);
-        assert(DT_ >= 0 && DT_ <= 7);
-        assert(AMS_ >= 0 && AMS_ <= 3);
-        assert(key >= 0 && key <= 127);
+        REAL_ASSERT(AR >= 0 && AR <= 31);
+        REAL_ASSERT(DR >= 0 && DR <= 31);
+        REAL_ASSERT(SR >= 0 && SR <= 31);
+        REAL_ASSERT(RR >= 0 && RR <= 15);
+        REAL_ASSERT(SL >= 0);
+        REAL_ASSERT(TL >= 0);
+        REAL_ASSERT(KS >= 0 && KS <= 3);
+        REAL_ASSERT(ML_ >= 0 && ML_ <= 15);
+        REAL_ASSERT(DT_ >= 0 && DT_ <= 7);
+        REAL_ASSERT(AMS_ >= 0 && AMS_ <= 3);
+        REAL_ASSERT(key >= 0 && key <= 127);
 
         if(DT_ >= 4){
             DT = -detune_table[DT_ - 4][key];
@@ -1143,9 +1143,9 @@ namespace midisynth{
         damper(0),
         sostenute(0)
     {
-        assert(ALG >= 0 && ALG <= 7);
-        assert(params.LFO >= 0 && params.LFO <= 7);
-        assert(params.FB >= 0 && params.FB <= 7);
+        REAL_ASSERT(ALG >= 0 && ALG <= 7);
+        REAL_ASSERT(params.LFO >= 0 && params.LFO <= 7);
+        REAL_ASSERT(params.FB >= 0 && params.FB <= 7);
 
         static const int feedbacks[8] = {
             31, 6, 5, 4, 3, 2, 1, 0
@@ -1259,7 +1259,7 @@ namespace midisynth{
         case 7:
             return op1.is_finished() && op2.is_finished() && op3.is_finished() && op4.is_finished();
         default:
-            assert(!"fm_sound_generator: invalid algorithm number");
+            REAL_ASSERT(!"fm_sound_generator: invalid algorithm number");
             return true;
         }
     }
@@ -1305,7 +1305,7 @@ namespace midisynth{
                 ret = op4(ams, 0) + op3(ams, 0) + op2(ams, 0) + (this->feedback = op1(ams, feedback));
                 break;
             default:
-                assert(!"fm_sound_generator: invalid algorithm number");
+                REAL_ASSERT(!"fm_sound_generator: invalid algorithm number");
                 return 0;
             }
         }else{
@@ -1336,7 +1336,7 @@ namespace midisynth{
                 ret = op4() + op3() + op2() + (this->feedback = op1(feedback));
                 break;
             default:
-                assert(!"fm_sound_generator: invalid algorithm number");
+                REAL_ASSERT(!"fm_sound_generator: invalid algorithm number");
                 return 0;
             }
         }
@@ -1353,7 +1353,7 @@ namespace midisynth{
         fm(params, note, frequency_multiplier),
         velocity(velocity_)
     {
-        assert(velocity >= 1 && velocity <= 127);
+        REAL_ASSERT(velocity >= 1 && velocity <= 127);
         ++velocity;
     }
     // Waveform output.

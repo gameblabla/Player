@@ -506,7 +506,7 @@ inline bool Filesystem::IsFeatureSupported(Filesystem::Feature) const {
 }
 
 inline std::streambuf* Filesystem::CreateOutputStreambuffer(StringView, std::ios_base::openmode) const {
-	assert(!IsFeatureSupported(Feature::Write) && "Write supported but CreateOutputStreambuffer not implemented");
+	REAL_ASSERT(!IsFeatureSupported(Feature::Write) && "Write supported but CreateOutputStreambuffer not implemented");
 	return nullptr;
 }
 

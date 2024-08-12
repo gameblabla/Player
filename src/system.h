@@ -26,7 +26,7 @@
 #  include <config.h>
 #endif
 
-#if !(defined(USE_SDL) || defined(PLAYER_UI))
+#if !(defined(USE_SDL) || defined(PLAYER_UI) || defined(DREAMCAST))
 #  error "This build doesn't target a backend"
 #endif
 
@@ -86,6 +86,7 @@
 #  define SUPPORT_MOUSE
 #  define SUPPORT_JOYSTICK
 #  define SUPPORT_JOYSTICK_AXIS
+#elif defined(DREAMCAST)
 #else // Everything not catched above, e.g. Linux/*BSD/macOS
 #  define USE_WINE_REGISTRY
 #  define USE_XDG_RTP

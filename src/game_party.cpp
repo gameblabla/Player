@@ -82,7 +82,7 @@ Game_Actor& Game_Party::operator[] (const int index) {
 	std::vector<Game_Actor*> actors = GetActors();
 
 	if (index < 0 || (size_t)index >= actors.size()) {
-		assert(false && "Subscript out of range");
+		REAL_ASSERT(false && "Subscript out of range");
 	}
 
 	return *actors[index];

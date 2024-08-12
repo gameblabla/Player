@@ -15,6 +15,92 @@
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef LIBPNG_DEP
+
+// Some games intentionally don't use PNG
+// Provide an option to drop the dependency
+
+// Headers
+#include <png.h>
+#include <cstdlib>
+#include <cstring>
+#include <csetjmp>
+#include <vector>
+#include <fstream>
+#include "output.h"
+#include "image_png.h"
+
+static void read_data(png_structp png_ptr, png_bytep data, png_size_t length) {
+}
+
+static void read_data_istream(png_structp png_ptr, png_bytep data, png_size_t length) {
+}
+
+static void on_png_warning(png_structp, png_const_charp warn_msg) {
+}
+
+static void on_png_error(png_structp, png_const_charp error_msg) {
+}
+
+bool ImagePNG::Read(const void* buffer, bool transparent, ImageOut& output) {
+	return false;
+}
+
+bool ImagePNG::Read(Filesystem_Stream::InputStream& stream, bool transparent, ImageOut& output) {
+	return false;
+}
+
+static bool ReadPNGWithReadFunction(png_voidp user_data, png_rw_ptr fn, bool transparent, ImageOut& output) {
+	return false;
+}
+
+static void ReadPalettedData(
+	png_struct* png_ptr, png_info* info_ptr,
+	png_uint_32 w, png_uint_32 h,
+	bool transparent,
+	uint32_t* pixels
+) {
+
+}
+
+static void ReadGrayData(
+	png_struct* png_ptr, png_info* info_ptr,
+	png_uint_32 w, png_uint_32 h,
+	bool transparent,
+	uint32_t* pixels
+) {
+
+}
+
+static void ReadGrayAlphaData(
+	png_struct* png_ptr, png_info* info_ptr,
+	png_uint_32 w, png_uint_32 h,
+	uint32_t* pixels
+) {
+}
+
+static void ReadRGBData(
+	png_struct* png_ptr, png_info* info_ptr,
+	png_uint_32 w, png_uint_32 h,
+	uint32_t* pixels
+) {
+}
+
+static void ReadRGBAData(
+	png_struct* png_ptr, png_info* info_ptr,
+	png_uint_32 w, png_uint_32 h,
+	uint32_t* pixels
+) {
+}
+
+
+bool ImagePNG::Write(std::ostream& os, uint32_t width, uint32_t height, uint32_t* data) {
+	return false;
+}
+
+#else
+
+
 // Headers
 #include <png.h>
 #include <cstdlib>
@@ -43,11 +129,11 @@ static void read_data_istream(png_structp png_ptr, png_bytep data, png_size_t le
 }
 
 static void on_png_warning(png_structp, png_const_charp warn_msg) {
-	Output::Debug("libpng: {}", warn_msg);
+	//Output::Debug("libpng: {}", warn_msg);
 }
 
 static void on_png_error(png_structp, png_const_charp error_msg) {
-	Output::Warning("libpng: {}", error_msg);
+	//Output::Warning("libpng: {}", error_msg);
 }
 
 static bool ReadPNGWithReadFunction(png_voidp,png_rw_ptr, bool, ImageOut&);
@@ -311,3 +397,6 @@ bool ImagePNG::Write(std::ostream& os, uint32_t width, uint32_t height, uint32_t
 #endif
 	return true;
 }
+
+
+#endif

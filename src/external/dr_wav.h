@@ -1353,7 +1353,7 @@ DRWAV_API drwav_bool32 drwav_fourcc_equal(const drwav_uint8* a, const char* b);
 /* Standard library stuff. */
 #ifndef DRWAV_ASSERT
 #include <assert.h>
-#define DRWAV_ASSERT(expression)           assert(expression)
+#define DRWAV_ASSERT(expression)           REAL_ASSERT(expression)
 #endif
 #ifndef DRWAV_MALLOC
 #define DRWAV_MALLOC(sz)                   malloc((sz))
@@ -8464,7 +8464,7 @@ v0.12.5 - 2020-05-27
   - Minor documentation fix.
 
 v0.12.4 - 2020-05-16
-  - Replace assert() with DRWAV_ASSERT().
+  - Replace REAL_ASSERT() with DRWAV_ASSERT().
   - Add compile-time and run-time version querying.
     - DRWAV_VERSION_MINOR
     - DRWAV_VERSION_MAJOR

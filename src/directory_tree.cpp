@@ -64,7 +64,7 @@ DirectoryTree::DirectoryListType* DirectoryTree::ListDirectory(StringView path) 
 		// Already cached
 		DebugLog("ListDirectory Cache Hit: {}", dir_key);
 		auto file_it = Find(fs_cache, dir_key);
-		assert(file_it != fs_cache.end());
+		REAL_ASSERT(file_it != fs_cache.end());
 		return &file_it->second;
 	}
 
@@ -75,7 +75,7 @@ DirectoryTree::DirectoryListType* DirectoryTree::ListDirectory(StringView path) 
 		return nullptr;
 	}
 
-	assert(Find(fs_cache, dir_key) == fs_cache.end());
+	REAL_ASSERT(Find(fs_cache, dir_key) == fs_cache.end());
 
 	if (!fs->Exists(fs_path)) {
 		std::string parent_dir, child_dir;
@@ -98,7 +98,7 @@ DirectoryTree::DirectoryListType* DirectoryTree::ListDirectory(StringView path) 
 
 		auto parent_key = make_key(parent_dir);
 		auto parent_it = Find(dir_cache, parent_key);
-		assert(parent_it != dir_cache.end());
+		REAL_ASSERT(parent_it != dir_cache.end());
 
 		auto child_key = make_key(child_dir);
 		auto child_it = Find(*parent_tree, child_key);
@@ -209,7 +209,7 @@ std::string DirectoryTree::FindFile(const DirectoryTree::Args& args) const {
 
 	std::string dir_key = make_key(dir);
 	auto dir_it = Find(dir_cache, dir_key);
-	assert(dir_it != dir_cache.end());
+	REAL_ASSERT(dir_it != dir_cache.end());
 
 	std::string name_key = make_key(name);
 	if (args.exts.empty()) {

@@ -35,7 +35,7 @@
 
 namespace {
 	std::string config_path;
-	std::string soundfont_path;
+	std::string soundfont_path = "/cd/";
 	std::string font_path;
 	StringView config_name = "config.ini";
 }
