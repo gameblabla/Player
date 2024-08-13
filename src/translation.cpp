@@ -15,6 +15,339 @@
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NEED_TRANSLATIONS
+
+#include "translation.h"
+
+// Headers
+#include <fstream>
+#include <iomanip>
+#include <memory>
+#include <lcf/data.h>
+#include <lcf/rpg/terms.h>
+#include <lcf/rpg/map.h>
+#include "lcf/rpg/mapinfo.h"
+
+#include "cache.h"
+#include "font.h"
+#include "main_data.h"
+#include "game_actors.h"
+#include "game_map.h"
+#include "player.h"
+#include "output.h"
+#include "utils.h"
+#include "scene.h"
+
+// Name of the translate directory
+#define TRDIR_NAME "language"
+
+// Name of expected files
+#define TRFILE_RPG_RT_LDB    "rpg_rt.ldb.po"
+#define TRFILE_RPG_RT_COMMON "rpg_rt.ldb.common.po"
+#define TRFILE_RPG_RT_BATTLE "rpg_rt.ldb.battle.po"
+#define TRFILE_RPG_RT_LMT    "rpg_rt.lmt.po"
+#define TRFILE_META_INI      "meta.ini"
+
+// Message box commands to remove a message box or add one in place.
+// These commands are added by translators in the .po files to manipulate
+//   text boxes at runtime. They are magic strings that will not otherwise
+//   appear in the source of EasyRPG, but they should not be deleted.
+#define TRCUST_REMOVEMSG        "<easyrpg:delete_page>"
+#define TRCUST_ADDMSG           "<easyrpg:new_page>"
+
+
+FilesystemView Tr::GetTranslationFilesystem() {
+	return Player::translation.GetRootTree();
+}
+
+bool Tr::HasActiveTranslation() {
+	return !GetCurrentTranslationId().empty();
+}
+
+std::string Tr::GetCurrentTranslationId() {
+	return Player::translation.GetCurrentLanguage().lang_dir;
+}
+
+std::string Tr::GetCurrentLanguageCode() {
+	return Player::translation.GetCurrentLanguage().lang_code;
+}
+
+FilesystemView Tr::GetCurrentTranslationFilesystem() {
+	return Player::translation.GetRootTree().Subtree(GetCurrentTranslationId());
+}
+
+void Translation::Reset()
+{
+
+}
+
+void Translation::InitTranslations()
+{
+
+}
+
+const Language& Translation::GetCurrentLanguage() const
+{
+	return current_language;
+}
+
+const Language& Translation::GetDefaultLanguage() const
+{
+	return default_language;
+}
+
+FilesystemView Translation::GetRootTree() const
+{
+	return translation_root_fs;
+}
+
+bool Translation::HasTranslations() const
+{
+	return !languages.empty();
+}
+
+const std::vector<Language>& Translation::GetLanguages() const
+{
+	return languages;
+}
+
+
+void Translation::SelectLanguage(StringView lang_id)
+{
+
+}
+
+void Translation::SelectLanguageAsync(FileRequestResult*, StringView lang_id) {
+
+}
+
+void Translation::RequestAndAddMap(int map_id) {
+
+}
+
+bool Translation::ParseLanguageFiles(StringView lang_id)
+{
+	return false;
+}
+
+
+void Translation::RewriteDatabase()
+{
+
+}
+
+void Translation::RewriteTreemapNames()
+{
+
+}
+
+void Translation::RewriteBattleEventMessages()
+{
+	// Rewrite all event commands on all pages.
+
+}
+
+
+void Translation::RewriteCommonEventMessages()
+{
+
+}
+
+
+namespace {
+	/**
+	 * Helper class for iterating over and rewriting event commands.
+	 * Starts at index 0.
+	 */
+	class CommandIterator {
+	public:
+		CommandIterator(std::vector<lcf::rpg::EventCommand>& commands) : commands(commands) {}
+
+		/** Returns true if the index is past the end of the command list */
+		bool Done() const {
+			return index >= commands.size();
+		}
+
+		/** Advance the index through the command list by 1 */
+		void Advance() {
+			index += 1;
+		}
+
+		/** Retrieve the code of the EventCommand at the index */
+		lcf::rpg::EventCommand::Code CurrentCmdCode() const {
+			return static_cast<lcf::rpg::EventCommand::Code>(commands[index].code);
+		}
+
+		/** Retrieve the string of the EventCommand at the index */
+		lcf::DBString& CurrentCmdString() const {
+			return commands[index].string;
+		}
+
+		/** Retrieve the indent level of the EventCommand at the index */
+		int CurrentCmdIndent() const {
+			return commands[index].indent;
+		}
+
+		/** Retrieve parameter at position 'pos' of the EventCommand at the current index, or the devValue if no such parameter exists. */
+		int CurrentCmdParam(size_t pos, int defVal = 0) const {
+			if (pos < commands[index].parameters.size()) {
+				return commands[index].parameters[pos];
+			}
+			return defVal;
+		}
+
+		/** Returns true if the current Event Command is ShowMessage */
+		bool CurrentIsShowMessage() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ShowMessage;
+		}
+
+		/** Returns true if the current Event Command is ShowMessage_2 */
+		bool CurrentIsShowMessage2() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ShowMessage_2;
+		}
+
+		/** Returns true if the current Event Command is ShowChoice */
+		bool CurrentIsShowChoice() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ShowChoice;
+		}
+
+		/** Returns true if the current Event Command is ShowChoiceOption */
+		bool CurrentIsShowChoiceOption() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ShowChoiceOption;
+		}
+
+		/** Returns true if the current Event Command is ShowChoiceEnd */
+		bool CurrentIsShowChoiceEnd() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ShowChoiceEnd;
+		}
+
+		/** Returns true if the current Event Command is ChangeHeroName */
+		bool CurrentIsChangeHeroName() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ChangeHeroName;
+		}
+
+		/** Returns true if the current Event Command is ChangeHeroTitle */
+		bool CurrentIsChangeHeroTitle() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ChangeHeroTitle;
+		}
+
+		/** Returns true if the current Event Command is ChangeHeroTitle */
+		bool CurrentIsConditionActorName() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::ConditionalBranch &&
+				CurrentCmdParam(0) == 5 && CurrentCmdParam(2) == 1;
+		}
+
+		/** Returns true if the current Event Command is ShowStringPicture */
+		bool CurrentIsShowStringPicture() const {
+			return CurrentCmdCode() == lcf::rpg::EventCommand::Code::Maniac_ShowStringPicture;
+		}
+
+		/**
+		 * Add each line of a [ShowMessage,ShowMessage_2,...] chain to "msg_str" (followed by a newline)
+		 * and save to "indexes" the index of each ShowMessage(2) command that was used to populate this
+		 * (for rewriting later).
+		 * Advances the index until after the last ShowMessage(2) command
+		 */
+		void BuildMessageString(std::stringstream& msg_str, std::vector<size_t>& indexes) {
+			// No change if we're not on the right command.
+			if (Done() || !CurrentIsShowMessage()) {
+				return;
+			}
+
+			// Add the first line
+			msg_str << CurrentCmdString() <<"\n";
+			indexes.push_back(index);
+			Advance();
+
+			// Build lines 2 through 4
+			while (!Done() && CurrentIsShowMessage2()) {
+				msg_str << CurrentCmdString() <<"\n";
+				indexes.push_back(index);
+				Advance();
+			}
+		}
+
+		/**
+		 * Add each line of a [ShowChoice,ShowChoiceOption,...,ShowChoiceEnd] chain to "msg_str" (followed by a newline)
+		 * and save to "indexes" the index of each ShowChoiceOption command that was used to populate this
+		 * (for rewriting later).
+		 * Advances the index until after the (first) ShowChoice command (but it will likely still be on a ShowChoiceOption/End)
+		 */
+		void BuildChoiceString(std::stringstream& msg_str, std::vector<size_t>& indexes) {
+		}
+
+		/** Change the string value of the EventCommand at position "idx" to "newStr" */
+		void ReWriteString(size_t idx, StringView newStr) {
+		}
+
+		/**
+		 * Puts a "ShowMessage" or "ShowMessage_2" command into the command stack before position "idx".
+		 * Sets the string value to "line". Note that ShowMessage_2 is chosen if baseMsgBox is false.
+		 * This also updates the index if relevant, but it does not update external index caches.
+		 */
+		void PutShowMessageBeforeIndex(StringView line, size_t idx, bool baseMsgBox) {
+		}
+
+		/**
+		 * Remove the EventCommand at position "idx" from the command stack.
+		 * Also updates our index, if relevant.
+		 */
+		void RemoveByIndex(size_t idx) {
+		}
+
+		/**
+		 * Add multiple message boxes to the command stack before "idx".
+		 * The "msgs" each represent lines in new, independent message boxes (so they will have both ShowMessage and ShowMessage_2)
+		 * Also updates our index, if relevant.
+		 */
+		void InsertMultiMessageBefore(std::vector<std::vector<std::string>>& msgs, size_t idx) {
+		}
+
+	private:
+		std::vector<lcf::rpg::EventCommand>& commands;
+		size_t index = 0;
+	};
+}
+
+
+
+std::vector<std::vector<std::string>> Translation::TranslateMessageStream(const Dictionary& dict, const std::stringstream& msg, char trimChar) {
+	std::vector<std::vector<std::string>> res;
+	return res;
+}
+
+void Translation::RewriteMapMessages(StringView map_name, lcf::rpg::Map& map) {
+
+}
+
+void Translation::ParsePoFile(Filesystem_Stream::InputStream is, Dictionary& out)
+{
+
+}
+
+void Translation::ClearTranslationLookups()
+{
+
+}
+
+//////////////////////////////////////////////////////////
+// NOTE: The code from here on out is duplicated in LcfTrans.
+//       At some point it should be merged to a common location.
+//////////////////////////////////////////////////////////
+
+
+void Dictionary::addEntry(const Entry& entry)
+{
+
+}
+
+// Returns success
+void Dictionary::FromPo(Dictionary& res, Filesystem_Stream::InputStream& in) {
+
+}
+
+#else
+
 #include "translation.h"
 
 // Headers
@@ -324,7 +657,7 @@ bool Translation::ParseLanguageFiles(StringView lang_id)
 	auto it = std::find_if(languages.begin(), languages.end(), [&lang_id](const auto& lang) {
 		return lang_id == lang.lang_dir;
 	});
-	REAL_ASSERT(it != languages.end());
+	assert(it != languages.end());
 	current_language = *it;
 
 	// Log
@@ -945,3 +1278,4 @@ void Dictionary::FromPo(Dictionary& res, Filesystem_Stream::InputStream& in) {
 		}
 	}
 }
+#endif
