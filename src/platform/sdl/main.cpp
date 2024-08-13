@@ -63,9 +63,6 @@ static void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserDat
  */
 extern "C" int main(int argc, char* argv[]) {
 	std::vector<std::string> args;
-	
-	printf("maint\n");
-
 #if defined(_WIN32)
 	// Use widestring args
 	int argc_w;

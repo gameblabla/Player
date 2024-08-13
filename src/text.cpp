@@ -70,7 +70,7 @@ Point Text::Draw(Bitmap& dest, const int x, const int y, const Font& font, const
 		dst_rect.x = x - dst_rect.width; break;
 	case Text::AlignLeft:
 		dst_rect.x = x; break;
-	default: assert(false);
+	default: REAL_ASSERT(false);
 	}
 
 	dst_rect.y = y;
@@ -173,7 +173,7 @@ Point Text::Draw(Bitmap& dest, const int x, const int y, const Font& font, const
 
 		auto rect = font.Render(dest, dx, dy, color, ret.ch);
 		dx += rect.x;
-		assert(ny == 0 || ny == rect.y);
+		REAL_ASSERT(ny == 0 || ny == rect.y);
 		ny = rect.y;
 	}
 	dy += ny;

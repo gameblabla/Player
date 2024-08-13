@@ -42,7 +42,7 @@ void DrawableMgr::Remove(Drawable* drawable) {
 	// Global drawables can be singletons, which may get destroyed after all scenes due
 	// static initialization order. Non-global drawables we assume are all gone before
 	// all lists are destroyed.
-	assert(list || drawable->IsGlobal());
+	REAL_ASSERT(list || drawable->IsGlobal());
 	if (list) {
 		list->Take(drawable);
 	}

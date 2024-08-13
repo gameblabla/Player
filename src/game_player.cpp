@@ -99,7 +99,7 @@ void Game_Player::ReserveTeleport(const lcf::rpg::SaveTarget& target) {
 }
 
 void Game_Player::PerformTeleport() {
-	assert(IsPendingTeleport());
+	REAL_ASSERT(IsPendingTeleport());
 	if (!IsPendingTeleport()) {
 		return;
 	}
@@ -494,8 +494,8 @@ bool Game_Player::GetOnOffVehicle() {
 }
 
 bool Game_Player::GetOnVehicle() {
-	assert(!IsDirectionDiagonal(GetDirection()));
-	assert(!IsAboard());
+	REAL_ASSERT(!IsDirectionDiagonal(GetDirection()));
+	REAL_ASSERT(!IsAboard());
 
 	auto* vehicle = Game_Map::GetVehicle(Game_Vehicle::Airship);
 
@@ -542,8 +542,8 @@ bool Game_Player::GetOnVehicle() {
 }
 
 bool Game_Player::GetOffVehicle() {
-	assert(!IsDirectionDiagonal(GetDirection()));
-	assert(IsAboard());
+	REAL_ASSERT(!IsDirectionDiagonal(GetDirection()));
+	REAL_ASSERT(IsAboard());
 
 	auto* vehicle = GetVehicle();
 	if (!vehicle) {
@@ -801,7 +801,7 @@ int Game_Player::GetPanWait() {
 			std::abs(data()->pan_current_x - data()->pan_finish_x),
 			std::abs(data()->pan_current_y - data()->pan_finish_y));
 	const auto speed = data()->pan_speed;
-	assert(speed > 0);
+	REAL_ASSERT(speed > 0);
 	return distance / speed + (distance % speed != 0);
 }
 

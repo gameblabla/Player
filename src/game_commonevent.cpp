@@ -22,7 +22,7 @@
 #include "game_interpreter_map.h"
 #include "main_data.h"
 #include <lcf/reader_util.h>
-#include <cassert>
+#include "fake_assert.h"
 
 Game_CommonEvent::Game_CommonEvent(int common_event_id) :
 	common_event_id(common_event_id)
@@ -51,7 +51,7 @@ void Game_CommonEvent::SetSaveData(const lcf::rpg::SaveEventExecState& data) {
 
 AsyncOp Game_CommonEvent::Update(bool resume_async) {
 	if (interpreter && IsWaitingBackgroundExecution(resume_async)) {
-		assert(interpreter->IsRunning());
+		REAL_ASSERT(interpreter->IsRunning());
 		interpreter->Update(!resume_async);
 
 		// Suspend due to async op ...

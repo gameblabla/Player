@@ -328,7 +328,7 @@ Game_Enemy* Scene_Battle::EnemySelected() {
 				std::make_shared<Game_BattleAlgorithm::Skill>(active_actor, target, *skill_window->GetSkill()));
 	} else if (previous_state == State_SelectItem) {
 		auto* item = item_window->GetItem();
-		assert(item);
+		REAL_ASSERT(item);
 		if (item->type == lcf::rpg::Item::Type_special
 				|| (item->use_skill && (item->type == lcf::rpg::Item::Type_weapon
 						|| item->type == lcf::rpg::Item::Type_shield
@@ -346,7 +346,7 @@ Game_Enemy* Scene_Battle::EnemySelected() {
 			active_actor->SetBattleAlgorithm(std::make_shared<Game_BattleAlgorithm::Item>(active_actor, target, *item));
 		}
 	} else {
-		assert("Invalid previous state for enemy selection" && false);
+		REAL_ASSERT("Invalid previous state for enemy selection" && false);
 	}
 
 	Main_Data::game_system->SePlay(Main_Data::game_system->GetSystemSE(Main_Data::game_system->SFX_Decision));
@@ -361,7 +361,7 @@ Game_Actor* Scene_Battle::AllySelected() {
 		active_actor->SetBattleAlgorithm(std::make_shared<Game_BattleAlgorithm::Skill>(active_actor, &target, *skill_window->GetSkill()));
 	} else if (previous_state == State_SelectItem) {
 		auto* item = item_window->GetItem();
-		assert(item);
+		REAL_ASSERT(item);
 		if (item->type == lcf::rpg::Item::Type_special
 				|| (item->use_skill && (item->type == lcf::rpg::Item::Type_weapon
 						|| item->type == lcf::rpg::Item::Type_shield
@@ -379,7 +379,7 @@ Game_Actor* Scene_Battle::AllySelected() {
 			active_actor->SetBattleAlgorithm(std::make_shared<Game_BattleAlgorithm::Item>(active_actor, &target, *item));
 		}
 	} else {
-		assert("Invalid previous state for ally selection" && false);
+		REAL_ASSERT("Invalid previous state for ally selection" && false);
 	}
 
 	Main_Data::game_system->SePlay(Main_Data::game_system->GetSystemSE(Main_Data::game_system->SFX_Decision));
@@ -420,7 +420,7 @@ void Scene_Battle::ItemSelected() {
 		case lcf::rpg::Item::Type_normal:
 		case lcf::rpg::Item::Type_book:
 		case lcf::rpg::Item::Type_material:
-			assert(false);
+			REAL_ASSERT(false);
 			return;
 		case lcf::rpg::Item::Type_weapon:
 		case lcf::rpg::Item::Type_shield:
@@ -556,7 +556,7 @@ void Scene_Battle::RemoveCurrentAction() {
 }
 
 void Scene_Battle::ActionSelectedCallback(Game_Battler* for_battler) {
-	assert(for_battler->GetBattleAlgorithm() != nullptr);
+	REAL_ASSERT(for_battler->GetBattleAlgorithm() != nullptr);
 
 	if (for_battler->GetBattleAlgorithm() == nullptr) {
 		Output::Warning("ActionSelectedCallback: Invalid action for battler {} ({})",
@@ -582,7 +582,7 @@ void Scene_Battle::SelectionFlash(Game_Battler* battler) {
 }
 
 void Scene_Battle::EndBattle(BattleResult result) {
-	assert(Scene::instance.get() == this && "EndBattle called multiple times!");
+	REAL_ASSERT(Scene::instance.get() == this && "EndBattle called multiple times!");
 
 	Main_Data::game_party->IncBattleCount();
 	switch (result) {

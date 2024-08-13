@@ -17,7 +17,7 @@
 
 // Headers
 #include <algorithm>
-#include <cassert>
+#include "fake_assert.h"
 #include <cmath>
 #include <limits>
 #include "player.h"
@@ -85,7 +85,7 @@ bool Game_Battler::CanAct() const {
 	for (size_t i = 0; i < states.size(); ++i) {
 		if (states[i] > 0) {
 			const auto* state = lcf::ReaderUtil::GetElement(lcf::Data::states, i + 1);
-			assert(state);
+			REAL_ASSERT(state);
 			if (state->restriction == lcf::rpg::State::Restriction_do_nothing) {
 				return false;
 			}
@@ -99,7 +99,7 @@ bool Game_Battler::CanActOrRecoverable() const {
 	for (size_t i = 0; i < states.size(); ++i) {
 		if (states[i] > 0) {
 			const auto* state = lcf::ReaderUtil::GetElement(lcf::Data::states, i + 1);
-			assert(state);
+			REAL_ASSERT(state);
 			if (state->restriction == lcf::rpg::State::Restriction_do_nothing && state->auto_release_prob == 0) {
 				return false;
 			}
@@ -516,7 +516,7 @@ static int AdjustParam(int base, int mod, int maxval, Span<const int16_t> states
 	bool dbl = false;
 	for (auto i: states) {
 		const auto* state = lcf::ReaderUtil::GetElement(lcf::Data::states, i);
-		assert(state);
+		REAL_ASSERT(state);
 		if (state->*adj) {
 			half |= (state->affect_type == lcf::rpg::State::AffectType_half);
 			dbl |= (state->affect_type == lcf::rpg::State::AffectType_double);

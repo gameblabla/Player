@@ -19,7 +19,7 @@
 
 #ifdef USE_AUDIO_RESAMPLER
 
-#include <cassert>
+#include "fake_assert.h"
 #include <cstring>
 #include "audio_resampler.h"
 #include "output.h"
@@ -186,7 +186,7 @@ AudioResampler::AudioResampler(std::unique_ptr<AudioDecoderBase> wrapped, AudioR
 	: wrapped_decoder(std::move(wrapped))
 {
 	//There is no need for a standalone resampler decoder
-	assert(wrapped_decoder != 0);
+	REAL_ASSERT(wrapped_decoder != 0);
 
 	music_type = wrapped_decoder->GetType();
 	lasterror = 0;

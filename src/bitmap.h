@@ -23,7 +23,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <cassert>
+#include "fake_assert.h"
 #include <pixman.h>
 
 #include "system.h"

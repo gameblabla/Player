@@ -33,7 +33,7 @@ Scene_Skill::Scene_Skill(std::vector<Game_Actor*> actors, int actor_index, int s
 	actors(actors), actor_index(actor_index), skill_index(skill_index) {
 	Scene::type = Scene::Skill;
 
-	assert(!actors.empty());
+	REAL_ASSERT(!actors.empty());
 }
 
 void Scene_Skill::Start() {

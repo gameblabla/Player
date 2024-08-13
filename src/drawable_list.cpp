@@ -19,7 +19,7 @@
 #include "drawable_list.h"
 #include "drawable_mgr.h"
 #include <algorithm>
-#include <cassert>
+#include "fake_assert.h"
 
 static bool DrawCmp(Drawable* l, Drawable* r) {
 	return l->GetZ() < r->GetZ();
@@ -48,8 +48,8 @@ void DrawableList::Sort() {
 }
 
 void DrawableList::Append(Drawable* ptr) {
-	assert(ptr != nullptr);
-	assert(_list.end() == std::find(_list.begin(), _list.end(), ptr));
+	REAL_ASSERT(ptr != nullptr);
+	REAL_ASSERT(_list.end() == std::find(_list.begin(), _list.end(), ptr));
 
 	const bool ordered = _list.empty() || !DrawCmp(ptr, _list.back());
 
@@ -94,7 +94,7 @@ void DrawableList::Draw(Bitmap& dst, Drawable::Z_t min_z, Drawable::Z_t max_z) {
 	if (IsDirty()) {
 		Sort();
 	} else {
-		assert(IsSorted());
+		REAL_ASSERT(IsSorted());
 	}
 
 	for (auto* drawable : _list) {

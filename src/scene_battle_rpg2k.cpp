@@ -286,7 +286,7 @@ Scene_Battle_Rpg2k::SceneActionReturn Scene_Battle_Rpg2k::ProcessSceneAction() {
 		case State_Escape:
 			return ProcessSceneActionEscape();
 	}
-	assert(false && "Invalid SceneActionState!");
+	REAL_ASSERT(false && "Invalid SceneActionState!");
 	return SceneActionReturn::eWaitTillNextFrame;
 }
 
@@ -1022,7 +1022,7 @@ Scene_Battle_Rpg2k::BattleActionReturn Scene_Battle_Rpg2k::ProcessBattleAction(G
 			return ProcessBattleActionFinished(action);
 	}
 
-	assert(false && "Invalid BattleActionState!");
+	REAL_ASSERT(false && "Invalid BattleActionState!");
 
 	return BattleActionReturn::eFinished;
 }
@@ -1037,7 +1037,7 @@ Scene_Battle_Rpg2k::BattleActionReturn Scene_Battle_Rpg2k::ProcessBattleActionBe
 	auto* src = action->GetSource();
 
 	if (battle_action_substate == eBegin) {
-		assert(src->Exists());
+		REAL_ASSERT(src->Exists());
 		battle_message_window->Clear();
 
 		bool show_message = false;
@@ -1305,7 +1305,7 @@ Scene_Battle_Rpg2k::BattleActionReturn Scene_Battle_Rpg2k::ProcessBattleActionDa
 
 	if (battle_action_substate == eMessage) {
 		auto* target = action->GetTarget();
-		assert(target);
+		REAL_ASSERT(target);
 		auto dmg = action->GetAffectedHp();
 
 		if (!action->IsAbsorbHp()) {
@@ -1351,7 +1351,7 @@ Scene_Battle_Rpg2k::BattleActionReturn Scene_Battle_Rpg2k::ProcessBattleActionDa
 		action->ApplyHpEffect();
 
 		auto* target = action->GetTarget();
-		assert(target);
+		REAL_ASSERT(target);
 		if (target->IsDead()) {
 			ProcessBattleActionDeath(action);
 		}
@@ -1685,7 +1685,7 @@ Scene_Battle_Rpg2k::BattleActionReturn Scene_Battle_Rpg2k::ProcessBattleActionAt
 
 void Scene_Battle_Rpg2k::ProcessBattleActionDeath(Game_BattleAlgorithm::AlgorithmBase* action) {
 	auto* target = action->GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 
 	battle_message_window->Push(BattleMessage::GetDeathMessage(*action->GetTarget()));
 	battle_message_window->ScrollToEnd();
@@ -1765,7 +1765,7 @@ void Scene_Battle_Rpg2k::SelectNextActor(bool auto_battle) {
 		} else {
 			this->autobattle_algos[active_actor->GetActorAi()]->SetAutoBattleAction(*active_actor);
 		}
-		assert(active_actor->GetBattleAlgorithm() != nullptr);
+		REAL_ASSERT(active_actor->GetBattleAlgorithm() != nullptr);
 		battle_actions.push_back(active_actor);
 
 		SelectNextActor(auto_battle);
@@ -1839,7 +1839,7 @@ void Scene_Battle_Rpg2k::CreateEnemyActions() {
 				enemyai_algos[enemy->GetEnemyAi()]->SetEnemyAiAction(*enemy);
 			}
 		}
-		assert(enemy->GetBattleAlgorithm() != nullptr);
+		REAL_ASSERT(enemy->GetBattleAlgorithm() != nullptr);
 		ActionSelectedCallback(enemy);
 	}
 }

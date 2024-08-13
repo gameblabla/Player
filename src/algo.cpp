@@ -334,7 +334,7 @@ bool IsSkillUsable(const lcf::rpg::Skill& skill,
 }
 
 int GetNumberOfAttacks(int actor_id, const lcf::rpg::Item& weapon) {
-	assert(weapon.type == lcf::rpg::Item::Type_weapon);
+	REAL_ASSERT(weapon.type == lcf::rpg::Item::Type_weapon);
 	int hits = weapon.dual_attack ? 2 : 1;
 	if (Player::IsRPG2k3()) {
 		auto& cba = weapon.animation_data;

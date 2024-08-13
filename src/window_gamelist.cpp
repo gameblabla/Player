@@ -42,7 +42,7 @@ bool Window_GameList::Refresh(FilesystemView filesystem_base, bool show_dotdot) 
 
 	// Find valid game diectories
 	for (auto& dir : *files) {
-		assert(!dir.second.name.empty() && "VFS BUG: Empty filename in the folder");
+		REAL_ASSERT(!dir.second.name.empty() && "VFS BUG: Empty filename in the folder");
 
 #ifdef EMSCRIPTEN
 		if (dir.second.name == "Save") {

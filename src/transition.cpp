@@ -72,7 +72,7 @@ void Transition::PrependFlashes(int r, int g, int b, int p, int duration, int it
 
 void Transition::Init(Type type, Scene *linked_scene, int duration, bool next_erase) {
 	// Triggering multiple transitions on a single frame is a bug.
-	assert(!IsActive());
+	REAL_ASSERT(!IsActive());
 
 	if (duration < 0) {
 		duration = GetDefaultFrames(type);
@@ -408,7 +408,7 @@ void Transition::Update() {
 		if (!screen1) {
 			// erase -> erase is ingored
 			// any -> erase - screen1 was drawn in init.
-			assert(ToErase() && !FromErase());
+			REAL_ASSERT(ToErase() && !FromErase());
 			screen1 =  Bitmap::Create(Player::screen_width, Player::screen_height, false);
 			Graphics::LocalDraw(*screen1, std::numeric_limits<Drawable::Z_t>::min(), GetZ() - 1);
 		}

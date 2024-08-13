@@ -20,7 +20,7 @@
 #ifdef HAVE_LIBWILDMIDI
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <stdlib.h>
 #include <wildmidi_lib.h>
 #include "audio_decoder.h"

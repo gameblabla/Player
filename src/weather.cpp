@@ -140,7 +140,7 @@ const Bitmap* Weather::ApplyToneEffect(const Bitmap& bitmap, Rect rect) {
 	}
 
 	if (!tone_bitmap) {
-		assert(tone_dirty && "Tone Bitmap Created but tone was not marked dirty!");
+		REAL_ASSERT(tone_dirty && "Tone Bitmap Created but tone was not marked dirty!");
 		tone_bitmap = Bitmap::Create(tone_bitmap_rect.width, tone_bitmap_rect.height, true);
 	}
 
@@ -207,7 +207,7 @@ void Weather::DrawParticles(Bitmap& dst, const Bitmap& particle, const Rect rect
 	auto surface_rect = weather_surface->GetRect();
 	weather_surface->Clear();
 
-	assert(num_particles <= static_cast<int>(particles.size()));
+	REAL_ASSERT(num_particles <= static_cast<int>(particles.size()));
 
 	for (int i = 0; i < num_particles; ++i) {
 		auto& p = particles[i];
@@ -274,7 +274,7 @@ void Weather::DrawSandParticles(Bitmap& dst, const Bitmap& particle_bitmap) {
 
 	const int num_particles = num_sand_particles[Utils::Clamp(strength, 0, num_strength - 1)];
 
-	assert(num_particles <= static_cast<int>(particles.size()));
+	REAL_ASSERT(num_particles <= static_cast<int>(particles.size()));
 
 	for (int i = 0; i < num_particles; ++i) {
 		auto& p = particles[i];
@@ -334,7 +334,7 @@ void Weather::DrawFogOverlay(Bitmap& dst, const Bitmap& overlay) {
 
 	// RPG_RT uses the first 2 particles for fog layer graphics
 	const auto& particles = Main_Data::game_screen->GetParticles();
-	assert(particles.size() >= num_fog_particles);
+	REAL_ASSERT(particles.size() >= num_fog_particles);
 	const auto fog_bg_frames = particles[0].x;
 	const auto fog_fg_frames = particles[1].x;
 

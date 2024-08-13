@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <lcf/data.h>
 #include "main_data.h"
 #include "game_system.h"
@@ -85,7 +85,7 @@ bool Game_Vehicle::IsInCurrentMap() const {
 const lcf::rpg::Music& Game_Vehicle::GetBGM() {
 	switch (GetVehicleType()) {
 	case None:
-		assert(false);
+		REAL_ASSERT(false);
 		break;
 	case Boat:
 		return Main_Data::game_system->GetSystemBGM(Main_Data::game_system->BGM_Boat);

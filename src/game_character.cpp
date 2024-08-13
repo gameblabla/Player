@@ -32,7 +32,7 @@
 #include "output.h"
 #include "rand.h"
 #include <cmath>
-#include <cassert>
+#include "fake_assert.h"
 #include <unordered_set>
 
 Game_Character::Game_Character(Type type, lcf::rpg::SaveMapEventBase* d) :
@@ -231,10 +231,10 @@ void Game_Character::UpdateMoveRoute(int32_t& current_index, const lcf::rpg::Mov
 
 	const auto num_commands = static_cast<int>(current_route.move_commands.size());
 	// Invalid index could occur from a corrupted save game.
-	// Player, Vehicle, and Event all check for and fix this, but we still assert here in
+	// Player, Vehicle, and Event all check for and fix this, but we still REAL_ASSERT here in
 	// case any bug causes this to happen still.
-	assert(current_index >= 0);
-	assert(current_index <= num_commands);
+	REAL_ASSERT(current_index >= 0);
+	REAL_ASSERT(current_index <= num_commands);
 
 	const auto start_index = current_index;
 

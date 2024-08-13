@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -467,7 +467,7 @@ Filesystem_Stream::InputStream FileFinder::OpenText(StringView name) {
 
 bool FileFinder::IsMajorUpdatedTree() {
 	auto fs = Game();
-	assert(fs);
+	REAL_ASSERT(fs);
 
 	// Find an MP3 music file only when official Harmony.dll exists
 	// in the gamedir or the file doesn't exist because

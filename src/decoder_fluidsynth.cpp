@@ -21,7 +21,7 @@
 
 #if defined(HAVE_FLUIDSYNTH) || defined(HAVE_FLUIDLITE)
 
-#include <cassert>
+#include "fake_assert.h"
 #include "filefinder.h"
 #include "output.h"
 
@@ -216,7 +216,7 @@ FluidSynthDecoder::FluidSynthDecoder() {
 
 FluidSynthDecoder::~FluidSynthDecoder() {
 	--instances;
-	assert(instances >= 0);
+	REAL_ASSERT(instances >= 0);
 
 	if (!use_global_synth) {
 		delete_fluid_synth(local_synth);

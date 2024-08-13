@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <cassert>
+#include "fake_assert.h"
 #include "audio.h"
 #include "feature.h"
 #include "game_map.h"

@@ -18,7 +18,7 @@
 #ifndef EP_OPACITY_H
 #define EP_OPACITY_H
 
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <climits>
 #include <memory>
@@ -40,7 +40,7 @@ struct Opacity {
 		top(top_opacity), bottom(bottom_opacity), split(split) {}
 
 	int Value() const {
-		assert(!IsSplit());
+		REAL_ASSERT(!IsSplit());
 		return top;
 	}
 
@@ -104,13 +104,13 @@ class TileOpacity {
 inline TileOpacity::TileOpacity(int w, int h)
 	: _p(new uint8_t[w * h]), _w(w), _h(h)
 {
-	assert(_w >= 0);
-	assert(_h >= 0);
+	REAL_ASSERT(_w >= 0);
+	REAL_ASSERT(_h >= 0);
 }
 
 inline ImageOpacity TileOpacity::Get(int x, int y) const {
-	assert(x >= 0);
-	assert(y >= 0);
+	REAL_ASSERT(x >= 0);
+	REAL_ASSERT(y >= 0);
 
 	if (x >= _w || y >= _h) {
 		return ImageOpacity::Alpha_8Bit;
@@ -120,8 +120,8 @@ inline ImageOpacity TileOpacity::Get(int x, int y) const {
 }
 
 inline void TileOpacity::Set(int x, int y, ImageOpacity op) {
-	assert(x >= 0 && x < _w);
-	assert(y >= 0 && y < _h);
+	REAL_ASSERT(x >= 0 && x < _w);
+	REAL_ASSERT(y >= 0 && y < _h);
 
 	_p[x + y * _w] = static_cast<uint8_t>(op);
 }

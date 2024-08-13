@@ -16,7 +16,7 @@
 */
 
 #include <algorithm>
-#include <cassert>
+#include "fake_assert.h"
 #include <lcf/data.h>
 #include "player.h"
 #include "game_actors.h"
@@ -63,7 +63,7 @@ namespace {
 void Game_Battle::Init(int troop_id) {
 	// troop_id is guaranteed to be valid
 	troop = lcf::ReaderUtil::GetElement(lcf::Data::troops, troop_id);
-	assert(troop);
+	REAL_ASSERT(troop);
 	Game_Battle::battle_running = true;
 	Main_Data::game_party->ResetTurns();
 
@@ -145,7 +145,7 @@ bool Game_Battle::CheckLose() {
 }
 
 Spriteset_Battle& Game_Battle::GetSpriteset() {
-	assert(spriteset);
+	REAL_ASSERT(spriteset);
 	return *spriteset;
 }
 
@@ -246,12 +246,12 @@ bool Game_Battle::CheckTurns(int turns, int base, int multiple) {
 }
 
 Game_Interpreter& Game_Battle::GetInterpreter() {
-	assert(interpreter);
+	REAL_ASSERT(interpreter);
 	return *interpreter;
 }
 
 Game_Interpreter_Battle& Game_Battle::GetInterpreterBattle() {
-	assert(interpreter);
+	REAL_ASSERT(interpreter);
 	return *interpreter;
 }
 
@@ -360,9 +360,9 @@ Point Game_Battle::CalculateBaseGridPosition(
 {
 	Point pos;
 
-	assert(party_idx >= 0);
-	assert(party_idx < party_size);
-	assert(party_size <= 8);
+	REAL_ASSERT(party_idx >= 0);
+	REAL_ASSERT(party_idx < party_size);
+	REAL_ASSERT(party_size <= 8);
 
 	int grid_top_y = 112;
 	double grid_elongation = 392;
@@ -391,7 +391,7 @@ Point Game_Battle::CalculateBaseGridPosition(
 
 
 Point Game_Battle::Calculate2k3BattlePosition(const Game_Enemy& enemy) {
-	assert(troop);
+	REAL_ASSERT(troop);
 
 	const auto terrain_id = Game_Battle::GetTerrainId();
 	const auto cond = Game_Battle::GetBattleCondition();
@@ -474,7 +474,7 @@ Point Game_Battle::Calculate2k3BattlePosition(const Game_Enemy& enemy) {
 }
 
 Point Game_Battle::Calculate2k3BattlePosition(const Game_Actor& actor) {
-	assert(troop);
+	REAL_ASSERT(troop);
 
 	const auto terrain_id = Game_Battle::GetTerrainId();
 	const auto cond = Game_Battle::GetBattleCondition();

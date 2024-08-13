@@ -19,7 +19,7 @@
 #include "utils.h"
 #include "output.h"
 #include "compiler.h"
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <cinttypes>
 #include <cstdio>
@@ -70,8 +70,8 @@ std::string& Utils::UpperCaseInPlace(std::string& str) {
 }
 
 int Utils::StrICmp(const char* l, const char* r) {
-	assert(l != nullptr);
-	assert(r != nullptr);
+	REAL_ASSERT(l != nullptr);
+	REAL_ASSERT(r != nullptr);
 	while (*l != '\0' && *r != '\0') {
 		auto d = Lower(*l) - Lower(*r);
 		if (d != 0) {

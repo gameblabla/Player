@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include "async_handler.h"
 #include "scene.h"
 #include "graphics.h"
@@ -192,7 +192,7 @@ void Scene::MainFunction() {
 
 	if (Scene::instance.get() != this) {
 		// Shutdown after scene switch
-		assert(Scene::instance == instances.back() &&
+		REAL_ASSERT(Scene::instance == instances.back() &&
 			"Don't set Scene::instance directly, use Push instead!");
 
 		Graphics::Update();

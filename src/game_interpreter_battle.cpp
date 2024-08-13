@@ -30,7 +30,7 @@
 #include "player.h"
 #include "game_map.h"
 #include "spriteset_battle.h"
-#include <cassert>
+#include "fake_assert.h"
 
 enum BranchBattleSubcommand {
 	eOptionBranchBattleElse = 1

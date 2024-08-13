@@ -18,6 +18,7 @@
 #ifndef EP_DIRECTORY_TREE_H
 #define EP_DIRECTORY_TREE_H
 
+#include "fake_assert.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -162,7 +163,7 @@ private:
 		auto it = std::lower_bound(cache.begin(), cache.end(), key, [](const auto& e, const auto& k) {
 			return e.first < k;
 		});
-		assert(it == cache.end() || it->first != key);
+		REAL_ASSERT(it == cache.end() || it->first != key);
 		cache.insert(it, std::make_pair(key, value));
 	}
 };

@@ -19,7 +19,7 @@
 #define EP_ASYNC_OP_H
 
 #include <utility>
-#include <cassert>
+#include "fake_assert.h"
 
 /**
  * Represents an asynchronous game operation. These are usually created
@@ -146,37 +146,37 @@ inline bool AsyncOp::IsActive() const {
 }
 
 inline int AsyncOp::GetTransitionType() const {
-	assert(GetType() == eShowScreen || GetType() == eEraseScreen);
+	REAL_ASSERT(GetType() == eShowScreen || GetType() == eEraseScreen);
 	return _args[0];
 }
 
 inline int AsyncOp::GetTeleportMapId() const {
-	assert(GetType() == eQuickTeleport);
+	REAL_ASSERT(GetType() == eQuickTeleport);
 	return _args[0];
 }
 
 inline int AsyncOp::GetTeleportX() const {
-	assert(GetType() == eQuickTeleport);
+	REAL_ASSERT(GetType() == eQuickTeleport);
 	return _args[1];
 }
 
 inline int AsyncOp::GetTeleportY() const  {
-	assert(GetType() == eQuickTeleport);
+	REAL_ASSERT(GetType() == eQuickTeleport);
 	return _args[2];
 }
 
 inline int AsyncOp::GetBattleResult() const {
-	assert(GetType() == eTerminateBattle);
+	REAL_ASSERT(GetType() == eTerminateBattle);
 	return _args[0];
 }
 
 inline int AsyncOp::GetSaveSlot() const {
-	assert(GetType() == eSave || GetType() == eLoad);
+	REAL_ASSERT(GetType() == eSave || GetType() == eLoad);
 	return _args[0];
 }
 
 inline int AsyncOp::GetSaveResultVar() const {
-	assert(GetType() == eSave);
+	REAL_ASSERT(GetType() == eSave);
 	return _args[1];
 }
 

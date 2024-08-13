@@ -283,7 +283,7 @@ void Scene_Settings::vUpdate() {
 			UpdateButtonRemove();
 			break;
 		case Window_Settings::eLastMode:
-			assert(false);
+			REAL_ASSERT(false);
 	}
 }
 
@@ -416,7 +416,7 @@ void Scene_Settings::UpdateOptions() {
 				option.action();
 			} else if (option.mode == Window_Settings::eOptionPicker) {
 				auto it = std::find(option.options_index.begin(), option.options_index.end(), option.current_value);
-				assert(it != option.options_index.end());
+				REAL_ASSERT(it != option.options_index.end());
 
 				if (it == option.options_index.begin()) {
 					it = std::prev(option.options_index.end());
@@ -442,7 +442,7 @@ void Scene_Settings::UpdateOptions() {
 				option.action();
 			} else if (option.mode == Window_Settings::eOptionPicker) {
 				auto it = std::find(option.options_index.begin(), option.options_index.end(), option.current_value);
-				assert(it != option.options_index.end());
+				REAL_ASSERT(it != option.options_index.end());
 
 				std::advance(it, 1);
 				if (it == option.options_index.end()) {

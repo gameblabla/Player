@@ -33,7 +33,7 @@
 #include "rand.h"
 #include "output.h"
 #include <cmath>
-#include <cassert>
+#include "fake_assert.h"
 
 Game_Event::Game_Event(int map_id, const lcf::rpg::Event* event) :
 	Game_EventBase(Event),

@@ -17,7 +17,7 @@
 
 #include "audio_generic_midiout.h"
 #include "audio_decoder_midi.h"
-#include <cassert>
+#include "fake_assert.h"
 
 #ifdef HAVE_NATIVE_MIDI
 #include <chrono>
@@ -121,14 +121,14 @@ void GenericAudioMidiOut::UnlockMutex() {
 
 void GenericAudioMidiOut::UpdateMidiOut(std::chrono::microseconds delta) {
 	LockMutex();
-	assert(midi_out);
+	REAL_ASSERT(midi_out);
 
 	midi_out->UpdateMidi(delta);
 	UnlockMutex();
 }
 
 void GenericAudioMidiOut::StartThread() {
-	assert(!thread_started);
+	REAL_ASSERT(!thread_started);
 	thread_started = true;
 	midi_thread = std::thread(&GenericAudioMidiOut::ThreadFunction, this);
 }
@@ -172,6 +172,6 @@ bool GenericAudioMidiOut::IsSupported(Filesystem_Stream::InputStream& stream) {
 #endif
 
 AudioDecoderMidi& GenericAudioMidiOut::GetMidiOut() {
-	assert(midi_out);
+	REAL_ASSERT(midi_out);
 	return *midi_out;
 }

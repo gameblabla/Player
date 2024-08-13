@@ -16,7 +16,7 @@
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cassert>
+#include "fake_assert.h"
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
@@ -61,9 +61,9 @@ Game_BattleAlgorithm::AlgorithmBase::AlgorithmBase(Type ty, Game_Battler* source
 Game_BattleAlgorithm::AlgorithmBase::AlgorithmBase(Type ty, Game_Battler* source, std::vector<Game_Battler*> in_targets) :
 	type(ty), source(source), targets(std::move(in_targets))
 {
-	assert(source != nullptr);
+	REAL_ASSERT(source != nullptr);
 	for (auto* t: targets) {
-		assert(t != nullptr);
+		REAL_ASSERT(t != nullptr);
 	}
 
 	Reset();
@@ -77,8 +77,8 @@ Game_BattleAlgorithm::AlgorithmBase::AlgorithmBase(Type ty, Game_Battler* source
 Game_BattleAlgorithm::AlgorithmBase::AlgorithmBase(Type ty, Game_Battler* source, Game_Party_Base* target) :
 	type(ty), source(source)
 {
-	assert(source != nullptr);
-	assert(target != nullptr);
+	REAL_ASSERT(source != nullptr);
+	REAL_ASSERT(target != nullptr);
 
 	Reset();
 
@@ -159,7 +159,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplySwitchEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplyHpEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 
 	if (target->IsDead()) {
 		return 0;
@@ -177,7 +177,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplyHpEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplySpEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 	auto sp = GetAffectedSp();
 	if (sp != 0) {
 		sp = target->ChangeSp(sp);
@@ -191,7 +191,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplySpEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplyAtkEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 	auto atk = GetAffectedAtk();
 	if (atk != 0) {
 		atk = target->ChangeAtkModifier(atk);
@@ -204,7 +204,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplyAtkEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplyDefEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 	auto def = GetAffectedDef();
 	if (def != 0) {
 		def = target->ChangeDefModifier(def);
@@ -217,7 +217,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplyDefEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplySpiEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 	auto spi = GetAffectedSpi();
 	if (spi) {
 		spi = target->ChangeSpiModifier(spi);
@@ -230,7 +230,7 @@ int Game_BattleAlgorithm::AlgorithmBase::ApplySpiEffect() {
 
 int Game_BattleAlgorithm::AlgorithmBase::ApplyAgiEffect() {
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 	auto agi = GetAffectedAgi();
 	if (agi) {
 		agi = target->ChangeAgiModifier(agi);
@@ -370,7 +370,7 @@ void Game_BattleAlgorithm::AlgorithmBase::Start() {
 	}
 
 	// This case must be true before returning.
-	assert(current_target == targets.end() || IsCurrentTargetValid());
+	REAL_ASSERT(current_target == targets.end() || IsCurrentTargetValid());
 
 	source->SetCharged(false);
 }
@@ -380,7 +380,7 @@ bool Game_BattleAlgorithm::AlgorithmBase::vStart() {
 }
 
 void Game_BattleAlgorithm::AlgorithmBase::AddTarget(Game_Battler* target, bool set_current) {
-	assert(target != nullptr);
+	REAL_ASSERT(target != nullptr);
 
 	const auto idx = std::distance(targets.begin(), current_target);
 	const auto size = targets.size();
@@ -389,7 +389,7 @@ void Game_BattleAlgorithm::AlgorithmBase::AddTarget(Game_Battler* target, bool s
 }
 
 void Game_BattleAlgorithm::AlgorithmBase::AddTargets(Game_Party_Base* party, bool set_current) {
-	assert(party != nullptr);
+	REAL_ASSERT(party != nullptr);
 	const auto idx = std::distance(targets.begin(), current_target);
 	const auto size = targets.size();
 	party->GetBattlers(targets);
@@ -884,12 +884,12 @@ bool Game_BattleAlgorithm::Skill::IsTargetValid(const Game_Battler& target) cons
 
 bool Game_BattleAlgorithm::Skill::vExecute() {
 	if (item && item->skill_id != skill.ID) {
-		assert(false && "Item skill mismatch");
+		REAL_ASSERT(false && "Item skill mismatch");
 	}
 	auto* source = GetSource();
-	assert(source);
+	REAL_ASSERT(source);
 	auto* target = GetTarget();
-	assert(target);
+	REAL_ASSERT(target);
 
 	if (skill.type == lcf::rpg::Skill::Type_switch) {
 		SetAffectedSwitch(skill.switch_id);
@@ -1294,7 +1294,7 @@ bool Game_BattleAlgorithm::Item::vExecute() {
 		return SetIsSuccess();
 	}
 
-	assert("Unsupported battle item type");
+	REAL_ASSERT("Unsupported battle item type");
 	return SetIsFailure();
 }
 

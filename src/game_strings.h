@@ -126,7 +126,7 @@ inline std::vector<lcf::DBString> Game_Strings::GetLcfData() const {
 	std::vector<lcf::DBString> lcf_data;
 
 	for (auto& [index, value]: _strings) {
-		assert(index > 0);
+		REAL_ASSERT(index > 0);
 		if (index >= static_cast<int>(lcf_data.size())) {
 			lcf_data.resize(index + 1);
 		}
@@ -171,7 +171,7 @@ inline StringView Game_Strings::GetWithModeAndPos(StringView str_data, int mode,
 	StringView ret;
 	switch (mode) {
 	case 0:
-		assert(pos);
+		REAL_ASSERT(pos);
 		ret = str_data.substr(*pos, arg);
 		*pos += arg;
 		return ret;

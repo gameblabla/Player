@@ -636,7 +636,7 @@ void Window_Message::UpdateMessage() {
 		}
 
 		if (page_font->CanShape()) {
-			assert(shape_ret.empty());
+			REAL_ASSERT(shape_ret.empty());
 
 			auto text_index_shape = text_index;
 			std::u32string text32;
@@ -883,7 +883,7 @@ void Window_Message::SetWaitForCharacter(int width) {
 }
 
 void Window_Message::SetWait(int frames) {
-	assert(speed >= 1 && speed <= 20);
+	REAL_ASSERT(speed >= 1 && speed <= 20);
 	DebugLogText("{}: MSG SetWait {}", frames);
 	wait_count = frames;
 }

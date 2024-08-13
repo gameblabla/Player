@@ -31,7 +31,7 @@ Scene_Equip::Scene_Equip(std::vector<Game_Actor*> actors, int actor_index, int e
 	actors(actors), actor_index(actor_index), equip_index(equip_index) {
 	type = Scene::Equip;
 
-	assert(!actors.empty());
+	REAL_ASSERT(!actors.empty());
 }
 
 void Scene_Equip::Start() {

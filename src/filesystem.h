@@ -19,7 +19,7 @@
 #define EP_FILESYSTEM_H
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <memory>
 #include <istream>
@@ -506,7 +506,7 @@ inline bool Filesystem::IsFeatureSupported(Filesystem::Feature) const {
 }
 
 inline std::streambuf* Filesystem::CreateOutputStreambuffer(StringView, std::ios_base::openmode) const {
-	assert(!IsFeatureSupported(Feature::Write) && "Write supported but CreateOutputStreambuffer not implemented");
+	REAL_ASSERT(!IsFeatureSupported(Feature::Write) && "Write supported but CreateOutputStreambuffer not implemented");
 	return nullptr;
 }
 

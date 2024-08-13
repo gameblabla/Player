@@ -816,7 +816,7 @@ void Scene_Battle_Rpg2k3::CreateEnemyActions() {
 					enemyai_algos[enemy->GetEnemyAi()]->SetEnemyAiAction(*enemy);
 				}
 			}
-			assert(enemy->GetBattleAlgorithm() != nullptr);
+			REAL_ASSERT(enemy->GetBattleAlgorithm() != nullptr);
 			ActionSelectedCallback(enemy);
 #ifdef EP_DEBUG_BATTLE2K3_STATE_MACHINE
 			Output::Debug("Battle2k3 ScheduleEnemyAction name={} type={} frame={}", enemy->GetName(), static_cast<int>(enemy->GetBattleAlgorithm()->GetType()), Main_Data::game_system->GetFrameCounter());
@@ -861,7 +861,7 @@ void Scene_Battle_Rpg2k3::CreateActorAutoActions() {
 			} else {
 				this->autobattle_algos[actor->GetActorAi()]->SetAutoBattleAction(*actor);
 			}
-			assert(actor->GetBattleAlgorithm() != nullptr);
+			REAL_ASSERT(actor->GetBattleAlgorithm() != nullptr);
 		}
 
 		actor->SetLastBattleAction(-1);
@@ -1085,7 +1085,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneAction()
 		case State_Escape:
 			return ProcessSceneActionEscape();
 	}
-	assert(false && "Invalid SceneActionState!");
+	REAL_ASSERT(false && "Invalid SceneActionState!");
 	return SceneActionReturn::eWaitTillNextFrame;
 }
 
@@ -1379,7 +1379,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionAu
 }
 
 Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionCommand() {
-	assert(active_actor != nullptr);
+	REAL_ASSERT(active_actor != nullptr);
 	enum SubState {
 		eBegin,
 		eWaitInput,
@@ -1465,7 +1465,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionCo
 }
 
 Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionItem() {
-	assert(active_actor != nullptr);
+	REAL_ASSERT(active_actor != nullptr);
 	enum SubState {
 		eBegin,
 		eWaitInput,
@@ -1504,7 +1504,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionIt
 }
 
 Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionSkill() {
-	assert(active_actor != nullptr);
+	REAL_ASSERT(active_actor != nullptr);
 	enum SubState {
 		eBegin,
 		eWaitInput,
@@ -1553,7 +1553,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionSk
 }
 
 Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionEnemyTarget() {
-	assert(active_actor != nullptr);
+	REAL_ASSERT(active_actor != nullptr);
 	enum SubState {
 		eBegin,
 		eWaitInput,
@@ -1607,7 +1607,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionEn
 }
 
 Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionAllyTarget() {
-	assert(active_actor != nullptr);
+	REAL_ASSERT(active_actor != nullptr);
 	enum SubState {
 		eBegin,
 		eWaitInput,
@@ -1703,7 +1703,7 @@ Scene_Battle_Rpg2k3::SceneActionReturn Scene_Battle_Rpg2k3::ProcessSceneActionBa
 		}
 
 		auto* battler = pending_battle_action->GetSource();
-		assert(battler != active_actor);
+		REAL_ASSERT(battler != active_actor);
 
 		pending_battle_action = {};
 		RemoveCurrentAction();
@@ -2081,7 +2081,7 @@ Scene_Battle_Rpg2k3::BattleActionReturn Scene_Battle_Rpg2k3::ProcessBattleAction
 			return ProcessBattleActionFinished(action);
 	}
 
-	assert(false && "Invalid BattleActionState!");
+	REAL_ASSERT(false && "Invalid BattleActionState!");
 
 	return BattleActionReturn::eFinished;
 }
@@ -2405,7 +2405,7 @@ Scene_Battle_Rpg2k3::BattleActionReturn Scene_Battle_Rpg2k3::ProcessBattleAction
 						}
 					}
 				} else {
-					assert(action->GetTarget());
+					REAL_ASSERT(action->GetTarget());
 					cba_ranged.emplace_back(*action->GetTarget(), nullptr);
 				}
 
@@ -2442,7 +2442,7 @@ Scene_Battle_Rpg2k3::BattleActionReturn Scene_Battle_Rpg2k3::ProcessBattleAction
 				offset_y = battler.GetBattlePosition().y - source->GetBattlePosition().y;
 			}
 			auto& weapon = it.second;
-			assert(weapon);
+			REAL_ASSERT(weapon);
 			weapon->SetX(source->GetBattlePosition().x + (offset_x * cba_ranged_weapon_move_frame / cba_num_ranged_weapon_move_frames));
 			weapon->SetY(source->GetBattlePosition().y + (offset_y * cba_ranged_weapon_move_frame / cba_num_ranged_weapon_move_frames));
 			weapon->Update();
@@ -2485,7 +2485,7 @@ Scene_Battle_Rpg2k3::BattleActionReturn Scene_Battle_Rpg2k3::ProcessBattleAction
 Scene_Battle_Rpg2k3::BattleActionReturn Scene_Battle_Rpg2k3::ProcessBattleActionAnimationReflect(Game_BattleAlgorithm::AlgorithmBase* action) {
 	const auto anim_id = action->GetAnimationId(0);
 	if (anim_id) {
-		assert(action->GetReflectTarget());
+		REAL_ASSERT(action->GetReflectTarget());
 		action->PlayAnimation(anim_id, false, -1, CheckAnimFlip(action->GetReflectTarget()));
 	}
 	SetBattleActionState(BattleActionState_FinishPose);

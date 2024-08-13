@@ -1352,8 +1352,8 @@ DRWAV_API drwav_bool32 drwav_fourcc_equal(const drwav_uint8* a, const char* b);
 
 /* Standard library stuff. */
 #ifndef DRWAV_ASSERT
-#include <assert.h>
-#define DRWAV_ASSERT(expression)           assert(expression)
+#include "fake_assert.h"
+#define DRWAV_ASSERT(expression)           REAL_ASSERT(expression)
 #endif
 #ifndef DRWAV_MALLOC
 #define DRWAV_MALLOC(sz)                   malloc((sz))
@@ -5822,7 +5822,7 @@ DRWAV_PRIVATE drwav_bool32 drwav_seek_to_first_pcm_frame(drwav* pWav)
         } else if (pWav->translatedFormatTag == DR_WAVE_FORMAT_DVI_ADPCM) {
             DRWAV_ZERO_OBJECT(&pWav->ima);
         } else {
-            DRWAV_ASSERT(DRWAV_FALSE);  /* If this assertion is triggered it means I've implemented a new compressed format but forgot to add a branch for it here. */
+            DRWAV_ASSERT(DRWAV_FALSE);  /* If this REAL_ASSERTion is triggered it means I've implemented a new compressed format but forgot to add a branch for it here. */
         }
     }
 
@@ -5888,7 +5888,7 @@ DRWAV_API drwav_bool32 drwav_seek_to_pcm_frame(drwav* pWav, drwav_uint64 targetF
                 } else if (pWav->translatedFormatTag == DR_WAVE_FORMAT_DVI_ADPCM) {
                     framesRead = drwav_read_pcm_frames_s16__ima(pWav, framesToRead, devnull);
                 } else {
-                    DRWAV_ASSERT(DRWAV_FALSE);  /* If this assertion is triggered it means I've implemented a new compressed format but forgot to add a branch for it here. */
+                    DRWAV_ASSERT(DRWAV_FALSE);  /* If this REAL_ASSERTion is triggered it means I've implemented a new compressed format but forgot to add a branch for it here. */
                 }
 
                 if (framesRead != framesToRead) {
@@ -6108,7 +6108,7 @@ DRWAV_PRIVATE drwav_uint64 drwav_read_pcm_frames_s16__msadpcm(drwav* pWav, drwav
     /* TODO: Lots of room for optimization here. */
 
     while (pWav->readCursorInPCMFrames < pWav->totalPCMFrameCount) {
-        DRWAV_ASSERT(framesToRead > 0); /* This loop iteration will never get hit with framesToRead == 0 because it's asserted at the top, and we check for 0 inside the loop just below. */
+        DRWAV_ASSERT(framesToRead > 0); /* This loop iteration will never get hit with framesToRead == 0 because it's REAL_ASSERTed at the top, and we check for 0 inside the loop just below. */
 
         /* If there are no cached frames we need to load a new block. */
         if (pWav->msadpcm.cachedFrameCount == 0 && pWav->msadpcm.bytesRemainingInBlock == 0) {
@@ -6308,7 +6308,7 @@ DRWAV_PRIVATE drwav_uint64 drwav_read_pcm_frames_s16__ima(drwav* pWav, drwav_uin
     /* TODO: Lots of room for optimization here. */
 
     while (pWav->readCursorInPCMFrames < pWav->totalPCMFrameCount) {
-        DRWAV_ASSERT(framesToRead > 0); /* This loop iteration will never get hit with framesToRead == 0 because it's asserted at the top, and we check for 0 inside the loop just below. */
+        DRWAV_ASSERT(framesToRead > 0); /* This loop iteration will never get hit with framesToRead == 0 because it's REAL_ASSERTed at the top, and we check for 0 inside the loop just below. */
 
         /* If there are no cached samples we need to load a new block. */
         if (pWav->ima.cachedFrameCount == 0 && pWav->ima.bytesRemainingInBlock == 0) {
@@ -8386,8 +8386,8 @@ v0.13.4 - 2021-12-08
   - Fix some static analysis warnings.
 
 v0.13.3 - 2021-11-24
-  - Fix an incorrect assertion when trying to endian swap 1-byte sample formats. This is now a no-op
-    rather than a failed assertion.
+  - Fix an incorrect REAL_ASSERTion when trying to endian swap 1-byte sample formats. This is now a no-op
+    rather than a failed REAL_ASSERTion.
   - Fix a bug with parsing of the bext chunk.
   - Fix some static analysis warnings.
 
@@ -8464,7 +8464,7 @@ v0.12.5 - 2020-05-27
   - Minor documentation fix.
 
 v0.12.4 - 2020-05-16
-  - Replace assert() with DRWAV_ASSERT().
+  - Replace REAL_ASSERT() with DRWAV_ASSERT().
   - Add compile-time and run-time version querying.
     - DRWAV_VERSION_MINOR
     - DRWAV_VERSION_MAJOR

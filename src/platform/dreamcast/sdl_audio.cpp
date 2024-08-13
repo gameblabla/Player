@@ -20,7 +20,7 @@
 
 #ifdef SUPPORT_AUDIO
 
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <chrono>
 #include <SDL.h>

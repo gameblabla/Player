@@ -20,7 +20,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <cassert>
+#include "fake_assert.h"
 #include "system.h"
 #include "options.h"
 #include "compiler.h"

@@ -217,7 +217,7 @@ void AudioDecoderMidi::SetFade(int end, std::chrono::milliseconds duration) {
 }
 
 bool AudioDecoderMidi::Seek(std::streamoff offset, std::ios_base::seekdir origin) {
-	assert(!tempo.empty());
+	REAL_ASSERT(!tempo.empty());
 
 	if (offset == 0 && origin == std::ios_base::beg) {
 		mtime = seq->rewind_to_loop()->time;
@@ -315,7 +315,7 @@ bool AudioDecoderMidi::SetPitch(int pitch) {
 }
 
 int AudioDecoderMidi::GetTicks() const {
-	assert(!tempo.empty());
+	REAL_ASSERT(!tempo.empty());
 
 	return tempo.back().GetTicks(mtime);
 }
@@ -406,7 +406,7 @@ void AudioDecoderMidi::sysex_message(int, const void* data, std::size_t size) {
 
 void AudioDecoderMidi::meta_event(int event, const void* data, std::size_t size) {
 	// Meta events are never sent over MIDI ports.
-	assert(!tempo.empty());
+	REAL_ASSERT(!tempo.empty());
 	const auto* d = reinterpret_cast<const uint8_t*>(data);
 	if (size == 3 && event == 0x51) {
 		uint32_t new_tempo = (static_cast<uint32_t>(static_cast<unsigned char>(d[0])) << 16)

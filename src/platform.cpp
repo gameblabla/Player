@@ -21,7 +21,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <cassert>
+#include "fake_assert.h"
 #include <utility>
 #include <unistd.h>
 
@@ -210,11 +210,11 @@ Platform::Directory::~Directory() {
 
 bool Platform::Directory::Read() {
 #if defined(__vita__)
-	assert(dir_handle >= 0);
+	REAL_ASSERT(dir_handle >= 0);
 
 	valid_entry = ::sceIoDread(dir_handle, &entry) > 0;
 #elif defined(_WIN32)
-	assert(dir_handle != INVALID_HANDLE_VALUE);
+	REAL_ASSERT(dir_handle != INVALID_HANDLE_VALUE);
 
 	if (!first_entry) {
 		valid_entry = FindNextFile(dir_handle, &entry) != 0;
@@ -223,7 +223,7 @@ bool Platform::Directory::Read() {
 		first_entry = false;
 	}
 #else
-	assert(dir_handle);
+	REAL_ASSERT(dir_handle);
 
 	entry = ::readdir(dir_handle);
 
@@ -234,7 +234,7 @@ bool Platform::Directory::Read() {
 }
 
 std::string Platform::Directory::GetEntryName() const {
-	assert(valid_entry);
+	REAL_ASSERT(valid_entry);
 
 #if defined(__vita__)
 	return entry.d_name;
@@ -259,7 +259,7 @@ static inline Platform::FileType GetEntryType(T* entry) {
 #endif
 
 Platform::FileType Platform::Directory::GetEntryType() const {
-	assert(valid_entry);
+	REAL_ASSERT(valid_entry);
 
 #if defined(__vita__)
 	return SCE_S_ISREG(entry.d_stat.st_mode) ? FileType::File :

@@ -23,7 +23,7 @@
 #include <map>
 #include <tuple>
 #include <chrono>
-#include <cassert>
+#include "fake_assert.h"
 
 #include "async_handler.h"
 #include "cache.h"
@@ -247,10 +247,10 @@ namespace {
 		static_assert(Material::REND < T && T < Material::END, "Invalid material.");
 		const Spec& s = spec[T];
 
-		// This assert is triggered by the request cache clear when switching languages
+		// This REAL_ASSERT is triggered by the request cache clear when switching languages
 		// Remove comment to test if all assets are requested correctly
 		//auto* req = AsyncHandler::RequestFile(s.directory, filename);
-		//assert(req != nullptr && req->IsReady());
+		//REAL_ASSERT(req != nullptr && req->IsReady());
 
 		BitmapRef bmp;
 
@@ -304,7 +304,7 @@ namespace {
 			bmp = it->second.bitmap;
 		}
 
-		assert(bmp);
+		REAL_ASSERT(bmp);
 
 		if (s.oob_check) {
 			int w = bmp->GetWidth();
@@ -503,7 +503,7 @@ BitmapRef Cache::SpriteEffect(const BitmapRef& src_bitmap, const Rect& rect, boo
 			}
 		}
 
-		assert(bitmap_effects && "Effect cache used but no effect applied!");
+		REAL_ASSERT(bitmap_effects && "Effect cache used but no effect applied!");
 
 		return(cache_effects[key] = bitmap_effects).lock();
 	} else { return it->second.lock(); }

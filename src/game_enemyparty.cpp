@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <algorithm>
 #include "game_interpreter.h"
 #include "game_enemyparty.h"
@@ -38,7 +38,7 @@ Game_Enemy* Game_EnemyParty::GetEnemy(int idx) {
 
 Game_Enemy& Game_EnemyParty::operator[] (const int index) {
 	if (index < 0 || index >= (int)enemies.size()) {
-		assert(false && "Subscript out of range");
+		REAL_ASSERT(false && "Subscript out of range");
 	}
 
 	return enemies[index];

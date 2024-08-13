@@ -362,13 +362,13 @@ inline lcf::rpg::SaveEventExecFrame* Game_Interpreter::GetFramePtr() {
 
 inline const lcf::rpg::SaveEventExecFrame& Game_Interpreter::GetFrame() const {
 	auto* frame = GetFramePtr();
-	assert(frame);
+	REAL_ASSERT(frame);
 	return *frame;
 }
 
 inline lcf::rpg::SaveEventExecFrame& Game_Interpreter::GetFrame() {
 	auto* frame = GetFramePtr();
-	assert(frame);
+	REAL_ASSERT(frame);
 	return *frame;
 }
 

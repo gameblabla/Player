@@ -59,7 +59,7 @@ Scene_Logo::Scene_Logo(std::vector<std::vector<uint8_t>> logos, unsigned current
 
 	type = Scene::Logo;
 
-	assert(current_logo_index > 0);
+	REAL_ASSERT(current_logo_index > 0);
 	detected_game = true;
 }
 

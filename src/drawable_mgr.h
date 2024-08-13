@@ -20,7 +20,7 @@
 
 #include "drawable.h"
 #include "drawable_list.h"
-#include <cassert>
+#include "fake_assert.h"
 
 struct DrawableMgr {
 	public:
@@ -39,7 +39,7 @@ struct DrawableMgr {
 
 inline DrawableList& DrawableMgr::GetLocalList() {
 	auto* local = GetLocalListPtr();
-	assert(local != nullptr);
+	REAL_ASSERT(local != nullptr);
 	return *local;
 }
 

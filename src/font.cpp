@@ -282,7 +282,7 @@ FTFont::FTFont(Filesystem_Stream::InputStream is, int size, bool bold, bool ital
 		}
 	}
 
-	assert(is);
+	REAL_ASSERT(is);
 
 	ft_buffer = Utils::ReadStream(is);
 
@@ -446,7 +446,7 @@ Font::GlyphRet FTFont::vRenderShaped(char32_t glyph) const {
 	FT_GlyphSlot slot = face->glyph;
 	FT_Bitmap* ft_bitmap = &slot->bitmap;
 
-	assert(ft_bitmap->pixel_mode == FT_PIXEL_MODE_MONO || ft_bitmap->pixel_mode == FT_PIXEL_MODE_BGRA);
+	REAL_ASSERT(ft_bitmap->pixel_mode == FT_PIXEL_MODE_MONO || ft_bitmap->pixel_mode == FT_PIXEL_MODE_BGRA);
 
 	size_t const pitch = std::abs(ft_bitmap->pitch);
 	const int width = ft_bitmap->width;
@@ -890,7 +890,7 @@ bool Font::CanShape() const {
 }
 
 std::vector<Font::ShapeRet> Font::Shape(U32StringView text) const {
-	assert(vCanShape());
+	REAL_ASSERT(vCanShape());
 
 	return vShape(text);
 }

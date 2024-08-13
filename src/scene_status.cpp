@@ -29,7 +29,7 @@ Scene_Status::Scene_Status(std::vector<Game_Actor*> actors, int actor_index) :
 	actors(actors), actor_index(actor_index) {
 	type = Scene::Status;
 
-	assert(!actors.empty());
+	REAL_ASSERT(!actors.empty());
 }
 
 void Scene_Status::Start() {

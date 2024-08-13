@@ -18,7 +18,7 @@
 #include "system.h"
 
 #include <cstring>
-#include <cassert>
+#include "fake_assert.h"
 #include <memory>
 #include "audio_generic.h"
 #include "output.h"
@@ -295,7 +295,7 @@ void GenericAudio::Decode(uint8_t* output_buffer, int buffer_length) {
 	float total_volume = 0;
 	int samples_per_frame = buffer_length / output_format.channels / 2;
 
-	assert(buffer_length > 0);
+	REAL_ASSERT(buffer_length > 0);
 
 	if (sample_buffer.size() != (size_t)buffer_length) {
 		sample_buffer.resize(buffer_length);

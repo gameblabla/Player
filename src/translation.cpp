@@ -324,7 +324,7 @@ bool Translation::ParseLanguageFiles(StringView lang_id)
 	auto it = std::find_if(languages.begin(), languages.end(), [&lang_id](const auto& lang) {
 		return lang_id == lang.lang_dir;
 	});
-	assert(it != languages.end());
+	REAL_ASSERT(it != languages.end());
 	current_language = *it;
 
 	// Log

@@ -20,7 +20,7 @@
 #ifdef HAVE_LIBSNDFILE
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <sys/stat.h>
 #include "decoder_libsndfile.h"
 #include "output.h"

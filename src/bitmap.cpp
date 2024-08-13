@@ -351,7 +351,7 @@ Point Bitmap::TextDraw(Rect const& rect, int color, StringView text, Text::Align
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: assert(false);
+	default: REAL_ASSERT(false);
 	}
 
 	return {};
@@ -382,7 +382,7 @@ Point Bitmap::TextDraw(Rect const& rect, Color color, StringView text, Text::Ali
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: assert(false);
+	default: REAL_ASSERT(false);
 	}
 
 	return {};

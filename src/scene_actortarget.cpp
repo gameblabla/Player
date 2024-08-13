@@ -118,7 +118,7 @@ void Scene_ActorTarget::UpdateItem() {
 		}
 		if (Main_Data::game_party->UseItem(id, target_window->GetActor())) {
 			auto* item = lcf::ReaderUtil::GetElement(lcf::Data::items, id);
-			assert(item);
+			REAL_ASSERT(item);
 
 			bool do_skill = (item->type == lcf::rpg::Item::Type_special)
 				|| (item->use_skill && (
@@ -132,7 +132,7 @@ void Scene_ActorTarget::UpdateItem() {
 
 			if (do_skill) {
 				auto* skill = lcf::ReaderUtil::GetElement(lcf::Data::skills, item->skill_id);
-				assert(skill);
+				REAL_ASSERT(skill);
 				auto* animation = lcf::ReaderUtil::GetElement(lcf::Data::animations, skill->animation_id);
 				if (animation) {
 					Main_Data::game_system->SePlay(*animation);

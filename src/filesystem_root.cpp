@@ -35,7 +35,7 @@ RootFilesystem::RootFilesystem() : Filesystem("", FilesystemView()) {
 	// IMPORTANT: This must be the last filesystem in the list, do not push anything to fs_list afterwards!
 	fs_list.push_back(std::make_pair("file", std::make_unique<NativeFilesystem>("", FilesystemView())));
 
-	assert(fs_list.back().first == "file" && "File namespace must be last!");
+	REAL_ASSERT(fs_list.back().first == "file" && "File namespace must be last!");
 }
 
 FilesystemView RootFilesystem::Create(StringView path) const {
@@ -103,7 +103,7 @@ std::string RootFilesystem::Describe() const {
 }
 
 const Filesystem& RootFilesystem::FilesystemForPath(StringView path) const {
-	assert(!fs_list.empty());
+	REAL_ASSERT(!fs_list.empty());
 
 	StringView ns;
 	// Check if the path contains a namespace

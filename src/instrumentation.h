@@ -25,7 +25,7 @@
 #ifdef PLAYER_INSTRUMENTATION_VTUNE
 #include <ittnotify.h>
 #endif
-#include <cassert>
+#include "fake_assert.h"
 
 class Instrumentation {
 public:
@@ -81,13 +81,13 @@ private:
 
 inline void Instrumentation::FrameBegin() {
 #ifdef PLAYER_INSTRUMENTATION_VTUNE
-	assert(domain);
+	REAL_ASSERT(domain);
 	__itt_frame_begin_v3(domain, nullptr);
 #endif
 }
 inline void Instrumentation::FrameEnd() {
 #ifdef PLAYER_INSTRUMENTATION_VTUNE
-	assert(domain);
+	REAL_ASSERT(domain);
 	__itt_frame_end_v3(domain, nullptr);
 #endif
 }

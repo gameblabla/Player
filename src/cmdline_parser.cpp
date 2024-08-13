@@ -116,12 +116,12 @@ bool CmdlineParser::ParseNext(CmdlineArg& arg, int max_values, std::initializer_
 }
 
 void CmdlineParser::SkipNext() {
-	assert(index < static_cast<int>(args.size()));
+	REAL_ASSERT(index < static_cast<int>(args.size()));
 	++index;
 }
 
 void CmdlineParser::RewindBy(int rewind) {
-	assert(rewind >= 0);
+	REAL_ASSERT(rewind >= 0);
 	index -= rewind;
-	assert(index >= 0);
+	REAL_ASSERT(index >= 0);
 }

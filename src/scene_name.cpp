@@ -15,7 +15,7 @@
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cassert>
+#include "fake_assert.h"
 
 #include "scene_name.h"
 #include "game_actors.h"
@@ -39,7 +39,7 @@ void Scene_Name::Start() {
 	// Create the windows
 
 	auto *actor = Main_Data::game_actors->GetActor(actor_id);
-	assert(actor);
+	REAL_ASSERT(actor);
 
 	int margin_x = 32;
 	int margin_y = 8;
@@ -115,7 +115,7 @@ void Scene_Name::vUpdate() {
 		Main_Data::game_system->SePlay(Main_Data::game_system->GetSystemSE(Main_Data::game_system->SFX_Decision));
 		std::string const& s = kbd_window->GetSelected();
 
-		assert(!s.empty());
+		REAL_ASSERT(!s.empty());
 
 		if (s == Window_Keyboard::DONE) {
 			auto* actor = Main_Data::game_actors->GetActor(actor_id);

@@ -20,7 +20,7 @@
 #include <cstring>
 #include <vector>
 #include <string>
-#include <cassert>
+#include "fake_assert.h"
 #include <initializer_list>
 
 /** class which represents a single command line argument and it's values */
@@ -43,7 +43,7 @@ public:
 	 * @pre IsValid() or the result is undefined.
 	 */
 	const std::string& Arg() const {
-		assert(IsValid());
+		REAL_ASSERT(IsValid());
 		return ptr[0];
 	}
 
@@ -60,7 +60,7 @@ public:
 	 * @return the value as a string
 	 */
 	const std::string& Value(int i) const {
-		assert(i >= 0 && i < num_values);
+		REAL_ASSERT(i >= 0 && i < num_values);
 		return ptr[i + 1];
 	}
 

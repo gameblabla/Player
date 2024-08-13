@@ -17,7 +17,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
+#include "fake_assert.h"
 #include <cstring>
 #include "rtp.h"
 
@@ -196,7 +196,7 @@ static std::string lookup_rtp_to_rtp_helper(T rtp_table, const std::pair<int, in
 std::string RTP::LookupRtpToRtp(StringView src_category, StringView src_name, RTP::Type src_rtp,
 		RTP::Type target_rtp, bool* is_rtp_asset) {
 	// ensure both 2k or 2k3
-	assert(((int)src_rtp < num_2k_rtps && (int)target_rtp < num_2k_rtps) ||
+	REAL_ASSERT(((int)src_rtp < num_2k_rtps && (int)target_rtp < num_2k_rtps) ||
 		((int)src_rtp >= num_2k_rtps && (int)target_rtp >= num_2k_rtps));
 
 	if (src_rtp == target_rtp) {

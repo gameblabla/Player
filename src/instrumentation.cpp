@@ -24,7 +24,7 @@ __itt_domain* Instrumentation::domain = nullptr;
 
 void Instrumentation::Init(const char* name) {
 #ifdef PLAYER_INSTRUMENTATION_VTUNE
-	assert(!domain);
+	REAL_ASSERT(!domain);
 #ifdef _WIN32
 	domain = __itt_domain_create(Utils::ToWideString(name).c_str());
 #else

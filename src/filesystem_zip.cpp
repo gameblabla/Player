@@ -26,7 +26,7 @@
 #include <lcf/scope_guard.h>
 #include <iostream>
 #include <sstream>
-#include <cassert>
+#include "fake_assert.h"
 #include <algorithm>
 #include <fmt/core.h>
 

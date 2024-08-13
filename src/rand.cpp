@@ -20,7 +20,7 @@
 #include "utils.h"
 #include "output.h"
 #include "compiler.h"
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <cinttypes>
 #include <algorithm>
@@ -58,7 +58,7 @@ static uint32_t GetRandomUnsigned(uint32_t max)
 }
 
 int32_t Rand::GetRandomNumber(int32_t from, int32_t to) {
-	assert(from <= to);
+	REAL_ASSERT(from <= to);
 	if (rng_locked) {
 		return Utils::Clamp(rng_lock_value, from, to);
 	}
@@ -79,7 +79,7 @@ Rand::RNG& Rand::GetRNG() {
 }
 
 bool Rand::ChanceOf(int32_t n, int32_t m) {
-	assert(n >= 0 && m > 0);
+	REAL_ASSERT(n >= 0 && m > 0);
 	return GetRandomNumber(1, m) <= n;
 }
 

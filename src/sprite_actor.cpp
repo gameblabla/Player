@@ -122,7 +122,7 @@ void Sprite_Actor::Update() {
 						cycle = 0;
 						break;
 					default:
-						assert(false && "Bad loop state");
+						REAL_ASSERT(false && "Bad loop state");
 				}
 			}
 		}
@@ -300,7 +300,7 @@ void Sprite_Actor::Draw(Bitmap& dst) {
 }
 
 void Sprite_Actor::UpdatePosition() {
-	assert(!images.empty());
+	REAL_ASSERT(!images.empty());
 	images.pop_back();
 	images.insert(images.begin(), {battler->GetDisplayX(), battler->GetDisplayY()});
 

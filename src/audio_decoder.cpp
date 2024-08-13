@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <cstring>
 #include "audio_decoder.h"
@@ -214,6 +214,6 @@ int AudioDecoder::GetSamplesizeForFormat(AudioDecoderBase::Format format) {
 			return 4;
 	}
 
-	assert(false && "Bad format");
+	REAL_ASSERT(false && "Bad format");
 	return -1;
 }

@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <cstring>
 #include <map>
 #include <memory>
@@ -104,7 +104,7 @@ std::unique_ptr<AudioSeCache> AudioSeCache::Create(Filesystem_Stream::InputStrea
 void AudioSeCache::GetFormat(int& frequency, AudioDecoder::Format& format, int& channels) const {
 	if (!audio_decoder) {
 		if (!GetCachedFormat(frequency, format, channels)) {
-			assert(false);
+			REAL_ASSERT(false);
 		}
 
 		return;
@@ -162,7 +162,7 @@ std::unique_ptr<AudioDecoderBase> AudioSeCache::CreateSeDecoder() {
 		se.reset(new AudioSeData());
 	}
 
-	assert(audio_decoder);
+	REAL_ASSERT(audio_decoder);
 
 	audio_decoder->GetFormat(se->frequency, se->format, se->channels);
 	se->buffer = audio_decoder->DecodeAll();
@@ -188,7 +188,7 @@ std::unique_ptr<AudioDecoderBase> AudioSeCache::CreateSeDecoder() {
 
 AudioSeRef AudioSeCache::GetSeData() const {
 	auto it = cache.find(name);
-	assert(it != cache.end());
+	REAL_ASSERT(it != cache.end());
 
 	return it->second;
 };

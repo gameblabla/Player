@@ -88,8 +88,8 @@ static int CalcSkillCostAutoBattle(const Game_Actor& source, const lcf::rpg::Ski
 }
 
 double CalcSkillHealAutoBattleTargetRank(const Game_Actor& source, const Game_Battler& target, const lcf::rpg::Skill& skill, lcf::rpg::System::BattleCondition cond, bool apply_variance, bool emulate_bugs) {
-	assert(Algo::IsNormalOrSubskill(skill));
-	assert(Algo::SkillTargetsAllies(skill));
+	REAL_ASSERT(Algo::IsNormalOrSubskill(skill));
+	REAL_ASSERT(Algo::SkillTargetsAllies(skill));
 
 	const double src_max_sp = source.GetMaxSp();
 	const double tgt_max_hp = target.GetMaxHp();
@@ -124,8 +124,8 @@ double CalcSkillHealAutoBattleTargetRank(const Game_Actor& source, const Game_Ba
 }
 
 double CalcSkillDmgAutoBattleTargetRank(const Game_Actor& source, const Game_Battler& target, const lcf::rpg::Skill& skill, lcf::rpg::System::BattleCondition cond, bool apply_variance, bool emulate_bugs) {
-	assert(Algo::IsNormalOrSubskill(skill));
-	assert(Algo::SkillTargetsEnemies(skill));
+	REAL_ASSERT(Algo::IsNormalOrSubskill(skill));
+	REAL_ASSERT(Algo::SkillTargetsEnemies(skill));
 
 	if (!(skill.affect_hp && target.Exists())) {
 		return 0.0;

@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "player.h"
 #include "main_data.h"
-#include <cassert>
+#include "fake_assert.h"
 #include <cctype>
 #include <algorithm>
 #include <utility>
@@ -50,13 +50,13 @@ int PendingMessage::PushLineImpl(std::string msg) {
 }
 
 int PendingMessage::PushLine(std::string msg) {
-	assert(!HasChoices());
-	assert(!HasNumberInput());
+	REAL_ASSERT(!HasChoices());
+	REAL_ASSERT(!HasNumberInput());
 	return PushLineImpl(std::move(msg));
 }
 
 int PendingMessage::PushChoice(std::string msg, bool enabled) {
-	assert(!HasNumberInput());
+	REAL_ASSERT(!HasNumberInput());
 	if (!HasChoices()) {
 		choice_start = NumLines();
 	}
@@ -65,16 +65,16 @@ int PendingMessage::PushChoice(std::string msg, bool enabled) {
 }
 
 int PendingMessage::PushNumInput(int variable_id, int num_digits) {
-	assert(!HasChoices());
-	assert(!HasNumberInput());
+	REAL_ASSERT(!HasChoices());
+	REAL_ASSERT(!HasNumberInput());
 	num_input_variable = variable_id;
 	num_input_digits = num_digits;
 	return NumLines();
 }
 
 void PendingMessage::PushPageEnd() {
-	assert(!HasChoices());
-	assert(!HasNumberInput());
+	REAL_ASSERT(!HasChoices());
+	REAL_ASSERT(!HasNumberInput());
 	if (texts.empty()) {
 		texts.push_back("");
 	}
@@ -82,7 +82,7 @@ void PendingMessage::PushPageEnd() {
 }
 
 void PendingMessage::SetWordWrapped(bool value) {
-	assert(texts.empty());
+	REAL_ASSERT(texts.empty());
 	word_wrapped = value;
 }
 

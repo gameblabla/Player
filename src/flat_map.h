@@ -21,7 +21,7 @@
 // Headers
 #include <vector>
 #include <array>
-#include <cassert>
+#include "fake_assert.h"
 #include <initializer_list>
 #include <algorithm>
 #include <ostream>

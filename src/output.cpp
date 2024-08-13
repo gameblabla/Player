@@ -265,7 +265,7 @@ void Output::Quit() {
 
 bool Output::TakeScreenshot() {
 #ifdef LOW_MEMORY_DEVICES
-
+	return false;
 #else
 #ifdef EMSCRIPTEN
 	Emscripten_Interface::TakeScreenshot();
@@ -339,6 +339,9 @@ void Output::ErrorStr(std::string const& err) {
 
 	// FIXME: No idea how to indicate error from core in libretro
 	exit(Player::exit_code);
+#else
+	Player::exit_code = EXIT_FAILURE;
+	exit(Player::exit_code);
 #endif
 }
 
@@ -348,6 +351,8 @@ void Output::WarningStr(std::string const& warn) {
 		return;
 	}
 	WriteLog(LogLevel::Warning, warn, Color(255, 255, 0, 255));
+#else
+	return;
 #endif
 }
 
@@ -357,6 +362,8 @@ void Output::InfoStr(std::string const& msg) {
 		return;
 	}
 	WriteLog(LogLevel::Info, msg, Color(255, 255, 255, 255));
+#else
+	return;
 #endif
 }
 

@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <initializer_list>
 #include <iomanip>
 #include <sstream>
@@ -455,7 +455,7 @@ void Game_Map::Refresh() {
 }
 
 Game_Interpreter_Map& Game_Map::GetInterpreter() {
-	assert(interpreter);
+	REAL_ASSERT(interpreter);
 	return *interpreter;
 }
 
@@ -976,7 +976,7 @@ int Game_Map::GetTerrainTag(int x, int y) {
 		}
 	}
 
-	assert(chip_index < terrain_data.size());
+	REAL_ASSERT(chip_index < terrain_data.size());
 
 	return terrain_data[chip_index];
 }

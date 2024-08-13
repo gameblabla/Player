@@ -19,7 +19,7 @@
 #define EP_FILESYSTEM_STREAM_H
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <istream>
 #include <ostream>
 #include "filesystem.h"
@@ -152,7 +152,7 @@ constexpr std::ios_base::seekdir Filesystem_Stream::CSeekdirToCppSeekdir(int ori
 		case SEEK_END:
 			return std::ios_base::end;
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 			return std::ios_base::beg;
 	}
 }
@@ -166,7 +166,7 @@ constexpr int Filesystem_Stream::CppSeekdirToCSeekdir(std::ios_base::seekdir ori
 		case std::ios_base::end:
 			return SEEK_END;
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 			return SEEK_SET;
 	}
 }

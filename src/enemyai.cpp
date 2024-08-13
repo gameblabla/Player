@@ -269,7 +269,7 @@ bool IsActionValid(const Game_Enemy& source, const lcf::rpg::EnemyAction& action
 
 static bool IsSkillEffectiveOnAnyTarget(Game_Enemy& source, int skill_id, bool emulate_bugs) {
 	const auto* skill = lcf::ReaderUtil::GetElement(lcf::Data::skills, skill_id);
-	assert(skill);
+	REAL_ASSERT(skill);
 	if (!Algo::IsNormalOrSubskill(*skill)) {
 		return true;
 	}

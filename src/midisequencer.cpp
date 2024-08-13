@@ -30,7 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "midisequencer.h"
 #include "output.h"
 
-#include <cassert>
+#include "fake_assert.h"
 #include <algorithm>
 
 using namespace std::chrono_literals;
@@ -143,7 +143,7 @@ namespace midisequencer{
     {
         for(const auto& message: messages){
             if(message.track == 0 && (message.message & 0xFF) == 0xFF){
-                assert((message.message >> 8) < long_messages.size());
+                REAL_ASSERT((message.message >> 8) < long_messages.size());
                 const std::string& s = long_messages[message.message >> 8];
                 if(s.size() > 1 && s[0] == 0x03){
                     return s.substr(1);
@@ -156,7 +156,7 @@ namespace midisequencer{
     {
         for(const auto& message: messages){
             if(message.track == 0 && (message.message & 0xFF) == 0xFF){
-                assert((message.message >> 8) < long_messages.size());
+                REAL_ASSERT((message.message >> 8) < long_messages.size());
                 const std::string& s = long_messages[message.message >> 8];
                 if(s.size() > 1 && s[0] == 0x02){
                     return s.substr(1);
@@ -170,9 +170,9 @@ namespace midisequencer{
         std::string ret;
         for(const auto& message: messages){
             if(message.track == 0 && (message.message & 0xFF) == 0xFF){
-                assert((message.message >> 8) < long_messages.size());
+                REAL_ASSERT((message.message >> 8) < long_messages.size());
                 const std::string& s = long_messages[message.message >> 8];
-                assert(s.size() >= 1);
+                REAL_ASSERT(s.size() >= 1);
                 if(s[0] == 0x05){
                     ret += s.substr(1);
                 }
@@ -197,16 +197,16 @@ namespace midisequencer{
             switch(message & 0xFF){
             case 0xF0:
                 {
-                    assert((message >> 8) < long_messages.size());
+                    REAL_ASSERT((message >> 8) < long_messages.size());
                     const std::string& s = long_messages[static_cast<int>(message >> 8)];
                     out->sysex_message(port, s.data(), s.size());
                 }
                 break;
             case 0xFF:
                 {
-                    assert((message >> 8) < long_messages.size());
+                    REAL_ASSERT((message >> 8) < long_messages.size());
                     const std::string& s = long_messages[static_cast<int>(message >> 8)];
-                    assert(s.size() >= 1);
+                    REAL_ASSERT(s.size() >= 1);
                     out->meta_event(static_cast<unsigned char>(s[0]), s.data() + 1, s.size() - 1);
                 }
                 break;
@@ -237,16 +237,16 @@ namespace midisequencer{
             switch(message & 0xFF){
                 case 0xF0:
                 {
-                    assert((message >> 8) < long_messages.size());
+                    REAL_ASSERT((message >> 8) < long_messages.size());
                     const std::string& s = long_messages[static_cast<int>(message >> 8)];
                     out->sysex_message(port, s.data(), s.size());
                 }
                     break;
                 case 0xFF:
                 {
-                    assert((message >> 8) < long_messages.size());
+                    REAL_ASSERT((message >> 8) < long_messages.size());
                     const std::string& s = long_messages[static_cast<int>(message >> 8)];
-                    assert(s.size() >= 1);
+                    REAL_ASSERT(s.size() >= 1);
                     out->meta_event(static_cast<unsigned char>(s[0]), s.data() + 1, s.size() - 1);
                 }
                     break;
@@ -479,7 +479,7 @@ namespace midisequencer{
                 std::chrono::microseconds org_time = i->time;
                 i->time = std::chrono::microseconds(static_cast<int>(static_cast<double>((i->time.count() - base.count())) * tempo / division + time_offset.count()));
                 if((i->message & 0xFF) == 0xFF){
-                    assert((i->message >> 8) < long_messages.size());
+                    REAL_ASSERT((i->message >> 8) < long_messages.size());
                     const std::string& s = long_messages[i->message >> 8];
                     if(s.size() == 4 && s[0] == 0x51){
                         tempo = (static_cast<uint_least32_t>(static_cast<unsigned char>(s[1])) << 16)

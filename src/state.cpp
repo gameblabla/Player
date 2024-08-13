@@ -19,7 +19,7 @@
 #include <lcf/reader_util.h>
 #include <lcf/data.h>
 #include "output.h"
-#include <cassert>
+#include "fake_assert.h"
 
 namespace State {
 
@@ -209,7 +209,7 @@ int GetStateRate(int state_id, int rate) {
 	default:;
 	}
 
-	assert(false && "bad rate");
+	REAL_ASSERT(false && "bad rate");
 	return 0;
 
 }

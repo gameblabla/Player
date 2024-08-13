@@ -21,7 +21,7 @@
 
 // Headers
 #include <cstdio>
-#include <cassert>
+#include "fake_assert.h"
 #include "audio_decoder.h"
 #include "output.h"
 #include "decoder_fmmidi.h"

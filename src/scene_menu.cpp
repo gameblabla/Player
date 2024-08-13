@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include "scene_menu.h"
 #include "audio.h"
 #include "cache.h"
@@ -304,7 +304,7 @@ void Scene_Menu::UpdateActorSelection() {
 			break;
 		}
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 			break;
 		}
 

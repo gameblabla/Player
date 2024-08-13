@@ -20,7 +20,7 @@
 #ifdef HAVE_LIBMPG123
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <lcf/scope_guard.h>
 #include "decoder_mpg123.h"
 #include "output.h"
@@ -137,7 +137,7 @@ static int format_to_mpg123_format(AudioDecoder::Format format) {
 		case AudioDecoder::Format::F32:
 			return MPG123_ENC_FLOAT_32;
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 	}
 
 	return -1;
@@ -160,7 +160,7 @@ static AudioDecoder::Format mpg123_format_to_format(int format) {
 		case MPG123_ENC_FLOAT_32:
 			return AudioDecoder::Format::F32;
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 	}
 
 	return (AudioDecoder::Format)-1;

@@ -419,7 +419,7 @@ Transition::Type Game_System::GetTransition(int which) {
 		case Transition_EndBattleShow:
 			transition = get(data.battle_end_fadein, lcf::Data::system.battle_end_fadein);
 			break;
-		default: assert(false && "Bad transition");
+		default: REAL_ASSERT(false && "Bad transition");
 	}
 
 	constexpr int num_types = 21;
@@ -504,7 +504,7 @@ void Game_System::SetTransition(int which, int transition) {
 		case Transition_EndBattleShow:
 			data.battle_end_fadein = set(transition, lcf::Data::system.battle_end_fadein);
 			break;
-		default: assert(false && "Bad transition");
+		default: REAL_ASSERT(false && "Bad transition");
 	}
 }
 

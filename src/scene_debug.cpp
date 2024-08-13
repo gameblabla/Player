@@ -91,13 +91,13 @@ void Scene_Debug::Start() {
 
 Scene_Debug::StackFrame& Scene_Debug::GetFrame(int n) {
 	auto i = stack_index - n;
-	assert(i >= 0 && i < static_cast<int>(stack.size()));
+	REAL_ASSERT(i >= 0 && i < static_cast<int>(stack.size()));
 	return stack[i];
 }
 
 const Scene_Debug::StackFrame& Scene_Debug::GetFrame(int n) const {
 	auto i = stack_index - n;
-	assert(i >= 0 && i < static_cast<int>(stack.size()));
+	REAL_ASSERT(i >= 0 && i < static_cast<int>(stack.size()));
 	return stack[i];
 }
 
@@ -168,7 +168,7 @@ void Scene_Debug::UpdateFrameValueFromUi() {
 
 void Scene_Debug::Push(UiMode ui) {
 	++stack_index;
-	assert(stack_index < static_cast<int>(stack.size()));
+	REAL_ASSERT(stack_index < static_cast<int>(stack.size()));
 	stack[stack_index] = { ui, 0 };
 
 	range_window->SetActive(false);

@@ -22,7 +22,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <cassert>
+#include "fake_assert.h"
 #include "game_character.h"
 #include <lcf/rpg/eventcommand.h>
 #include <lcf/rpg/trooppagecondition.h>
@@ -98,7 +98,7 @@ inline bool Game_Interpreter_Battle::IsValidPage(int page_id) const {
 }
 
 inline bool Game_Interpreter_Battle::HasPageExecuted(int page_id) const {
-	assert(IsValidPage(page_id));
+	REAL_ASSERT(IsValidPage(page_id));
 	return executed[page_id - 1];
 }
 

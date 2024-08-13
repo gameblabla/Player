@@ -30,7 +30,7 @@ Sprite_Timer::Sprite_Timer(int which) :
 {
 	if (which != Game_Party::Timer1 &&
 		which != Game_Party::Timer2) {
-		assert(false && "Invalid timer");
+		REAL_ASSERT(false && "Invalid timer");
 	}
 
 	for (auto& d: digits) {

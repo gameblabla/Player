@@ -16,7 +16,7 @@
  */
 
 // Headers
-#include <cassert>
+#include "fake_assert.h"
 #include <cstring>
 #include "audio_decoder_base.h"
 #include "output.h"
@@ -57,7 +57,7 @@ std::vector<uint8_t> AudioDecoderBase::DecodeAll() {
 void AudioDecoderBase::Rewind() {
 	if (!Seek(0, std::ios_base::beg)) {
 		// The libs guarantee that Rewind works
-		assert(false && "Rewind");
+		REAL_ASSERT(false && "Rewind");
 	}
 }
 

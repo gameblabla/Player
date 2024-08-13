@@ -173,7 +173,7 @@ int Sprite_Picture::GetFrameWidth() const {
 	const auto& data = pic.data;
 
 	auto& bitmap = GetBitmap();
-	assert(bitmap);
+	REAL_ASSERT(bitmap);
 
 	if (feature_spritesheet && pic.NumSpriteSheetFrames() > 1) {
 		return bitmap->GetWidth() / data.spritesheet_cols;
@@ -187,7 +187,7 @@ int Sprite_Picture::GetFrameHeight() const {
 	const auto& data = pic.data;
 
 	auto& bitmap = GetBitmap();
-	assert(bitmap);
+	REAL_ASSERT(bitmap);
 
 	if (feature_spritesheet && pic.NumSpriteSheetFrames() > 1) {
 		return bitmap->GetHeight() / data.spritesheet_rows;

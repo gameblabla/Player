@@ -29,7 +29,7 @@
 #include <array>
 #include <fstream>
 #include <utility>
-#include <cassert>
+#include "fake_assert.h"
 
 namespace Input {
 	/**
@@ -246,46 +246,46 @@ void Input::ResetAllMappings() {
 }
 
 bool Input::IsPressed(InputButton button) {
-	assert(!IsSystemButton(button));
+	REAL_ASSERT(!IsSystemButton(button));
 	WaitInput(true);
 	return press_time[button] > 0;
 }
 
 bool Input::IsTriggered(InputButton button) {
-	assert(!IsSystemButton(button));
+	REAL_ASSERT(!IsSystemButton(button));
 	WaitInput(true);
 	return triggered[button];
 }
 
 bool Input::IsRepeated(InputButton button) {
-	assert(!IsSystemButton(button));
+	REAL_ASSERT(!IsSystemButton(button));
 	WaitInput(true);
 	return repeated[button];
 }
 
 bool Input::IsReleased(InputButton button) {
-	assert(!IsSystemButton(button));
+	REAL_ASSERT(!IsSystemButton(button));
 	WaitInput(false);
 	return released[button];
 }
 
 bool Input::IsSystemPressed(InputButton button) {
-	assert(IsSystemButton(button));
+	REAL_ASSERT(IsSystemButton(button));
 	return press_time[button] > 0;
 }
 
 bool Input::IsSystemTriggered(InputButton button) {
-	assert(IsSystemButton(button));
+	REAL_ASSERT(IsSystemButton(button));
 	return triggered[button];
 }
 
 bool Input::IsSystemRepeated(InputButton button) {
-	assert(IsSystemButton(button));
+	REAL_ASSERT(IsSystemButton(button));
 	return repeated[button];
 }
 
 bool Input::IsSystemReleased(InputButton button) {
-	assert(IsSystemButton(button));
+	REAL_ASSERT(IsSystemButton(button));
 	return released[button];
 }
 
@@ -379,22 +379,22 @@ Point Input::GetMousePosition() {
 }
 
 void Input::AddRecordingData(Input::RecordingData type, StringView data) {
-	assert(source);
+	REAL_ASSERT(source);
 	source->AddRecordingData(type, data);
 }
 
 bool Input::IsRecording() {
-	assert(source);
+	REAL_ASSERT(source);
 	return source->IsRecording();
 }
 
 Input::Source *Input::GetInputSource() {
-	assert(source);
+	REAL_ASSERT(source);
 	return source.get();
 }
 
 Input::KeyStatus Input::GetMask() {
-	assert(source);
+	REAL_ASSERT(source);
 	return source->GetMask();
 }
 
@@ -404,7 +404,7 @@ void Input::SetMask(Input::KeyStatus new_mask) {
 }
 
 void Input::ResetMask() {
-	assert(source);
+	REAL_ASSERT(source);
 	SetMask(source->GetMask());
 }
 

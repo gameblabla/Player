@@ -19,7 +19,7 @@
 
 #ifdef SUPPORT_AUDIO
 
-#include <cassert>
+#include "fake_assert.h"
 #include <cstdint>
 #include <chrono>
 #include <SDL.h>
@@ -64,7 +64,7 @@ AudioDecoder::Format sdl_format_to_format(Uint16 format) {
 			return AudioDecoder::Format::F32;
 #endif
 		default:
-			assert(false);
+			REAL_ASSERT(false);
 	}
 
 	return (AudioDecoder::Format)-1;

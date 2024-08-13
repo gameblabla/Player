@@ -476,7 +476,7 @@ void ForEachEquipment(Span<const short> equipped, F&& f, Game_Battler::Weapon we
 
 		auto* item = lcf::ReaderUtil::GetElement(lcf::Data::items, item_id);
 		// Invalid equipment was removed
-		assert(item != nullptr);
+		REAL_ASSERT(item != nullptr);
 
 		if (item->type == lcf::rpg::Item::Type_weapon) {
 			if (!allow_weapon || (weapon != Game_Battler::WeaponAll && weapon != slot + 1)) {
@@ -487,7 +487,7 @@ void ForEachEquipment(Span<const short> equipped, F&& f, Game_Battler::Weapon we
 				continue;
 			}
 		} else {
-			assert(false && "Invalid item type equipped!");
+			REAL_ASSERT(false && "Invalid item type equipped!");
 			continue;
 		}
 
