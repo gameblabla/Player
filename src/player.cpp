@@ -90,8 +90,10 @@
 #endif
 
 #ifndef EMSCRIPTEN
+#ifndef LOW_MEMORY_DEVICES
 // This is not used on Emscripten.
 #include "exe_reader.h"
+#endif
 #endif
 
 using namespace std::chrono_literals;
@@ -748,6 +750,7 @@ void Player::CreateGameObjects() {
 	int& engine = game_config.engine;
 
 #ifndef EMSCRIPTEN
+#ifndef LOW_MEMORY_DEVICES
 	// Attempt reading ExFont and version information from RPG_RT.exe (not supported on Emscripten)
 	std::unique_ptr<EXEReader> exe_reader;
 	auto exeis = FileFinder::Game().OpenFile(EXE_NAME);
@@ -772,6 +775,7 @@ void Player::CreateGameObjects() {
 	} else {
 		Output::Debug("Cannot find RPG_RT");
 	}
+#endif
 #endif
 
 	if (exfont_stream) {

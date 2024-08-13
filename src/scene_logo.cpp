@@ -19,7 +19,11 @@
 #include "scene_logo.h"
 #include "async_handler.h"
 #include "bitmap.h"
+#ifndef EMSCRIPTEN
+#ifndef LOW_MEMORY_DEVICES
 #include "exe_reader.h"
+#endif
+#endif
 #include "filefinder.h"
 #include "game_battle.h"
 #include "input.h"
@@ -29,8 +33,10 @@
 #include "scene_gamebrowser.h"
 #include "scene_settings.h"
 #include "output.h"
+#ifndef LOW_MEMORY_DEVICES
 #include "generated/logo.h"
 #include "generated/logo2.h"
+#endif
 #include "utils.h"
 #include "rand.h"
 #include "text.h"
@@ -41,7 +47,11 @@
 Scene_Logo::Scene_Logo() :
 	frame_counter(0) {
 	type = Scene::Logo;
+#ifdef LOW_MEMORY_DEVICES
+	skip_logos = 1;
+#else
 	skip_logos = Player::debug_flag || Game_Battle::battle_test.enabled;
+#endif
 }
 
 Scene_Logo::Scene_Logo(std::vector<std::vector<uint8_t>> logos, unsigned current_logo_index) :
@@ -55,13 +65,16 @@ Scene_Logo::Scene_Logo(std::vector<std::vector<uint8_t>> logos, unsigned current
 
 void Scene_Logo::Start() {
 	if (!skip_logos) {
+		#ifndef LOW_MEMORY_DEVICES
 		logo_img = LoadLogo();
 		DrawTextOnLogo(false);
 		DrawLogo(logo_img);
+		#endif
 	}
 }
 
 void Scene_Logo::vUpdate() {
+	
 	if (current_logo_index == 0 && frame_counter == 0) {
 		Font::ResetDefault();
 
@@ -70,15 +83,19 @@ void Scene_Logo::vUpdate() {
 			return;
 		}
 
+		#ifndef LOW_MEMORY_DEVICES
 		logos = LoadLogos();
+		#endif
 	}
 
 	++frame_counter;
 
+#ifndef LOW_MEMORY_DEVICES
 	if (Input::IsPressed(Input::SHIFT)) {
 		DrawTextOnLogo(true);
 		--frame_counter;
 	}
+#endif
 
 	// Allow calling the settings when the first logo was shown (startup completed)
 	if (current_logo_index > 0 && Input::IsTriggered(Input::SETTINGS_MENU)) {
@@ -160,6 +177,7 @@ bool Scene_Logo::DetectGame() {
 
 BitmapRef Scene_Logo::LoadLogo() {
 	BitmapRef current_logo;
+#ifndef LOW_MEMORY_DEVICES
 	std::time_t t = std::time(nullptr);
 	std::tm* tm = std::localtime(&t);
 
@@ -176,18 +194,22 @@ BitmapRef Scene_Logo::LoadLogo() {
 		const auto& logo_bytes = logos[current_logo_index - 1];
 		current_logo = Bitmap::Create(logo_bytes.data(), logo_bytes.size(), false);
 	}
+#endif
 
 	return current_logo;
 }
 
 void Scene_Logo::DrawLogo(BitmapRef logo_img) {
+#ifndef LOW_MEMORY_DEVICES
 	logo = std::make_unique<Sprite>();
 	logo->SetBitmap(logo_img);
 	logo->SetX((Player::screen_width - logo->GetWidth()) / 2);
 	logo->SetY((Player::screen_height - logo->GetHeight()) / 2);
+#endif
 }
 
 void Scene_Logo::DrawBackground(Bitmap& dst) {
+	
 	dst.Clear();
 }
 
@@ -229,6 +251,7 @@ std::vector<std::vector<uint8_t>> Scene_Logo::LoadLogos() {
 	}
 
 #ifndef EMSCRIPTEN
+#ifndef LOW_MEMORY_DEVICES
 	if (logos.empty()) {
 		// Attempt reading Logos from RPG_RT.exe (not supported on Emscripten)
 		auto exeis = FileFinder::Game().OpenFile(EXE_NAME);
@@ -238,6 +261,7 @@ std::vector<std::vector<uint8_t>> Scene_Logo::LoadLogos() {
 			logos = exe_reader->GetLogos();
 		}
 	}
+#endif
 #endif
 
 	return logos;
