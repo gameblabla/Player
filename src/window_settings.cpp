@@ -650,7 +650,7 @@ void Window_Settings::RefreshButtonList() {
 			}
 		}
 
-		std::string help = Input::kInputButtonHelp.tag(button);
+		//std::string help = Input::kInputButtonHelp.tag(button);
 		std::string value;
 
 		// Append as many buttons as fit on the screen, then add ...
@@ -684,22 +684,23 @@ void Window_Settings::RefreshButtonList() {
 			value_size += cur_value_size;
 		}
 		
-		// Gameblabla - Check if it's wrong
+		std::string help;
+		std::string buttonTag = Input::kInputButtonHelp.tag(button); // Store the tag
 
 		switch (button) {
 			case Input::FAST_FORWARD_A: {
 				Game_ConfigInput& cfg = Input::GetInputSource()->GetConfig();
-				help += std::to_string(cfg.speed_modifier_a.Get());
-				//help = std::format(help, cfg.speed_modifier_a.Get());
+				help = std::format("{} {}", buttonTag, cfg.speed_modifier_a.Get()); 
 				break;
 			}
 			case Input::FAST_FORWARD_B: {
 				Game_ConfigInput& cfg = Input::GetInputSource()->GetConfig();
-				//help = std::format(help, cfg.speed_modifier_b.Get());
-				help += std::to_string(cfg.speed_modifier_b.Get());
+				help = std::format("{} {}", buttonTag, cfg.speed_modifier_b.Get()); 
 				break;
 			}
 			default:
+				// If you need a default help message:
+				help = buttonTag;  // Or any other appropriate default
 				break;
 		}
 
