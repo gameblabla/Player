@@ -480,7 +480,7 @@ void GenericAudio::Decode(uint8_t* output_buffer, int buffer_length) {
 
 		MEMCPY_REAL(output_buffer, sample_buffer.data(), buffer_length);
 	} else {
-		MEMCPY_REAL(output_buffer, 0, buffer_length);
+		MEMSET_REAL(output_buffer, 0, buffer_length);
 	}
 }
 

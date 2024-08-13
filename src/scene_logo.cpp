@@ -33,7 +33,7 @@
 #include "scene_gamebrowser.h"
 #include "scene_settings.h"
 #include "output.h"
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOGO
 #include "generated/logo.h"
 #include "generated/logo2.h"
 #endif
@@ -47,7 +47,7 @@
 Scene_Logo::Scene_Logo() :
 	frame_counter(0) {
 	type = Scene::Logo;
-#ifdef LOW_MEMORY_DEVICES
+#ifdef NOLOGO
 	skip_logos = 1;
 #else
 	skip_logos = Player::debug_flag || Game_Battle::battle_test.enabled;
@@ -65,7 +65,7 @@ Scene_Logo::Scene_Logo(std::vector<std::vector<uint8_t>> logos, unsigned current
 
 void Scene_Logo::Start() {
 	if (!skip_logos) {
-		#ifndef LOW_MEMORY_DEVICES
+		#ifndef NOLOGO
 		logo_img = LoadLogo();
 		DrawTextOnLogo(false);
 		DrawLogo(logo_img);
@@ -83,14 +83,14 @@ void Scene_Logo::vUpdate() {
 			return;
 		}
 
-		#ifndef LOW_MEMORY_DEVICES
+		#ifndef NOLOGO
 		logos = LoadLogos();
 		#endif
 	}
 
 	++frame_counter;
 
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOGO
 	if (Input::IsPressed(Input::SHIFT)) {
 		DrawTextOnLogo(true);
 		--frame_counter;
@@ -177,7 +177,7 @@ bool Scene_Logo::DetectGame() {
 
 BitmapRef Scene_Logo::LoadLogo() {
 	BitmapRef current_logo;
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOGO
 	std::time_t t = std::time(nullptr);
 	std::tm* tm = std::localtime(&t);
 
@@ -200,7 +200,7 @@ BitmapRef Scene_Logo::LoadLogo() {
 }
 
 void Scene_Logo::DrawLogo(BitmapRef logo_img) {
-#ifndef LOW_MEMORY_DEVICES
+#ifndef NOLOGO
 	logo = std::make_unique<Sprite>();
 	logo->SetBitmap(logo_img);
 	logo->SetX((Player::screen_width - logo->GetWidth()) / 2);
