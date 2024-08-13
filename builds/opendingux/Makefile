@@ -14,7 +14,7 @@ SYSROOT =
 BINDIR = $(TOOLCHAINDIR)/bin
 
 CFLAGS = -std=gnu++17 -Oz -flto -fdata-sections -ffunction-sections -falign-functions=4 -falign-jumps=4 -falign-loops=4 -funsafe-math-optimizations -ffinite-math-only 
-CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLIBPNG_DEP=1 -DREAL_ASSERT=
+CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLIBPNG_DEP=1
 CFLAGS += -I/opt/toolchains/dc/kos/addons/include -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include -I/opt/toolchains/dc/kos/include -I/opt/toolchains/dc/sh-elf/sh-elf/include
 CFLAGS += -I/opt/toolchains/dc/kos-ports/include/zlib/ -I/opt/toolchains/dc/kos-ports/include/png/ -I/opt/toolchains/dc/kos-ports/include/SDL/ -I. -Isounddc -Iinclude
 
