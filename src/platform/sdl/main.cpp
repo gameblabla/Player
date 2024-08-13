@@ -81,19 +81,11 @@ extern "C" int main(int argc, char* argv[]) {
 	args.assign(argv, argv + argc);
 #endif
 
-#ifdef DREAMCAST
-#warning "Dreamcast"
-	args.push_back("--project-path");
-	args.push_back("/cd/");
-#endif
-
 #if defined(__WIIU__) || defined(__ANDROID__)
 	Output::SetLogCallback(LogCallback);
 #endif
 
-	printf("Player::Init\n");
 	Player::Init(std::move(args));
-	printf("Init complete\n");
 	Player::Run();
 
 	// Close
