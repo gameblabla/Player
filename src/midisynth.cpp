@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cmath>
 #include <cstring>
 #include <utility>
+#include "opts.h"
 
 #ifdef __BORLANDC__
 #include <fastmath.h>
@@ -471,7 +472,7 @@ namespace midisynth{
                 }
             }
         }else{
-            std::memset(output, 0, sizeof(int_least16_t) * n);
+            MEMSET_REAL(output, 0, sizeof(int_least16_t) * n);
         }
         return num_notes;
     }

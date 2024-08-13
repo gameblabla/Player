@@ -23,6 +23,7 @@
 #include "game_variables.h"
 #include "utils.h"
 #include "version.h"
+#include "opts.h"
 
 static bool EasyOput(dyn_arg_list args) {
 	auto func = "output";
@@ -99,7 +100,7 @@ void DynRpg::EasyRpgPlugin::Load(const std::vector<uint8_t>& buffer) {
 		Output::Warning("EasyRpgPlugin: Bad savegame data");
 	} else {
 		uint32_t ver;
-		memcpy(&ver, buffer.data(), 4);
+		MEMCPY_REAL(&ver, buffer.data(), 4);
 		Utils::SwapByteOrder(ver);
 		Output::Debug("DynRpg Savegame version {}", ver);
 	}
@@ -111,7 +112,7 @@ std::vector<uint8_t> DynRpg::EasyRpgPlugin::Save() {
 
 	uint32_t version = PLAYER_SAVEGAME_VERSION;
 	Utils::SwapByteOrder(version);
-	memcpy(&save_data[0], reinterpret_cast<char*>(&version), 4);
+	MEMCPY_REAL(&save_data[0], reinterpret_cast<char*>(&version), 4);
 
 	return save_data;
 }

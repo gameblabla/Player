@@ -36,6 +36,7 @@
 #include <lcf/data.h>
 #include "game_clock.h"
 #include "translation.h"
+#include "opts.h"
 
 
 #ifdef LOW_MEMORY_DEVICES
@@ -64,7 +65,7 @@ namespace {
 	int IdFromTileHash(StringView key) {
 		int id = 0;
 		if (key.size() > sizeof(id)) {
-			std::memcpy(&id, key.data(), sizeof(id));
+			MEMCPY_REAL(&id, key.data(), sizeof(id));
 		}
 		return id;
 	}

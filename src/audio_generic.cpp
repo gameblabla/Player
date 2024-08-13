@@ -22,6 +22,7 @@
 #include <memory>
 #include "audio_generic.h"
 #include "output.h"
+#include "opts.h"
 
 GenericAudio::GenericAudio(const Game_ConfigAudio& cfg) : AudioInterface(cfg) {
 	int i = 0;
@@ -477,9 +478,9 @@ void GenericAudio::Decode(uint8_t* output_buffer, int buffer_length) {
 			}
 		}
 
-		memcpy(output_buffer, sample_buffer.data(), buffer_length);
+		MEMCPY_REAL(output_buffer, sample_buffer.data(), buffer_length);
 	} else {
-		memset(output_buffer, '\0', buffer_length);
+		MEMCPY_REAL(output_buffer, 0, buffer_length);
 	}
 }
 

@@ -26,6 +26,7 @@
 #include "game_clock.h"
 #include "filefinder.h"
 #include "output.h"
+#include "opts.h"
 
 #ifdef LOW_MEMORY_DEVICES
 #define CACHE_SIZE_DEF 1
@@ -224,7 +225,7 @@ int AudioSeDecoder::FillBuffer(uint8_t *buffer, int size) {
 		real_size = se->buffer.size() - offset;
 	}
 
-	memcpy(buffer, se->buffer.data() + offset, real_size);
+	MEMCPY_REAL(buffer, se->buffer.data() + offset, real_size);
 	offset += real_size;
 
 	return real_size;

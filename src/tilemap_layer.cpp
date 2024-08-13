@@ -625,8 +625,8 @@ void TilemapLayer::SetChipset(BitmapRef const& nchipset) {
 void TilemapLayer::SetMapData(std::vector<short> nmap_data) {
 	// Create the tiles data cache
 	CreateTileCache(nmap_data);
-	memset(autotiles_ab, 0, sizeof(autotiles_ab));
-	memset(autotiles_d, 0, sizeof(autotiles_d));
+	MEMSET_REAL(autotiles_ab, 0, sizeof(autotiles_ab));
+	MEMSET_REAL(autotiles_d, 0, sizeof(autotiles_d));
 
 	if (layer == 0) {
 		autotiles_ab_map.clear();

@@ -21,7 +21,7 @@
 #include "audio_decoder_midi.h"
 #include "midisequencer.h"
 #include "output.h"
-
+#include "opts.h"
 using namespace std::chrono_literals;
 
 constexpr int AudioDecoderMidi::midi_default_tempo;
@@ -335,7 +335,7 @@ bool AudioDecoderMidi::IsPaused() const {
 
 int AudioDecoderMidi::FillBuffer(uint8_t* buffer, int length) {
 	if (loops_to_end) {
-		memset(buffer, '\0', length);
+		MEMSET_REAL(buffer, 0, length);
 		return length;
 	}
 

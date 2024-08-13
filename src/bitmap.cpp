@@ -39,6 +39,7 @@
 #include "util_macro.h"
 #include "bitmap_hslrgb.h"
 #include <iostream>
+#include "opts.h"
 
 BitmapRef Bitmap::Create(int width, int height, const Color& color) {
 	BitmapRef surface = Bitmap::Create(width, height, true);
@@ -769,7 +770,7 @@ void Bitmap::Clear() {
 		return;
 	}
 
-	memset(pixels(), '\0', height() * pitch());
+	MEMSET_REAL(pixels(), 0, height() * pitch());
 }
 
 void Bitmap::ClearRect(Rect const& dst_rect) {
@@ -1073,7 +1074,7 @@ void Bitmap::Flip(bool horizontal, bool vertical) {
 
 	auto temp = PixmanImagePtr{ pixman_image_create_bits(pixman_format, w, h, nullptr, p) };
 
-	std::memcpy(pixman_image_get_data(temp.get()),
+	MEMCPY_REAL(pixman_image_get_data(temp.get()),
 			pixman_image_get_data(bitmap.get()),
 			p * h);
 

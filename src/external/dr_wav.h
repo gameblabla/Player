@@ -1342,6 +1342,7 @@ DRWAV_API drwav_bool32 drwav_fourcc_equal(const drwav_uint8* a, const char* b);
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h> /* For INT_MAX */
+#include "opts.h"
 
 #ifndef DR_WAV_NO_STDIO
 #include <stdio.h>
@@ -1365,10 +1366,10 @@ DRWAV_API drwav_bool32 drwav_fourcc_equal(const drwav_uint8* a, const char* b);
 #define DRWAV_FREE(p)                      free((p))
 #endif
 #ifndef DRWAV_COPY_MEMORY
-#define DRWAV_COPY_MEMORY(dst, src, sz)    memcpy((dst), (src), (sz))
+#define DRWAV_COPY_MEMORY(dst, src, sz)    MEMCPY_REAL((dst), (src), (sz))
 #endif
 #ifndef DRWAV_ZERO_MEMORY
-#define DRWAV_ZERO_MEMORY(p, sz)           memset((p), 0, (sz))
+#define DRWAV_ZERO_MEMORY(p, sz)           std::memset((p), 0, (sz))
 #endif
 #ifndef DRWAV_ZERO_OBJECT
 #define DRWAV_ZERO_OBJECT(p)               DRWAV_ZERO_MEMORY((p), sizeof(*p))

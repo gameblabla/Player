@@ -25,6 +25,7 @@
 #include <algorithm>
 #include "system.h"
 #include "utils.h"
+#include "opts.h"
 
 /** Enums. */
 namespace PF {
@@ -254,7 +255,7 @@ struct bits_traits<TPF, 24> {
 		p[TPF::endian(2)] = (pix >> 16) & 0xFF;
 	}
 	static inline void copy_pixel(uint8_t* dst, const uint8_t* src) {
-		std::memcpy(dst, src, 3);
+		MEMCPY_REAL(dst, src, 3);
 	}
 	static inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) {
 		for (int i = 0; i < n; i++)
@@ -603,7 +604,7 @@ public:
 	}
 
 	inline void copy_pixels(uint8_t* dst, const uint8_t* src, int n) const {
-		std::memcpy(dst, src, n * bytes);
+		MEMCPY_REAL(dst, src, n * bytes);
 	}
 
 	inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) const {
