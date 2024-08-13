@@ -28,7 +28,7 @@
 #include <sstream>
 #include "fake_assert.h"
 #include <algorithm>
-#include <fmt/core.h>
+#include <format>
 
 constexpr uint32_t end_of_central_directory = 0x06054b50;
 constexpr int32_t end_of_central_directory_size = 22;
@@ -480,5 +480,5 @@ const ZipFilesystem::ZipEntry* ZipFilesystem::Find(StringView what) const {
 }
 
 std::string ZipFilesystem::Describe() const {
-	return fmt::format("[Zip] {} ({})", GetPath(), encoding);
+	return std::format("[Zip] {} ({})", GetPath(), encoding);
 }

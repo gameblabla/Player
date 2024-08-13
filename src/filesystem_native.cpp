@@ -22,7 +22,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <fmt/core.h>
+#include <format>
 
 #include "system.h"
 #include "output.h"
@@ -124,5 +124,5 @@ bool NativeFilesystem::IsFeatureSupported(Feature f) const {
 }
 
 std::string NativeFilesystem::Describe() const {
-	return fmt::format("[Native] {}", GetPath());
+	return std::format("[Native] {}", GetPath());
 }

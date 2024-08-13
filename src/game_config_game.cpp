@@ -249,7 +249,7 @@ void Game_ConfigGame::PrintActivePatches() {
 
 	auto add_int = [&](auto& patch) {
 		if (patch.Get() > 0) {
-			patches.push_back(fmt::format("{} ({})", patch.GetName(), patch.Get()));
+			patches.push_back(std::format("{} ({})", patch.GetName(), patch.Get()));
 		}
 	};
 

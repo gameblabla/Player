@@ -24,8 +24,8 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
-#include <fmt/color.h>
-#include <fmt/ostream.h>
+//#include <fmt/color.h>
+//#include <fmt/ostream.h>
 #ifdef EMSCRIPTEN
 #  include "platform/emscripten/interface.h"
 #endif
@@ -45,9 +45,9 @@
 
 // fmt 7 has renamed the namespace
 #if FMT_VERSION < 70000
-#  define FMT_COLOR_TYPE fmt::internal::color_type
+#  define FMT_COLOR_TYPE std::internal::color_type
 #else
-#  define FMT_COLOR_TYPE fmt::detail::color_type
+#  define FMT_COLOR_TYPE std::detail::color_type
 #endif
 
 using namespace std::chrono_literals;
@@ -91,21 +91,21 @@ namespace {
 	#if FMT_VERSION >= 60000
 		if (colored_log) {
 			FMT_COLOR_TYPE log_color =
-				(lvl == LogLevel::Error) ? fmt::terminal_color::red :
-				(lvl == LogLevel::Warning) ? fmt::terminal_color::yellow :
-				(lvl == LogLevel::Debug) ? fmt::terminal_color::white :
-				fmt::terminal_color::bright_white;
+				(lvl == LogLevel::Error) ? std::terminal_color::red :
+				(lvl == LogLevel::Warning) ? std::terminal_color::yellow :
+				(lvl == LogLevel::Debug) ? std::terminal_color::white :
+				std::terminal_color::bright_white;
 
 	#  if FMT_VERSION < 90000
 			// format using temporary strings
-			fmt::print(std::cerr, "{} {}\n",
-				fmt::format(fmt::fg(log_color) | fmt::emphasis::bold, prefix),
-				fmt::format(fmt::fg(log_color), msg));
+			std::print(std::cerr, "{} {}\n",
+				std::format(std::fg(log_color) | std::emphasis::bold, prefix),
+				std::format(std::fg(log_color), msg));
 	#  else
 			// fmt 9 has styled arguments
-			fmt::print(std::cerr, "{} {}\n",
-				fmt::styled(prefix, fmt::fg(log_color) | fmt::emphasis::bold),
-				fmt::styled(msg, fmt::fg(log_color)));
+			std::print(std::cerr, "{} {}\n",
+				std::styled(prefix, std::fg(log_color) | std::emphasis::bold),
+				std::styled(msg, std::fg(log_color)));
 	#  endif
 			return;
 		}

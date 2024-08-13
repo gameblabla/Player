@@ -490,7 +490,7 @@ bool Game_Interpreter_Map::CommandShowInn(lcf::rpg::EventCommand const& com) { /
 		);
 	}
 	else {
-		pm.PushLine(fmt::format("{} {}{} {}", greeting_1, inn_price, lcf::Data::terms.gold, greeting_2));
+		pm.PushLine(std::format("{} {}{} {}", greeting_1, inn_price, lcf::Data::terms.gold, greeting_2));
 		pm.PushLine(ToString(greeting_3));
 	}
 

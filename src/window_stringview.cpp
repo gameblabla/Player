@@ -140,7 +140,9 @@ void Window_StringView::DrawLine(int index) {
 
 	if (!line.empty()) {
 		if (line_numbers[index]) {
-			contents->TextDraw(rect.x, rect.y, Font::ColorDisabled, fmt::format("{:0" + std::to_string(line_no_max_digits) + "d}", line_numbers[index]));
+			// Check if wrong Gameblabla
+			contents->TextDraw(rect.x, rect.y, Font::ColorDisabled,  std::format("{:0{}d}", line_numbers[index], line_no_max_digits));
+			//contents->TextDraw(rect.x, rect.y, Font::ColorDisabled, std::format("{:0" + std::to_string(line_no_max_digits) + "d}", line_numbers[index]));
 		}
 		contents->TextDraw(rect.x + line_no_max_digits * 6 + 6, rect.y, Font::ColorDefault, line);
 	}

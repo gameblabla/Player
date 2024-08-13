@@ -66,7 +66,7 @@ void Scene_Save::Action(int index) {
 }
 
 std::string Scene_Save::GetSaveFilename(const FilesystemView& fs, int slot_id) {
-	const auto save_file = fmt::format("Save{:02d}.lsd", slot_id);
+	const auto save_file = std::format("Save{:02d}.lsd", slot_id);
 
 	std::string filename = fs.FindFile(save_file);
 

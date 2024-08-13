@@ -21,7 +21,7 @@
 // Headers
 #include <string>
 #include <iosfwd>
-#include <fmt/core.h>
+#include <format>
 #include "filesystem_stream.h"
 
 enum class LogLevel {
@@ -174,24 +174,26 @@ namespace Output {
 	void DebugStr(std::string const& msg);
 }
 
+// TO FIX gameblabla
+
 template <typename FmtStr, typename... Args>
 inline void Output::Info(FmtStr&& fmtstr, Args&&... args) {
-	InfoStr(fmt::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
+	//InfoStr(std::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
 }
 
 template <typename FmtStr, typename... Args>
 inline void Output::Error(FmtStr&& fmtstr, Args&&... args) {
-	ErrorStr(fmt::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
+	//ErrorStr(std::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
 }
 
 template <typename FmtStr, typename... Args>
 inline void Output::Warning(FmtStr&& fmtstr, Args&&... args) {
-	WarningStr(fmt::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
+	//WarningStr(std::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
 }
 
 template <typename FmtStr, typename... Args>
 inline void Output::Debug(FmtStr&& fmtstr, Args&&... args) {
-	DebugStr(fmt::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
+	//DebugStr(std::format(std::forward<FmtStr>(fmtstr), std::forward<Args>(args)...));
 }
 
 #endif

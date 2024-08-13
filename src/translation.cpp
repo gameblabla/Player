@@ -681,13 +681,13 @@ void Translation::RewriteDatabase()
 
 		// Look up the indexed form first; e.g., "actors.1.name", starting from 1 instead of 0
 		if (ctxt.index >= 0) {
-			if (sys->TranslateString<lcf::DBString>(fmt::format("{}.{}.{}", ctxt.parent->name, ctxt.parent->index+1, ctxt.name), value)) {
+			if (sys->TranslateString<lcf::DBString>(std::format("{}.{}.{}", ctxt.parent->name, ctxt.parent->index+1, ctxt.name), value)) {
 				return;
 			}
 		}
 
 		// Look up the non-indexed form second; e.g., "actors.name"
-		if (sys->TranslateString<lcf::DBString>(fmt::format("{}.{}", ctxt.parent->name, ctxt.name), value)) {
+		if (sys->TranslateString<lcf::DBString>(std::format("{}.{}", ctxt.parent->name, ctxt.name), value)) {
 			return;
 		}
 

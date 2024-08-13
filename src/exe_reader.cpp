@@ -292,7 +292,7 @@ const EXEReader::FileInfo& EXEReader::GetFileInfo() {
 				uint32_t version_low = GetU32(filebase + product_version_off + 4);
 
 				file_info.version = (static_cast<uint64_t>(version_high) << 32) | version_low;
-				file_info.version_str = fmt::format("{}.{}.{}.{}", (version_high >> 16) & 0xFFFF, version_high & 0xFFFF, (version_low >> 16) & 0xFFFF, version_low & 0xFFFF);
+				file_info.version_str = std::format("{}.{}.{}.{}", (version_high >> 16) & 0xFFFF, version_high & 0xFFFF, (version_low >> 16) & 0xFFFF, version_low & 0xFFFF);
 			}
 
 			std::array<uint8_t, 30> easyrpg_player_str = {

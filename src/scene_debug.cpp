@@ -711,7 +711,7 @@ void Scene_Debug::UpdateRangeListWindow() {
 	auto fillRange = [&](const auto& prefix) {
 		for (int i = 0; i < 10; i++){
 			const auto st = range_page * 100 + i * 10 + 1;
-			addItem(fmt::format("{}[{:04d}-{:04d}]", prefix, st, st + 9));
+			addItem(std::format("{}[{:04d}-{:04d}]", prefix, st, st + 9));
 		}
 	};
 
@@ -771,14 +771,14 @@ void Scene_Debug::UpdateRangeListWindow() {
 			if (GetStackSize() > 3) {
 				auto* event = Game_Map::GetEvent(GetFrame(1).value);
 				if (event) {
-					addItem(fmt::format("{:04d}: {}", event->GetId(), event->GetName()));
-					addItem(fmt::format("NumPages: {}", event->GetNumPages()));
+					addItem(std::format("{:04d}: {}", event->GetId(), event->GetName()));
+					addItem(std::format("NumPages: {}", event->GetNumPages()));
 					const auto* page = event->GetActivePage();
 					const auto page_id = page ? page->ID : 0;
-					addItem(fmt::format("ActvPage: {}", page_id));
-					addItem(fmt::format("Enabled: {}", event->IsActive() ? 'Y' : 'N'));
-					addItem(fmt::format("X: {}", event->GetX()));
-					addItem(fmt::format("Y: {}", event->GetY()));
+					addItem(std::format("ActvPage: {}", page_id));
+					addItem(std::format("Enabled: {}", event->IsActive() ? 'Y' : 'N'));
+					addItem(std::format("X: {}", event->GetX()));
+					addItem(std::format("Y: {}", event->GetY()));
 				}
 			} else {
 				fillRange("Me");
@@ -805,9 +805,9 @@ void Scene_Debug::UpdateRangeListWindow() {
 				auto* troop = Game_Battle::GetActiveTroop();
 				if (troop) {
 					addItem(troop->name);
-					addItem(fmt::format("TroopId: {}", troop->ID));
-					addItem(fmt::format("NumEnemies: {}", troop->members.size()));
-					addItem(fmt::format("NumPages: {}", troop->pages.size()));
+					addItem(std::format("TroopId: {}", troop->ID));
+					addItem(std::format("NumEnemies: {}", troop->members.size()));
+					addItem(std::format("NumPages: {}", troop->pages.size()));
 				}
 			}
 			break;
@@ -819,13 +819,13 @@ void Scene_Debug::UpdateRangeListWindow() {
 			//if (state_interpreter.show_frame_switches || state_interpreter.show_frame_vars) {
 			//	for (int i = 0; i < 10; i++) {
 			//		const auto st = range_page * 100 + i * 10 + 1;
-			//		addItem(fmt::format("{}[{:03d}-{:03d}]", state_interpreter.show_frame_switches ? "FSw" : "FVr", st, st + 9));
+			//		addItem(std::format("{}[{:03d}-{:03d}]", state_interpreter.show_frame_switches ? "FSw" : "FVr", st, st + 9));
 			//	}
 			//} else {
 				int skip_items = range_page * 10;
 				int count_items = 0;
 				if (range_page == 0) {
-					addItem(fmt::format("{}Main", Game_Interpreter::GetForegroundInterpreter().GetState().wait_movement ? "(W) " : ""));
+					addItem(std::format("{}Main", Game_Interpreter::GetForegroundInterpreter().GetState().wait_movement ? "(W) " : ""));
 					skip_items = 1;
 					count_items = 1;
 				}
@@ -835,7 +835,7 @@ void Scene_Debug::UpdateRangeListWindow() {
 						continue;
 					}
 					int evt_id = state_interpreter.ev[i];
-					addItem(fmt::format("{}EV{:04d}: {}", state_interpreter.state_ev[i].wait_movement ? "(W) " : "", evt_id, Game_Map::GetEvent(evt_id)->GetName()));
+					addItem(std::format("{}EV{:04d}: {}", state_interpreter.state_ev[i].wait_movement ? "(W) " : "", evt_id, Game_Map::GetEvent(evt_id)->GetName()));
 					count_items++;
 				}
 				for (int i = 0; i < state_interpreter.ce.size() && count_items < 10; i++) {
@@ -845,7 +845,7 @@ void Scene_Debug::UpdateRangeListWindow() {
 					}
 					int ce_id = state_interpreter.ce[i];
 					auto* ce = lcf::ReaderUtil::GetElement(lcf::Data::commonevents, ce_id);
-					addItem(fmt::format("{}CE{:04d}: {}", state_interpreter.state_ce[i].wait_movement ? "(W) " : "", ce_id, ce->name));
+					addItem(std::format("{}CE{:04d}: {}", state_interpreter.state_ce[i].wait_movement ? "(W) " : "", ce_id, ce->name));
 					count_items++;
 				}
 			//}
@@ -1253,14 +1253,14 @@ void Scene_Debug::UpdateInterpreterWindow(int index) {
 	} else if (index <= state_interpreter.ev.size()) {
 		evt_id = state_interpreter.ev[index - 1];
 		state = state_interpreter.state_ev[index - 1];
-		first_line = fmt::format("EV{:04d}: {}", evt_id, Game_Map::GetEvent(evt_id)->GetName());
+		first_line = std::format("EV{:04d}: {}", evt_id, Game_Map::GetEvent(evt_id)->GetName());
 		valid = true;
 	} else if ((index - state_interpreter.ev.size()) <= state_interpreter.ce.size()) {
 		int ce_id = state_interpreter.ce[index - state_interpreter.ev.size() - 1];
 		state = state_interpreter.state_ce[index - state_interpreter.ev.size() - 1];
 		for (auto& ce : Game_Map::GetCommonEvents()) {
 			if (ce.common_event_id == ce_id) {
-				first_line = fmt::format("CE{:04d}: {}", ce_id, ce.GetName());
+				first_line = std::format("CE{:04d}: {}", ce_id, ce.GetName());
 				evt_id = ce_id;
 				valid = true;
 				break;

@@ -27,7 +27,7 @@
 #include "player.h"
 
 #include <cstdio>
-#include <fmt/format.h>
+//#include <fmt/format.h>
 
 Window_NumberInput::Window_NumberInput(int ix, int iy, int iwidth, int iheight) :
 	Window_Selectable(ix, iy, iwidth, iheight),
@@ -51,7 +51,7 @@ Window_NumberInput::Window_NumberInput(int ix, int iy, int iwidth, int iheight) 
 void Window_NumberInput::Refresh() {
 	contents->Clear();
 
-	auto s = fmt::format("{0}{1:0{2}d}",
+	auto s = std::format("{0}{1:0{2}d}",
 			show_operator ? (plus ? "+" : "-") : "",
 			number, digits_max);
 

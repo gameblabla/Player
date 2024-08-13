@@ -161,7 +161,7 @@ static bool load_default_sf(std::string& status_message, fluid_synth_t* syn) {
 	for (const auto& sf_name: sf_paths) {
 		if (fluid_synth_sfload(syn, sf_name.c_str(), 1) != FLUID_FAILED) {
 			sf_load_success = true;
-			status_message = fmt::format("Using soundfont {}", sf_name);
+			status_message = std::format("Using soundfont {}", sf_name);
 			break;
 		}
 	}
@@ -304,7 +304,7 @@ bool FluidSynthDecoder::ChangeGlobalSoundfont(StringView sf_path, std::string& s
 	}
 
 	if (fluid_synth_sfload(pending_global_synth.get(), ToString(sf_path).c_str(), 1) != FLUID_FAILED) {
-		status_message = fmt::format("Using soundfont {}", sf_path);
+		status_message = std::format("Using soundfont {}", sf_path);
 		return true;
 	}
 

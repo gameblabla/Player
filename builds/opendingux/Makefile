@@ -13,7 +13,7 @@ TOOLCHAINDIR ?= /opt/toolchains/dc/sh-elf
 SYSROOT =
 BINDIR = $(TOOLCHAINDIR)/bin
 
-CFLAGS = -std=gnu++17
+CFLAGS = -std=gnu++23
 # -DHAVE_FLUIDLITE=1
 CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLIBPNG_DEP=1
 CFLAGS += -I/opt/toolchains/dc/kos/addons/include -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include -I/opt/toolchains/dc/kos/include -I/opt/toolchains/dc/sh-elf/sh-elf/include
@@ -65,7 +65,7 @@ CFLAGS += -DOPENDINGUX
 
 # Start compile
 $(TARGET): $(OBJS)
-	kos-cc $(CFLAGS) $(OBJS) -o $@  -lstdc++ -lSDLaudio  -lz -lpixman-1 -lfmt -lpng -Wl,--as-needed -Wl,--gc-sections -s -flto -Wl,-Map=output.map
+	kos-cc $(CFLAGS) $(OBJS) -o $@  -lstdc++ -lSDLaudio  -lz -lpixman-1 -lpng -Wl,--as-needed -Wl,--gc-sections -s -flto -Wl,-Map=output.map
 
 .cpp.o:
 	kos-c++ $(INCDIR) $(CXXFLAGS) -c $< -o $@

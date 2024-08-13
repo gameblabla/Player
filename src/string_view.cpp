@@ -16,19 +16,14 @@
  */
 
 #include "string_view.h"
+#include <format>
 
-#if FMT_VERSION >= EP_FMT_MODERN_VERSION
-
-#include <fmt/format.h>
-
-auto fmt::formatter<lcf::DBString>::format(const lcf::DBString& s, format_context& ctx) const -> decltype(ctx.out()) {
+auto std::formatter<lcf::DBString>::format(const lcf::DBString& s, format_context& ctx) const -> decltype(ctx.out()) {
 	string_view sv(s.data(), s.size());
 	return formatter<string_view>::format(sv, ctx);
 }
 
-auto fmt::formatter<lcf::StringView>::format(const lcf::StringView& s, format_context& ctx) const -> decltype(ctx.out()) {
+auto std::formatter<lcf::StringView>::format(const lcf::StringView& s, format_context& ctx) const -> decltype(ctx.out()) {
 	string_view sv(s.data(), s.size());
 	return formatter<string_view>::format(sv, ctx);
 }
-
-#endif

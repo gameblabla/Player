@@ -13,7 +13,7 @@ TOOLCHAINDIR ?= /opt/toolchains/dc/sh-elf
 SYSROOT =
 BINDIR = $(TOOLCHAINDIR)/bin
 
-CFLAGS = -std=gnu++17 -O2 -g3
+CFLAGS = -std=gnu++23 -O2 -g3
 CFLAGS += -DOPENDINGUX  -DUSE_SDL=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLOW_MEMORY_DEVICES=1
 CFLAGS += -I/usr/include/SDL/  -I. -Isounddc -Iinclude
 
@@ -61,7 +61,7 @@ CFLAGS += -DOPENDINGUX
 
 # Start compile
 $(TARGET): $(OBJS)
-	gcc $(CFLAGS) $(OBJS) -o $@ -lm -lstdc++ -lSDL -lz -lpixman-1 -lfmt -lpng
+	gcc $(CFLAGS) $(OBJS) -o $@ -lm -lstdc++ -lSDL -lz -lpixman-1 -lpng
 
 .cpp.o:
 	g++ $(INCDIR) $(CXXFLAGS) -c $< -o $@

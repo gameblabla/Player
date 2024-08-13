@@ -286,7 +286,7 @@ bool WildMidiDecoder::Initialize(std::string& status_message) {
 		return false;
 	}
 
-	status_message = fmt::format("Using {} as configuration file...", config_file);
+	status_message = std::format("Using {} as configuration file...", config_file);
 
 #if LIBWILDMIDI_VERSION >= 1027 // at least 0.4.3
 	init = (WildMidi_InitVIO(&vio, config_file.c_str(), EP_MIDI_FREQ, WILDMIDI_OPTS) == 0);

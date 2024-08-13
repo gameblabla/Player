@@ -1037,9 +1037,9 @@ void Player::LoadDatabase() {
 			lmt_stream.clear();
 			lmt_stream.seekg(0, std::ios::beg);
 			Input::AddRecordingData(Input::RecordingData::Hash,
-									fmt::format("ldb {:#08x}", Utils::CRC32(ldb_stream)));
+									std::format("ldb {:#08x}", Utils::CRC32(ldb_stream)));
 			Input::AddRecordingData(Input::RecordingData::Hash,
-						   fmt::format("lmt {:#08x}", Utils::CRC32(lmt_stream)));
+						   std::format("lmt {:#08x}", Utils::CRC32(lmt_stream)));
 		}
 
 		// Override map extension, if needed.

@@ -472,7 +472,7 @@ void Scene_Battle_Rpg2k3::UpdateAnimations() {
 						help_window->Clear();
 						int state_counter = 0;
 						for (lcf::rpg::State* state : ordered_states) {
-							std::string state_name = fmt::format("{:9s}", state->name);
+							std::string state_name = std::format("{:9s}", state->name);
 							help_window->AddText(state_name, state->color, Text::AlignLeft, false);
 							if (++state_counter >= 5) break;
 						}

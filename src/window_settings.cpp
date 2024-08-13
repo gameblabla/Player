@@ -683,16 +683,20 @@ void Window_Settings::RefreshButtonList() {
 
 			value_size += cur_value_size;
 		}
+		
+		// Gameblabla - Check if it's wrong
 
 		switch (button) {
 			case Input::FAST_FORWARD_A: {
 				Game_ConfigInput& cfg = Input::GetInputSource()->GetConfig();
-				help = fmt::format(help, cfg.speed_modifier_a.Get());
+				help += std::to_string(cfg.speed_modifier_a.Get());
+				//help = std::format(help, cfg.speed_modifier_a.Get());
 				break;
 			}
 			case Input::FAST_FORWARD_B: {
 				Game_ConfigInput& cfg = Input::GetInputSource()->GetConfig();
-				help = fmt::format(help, cfg.speed_modifier_b.Get());
+				//help = std::format(help, cfg.speed_modifier_b.Get());
+				help += std::to_string(cfg.speed_modifier_b.Get());
 				break;
 			}
 			default:

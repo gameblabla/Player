@@ -182,13 +182,13 @@ void Window_Interpreter::DrawStackLine(int index) {
 
 	StackItem& item = stack_display_items[index];
 
-	contents->TextDraw(rect.x, rect.y, Font::ColorDisabled, fmt::format("[{:0" + std::to_string(digits_stackitemno) + "d}]", state.stack.size() - index));
+	contents->TextDraw(rect.x, rect.y, Font::ColorDisabled, std::format("[{:0{}d}]", state.stack.size() - index, digits_stackitemno));
 	if (item.is_ce) {
-		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, fmt::format("CE{:0" + std::to_string(digits_evt_id) + "d}", item.evt_id));
+		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, std::format("CE{:0{}d}", item.evt_id, digits_evt_id));
 	} else if (item.page_id > 0) {
-		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, fmt::format("EV{:0" + std::to_string(digits_evt_id) + "d}[{:0" + std::to_string(digits_page_id) + "d}]", item.evt_id, item.page_id));
+		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, std::format("EV{:0{}d}[{:0{}d}]", item.evt_id, digits_evt_id, item.page_id, digits_page_id));
 	} else {
-		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, fmt::format("EV{:0" + std::to_string(digits_evt_id) + "d}", item.evt_id));
+		contents->TextDraw(rect.x + (digits_stackitemno * 6) + 16, rect.y, Font::ColorDefault, std::format("EV{:0{}d}", item.evt_id, digits_evt_id));
 	}
 
 	std::string name = item.name;
@@ -200,7 +200,7 @@ void Window_Interpreter::DrawStackLine(int index) {
 		name = name.substr(0, max_length - 3) + "...";
 	}
 	contents->TextDraw(rect.x + ((digits_stackitemno + digits_evt_combined_id) * 6) + 16, rect.y, Font::ColorDefault, name, Text::AlignLeft);
-	contents->TextDraw(GetWidth() - 16, rect.y, Font::ColorDefault, fmt::format("{:0" + std::to_string(digits_cmdcount) + "d}/{:0" + std::to_string(digits_cmdcount) + "d}", item.cmd_current, item.cmd_count), Text::AlignRight);
+	contents->TextDraw(GetWidth() - 16, rect.y, Font::ColorDefault, std::format("{:0{}d}/{:0{}d}", item.cmd_current, digits_cmdcount, item.cmd_count, digits_cmdcount), Text::AlignRight);
 }
 
 int Window_Interpreter::GetSelectedStackFrameLine() {

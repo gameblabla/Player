@@ -384,7 +384,7 @@ void Scene_Settings::UpdateOptions() {
 				number_window->SetZ(options_window->GetZ() + 1);
 				number_window->SetOpacity(255);
 				number_window->SetActive(true);
-				help_window->SetText(fmt::format("Input a value from {} to {}", option.min_value, option.max_value));
+				help_window->SetText(std::format("Input a value from {} to {}", option.min_value, option.max_value));
 				options_window->SetActive(false);
 			} else if (option.mode == Window_Settings::eOptionPicker) {
 				picker_window.reset(new Window_Command(option.options_text));

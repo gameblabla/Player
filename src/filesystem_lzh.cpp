@@ -30,7 +30,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include <fmt/core.h>
+#include <format>
 
 #include "lhasa.h"
 
@@ -345,7 +345,7 @@ const LzhFilesystem::LzhEntry* LzhFilesystem::Find(StringView what) const {
 }
 
 std::string LzhFilesystem::Describe() const {
-	return fmt::format("[LZH] {} ({})", GetPath(), encoding);
+	return std::format("[LZH] {} ({})", GetPath(), encoding);
 }
 
 #endif
