@@ -33,7 +33,6 @@
 
 #ifdef DREAMCAST
 #include <kos.h>
-#include <kos/malloc.h>
 KOS_INIT_FLAGS(INIT_DEFAULT);
 #endif
 
