@@ -26,7 +26,7 @@
 #  include <config.h>
 #endif
 
-#if !(defined(USE_SDL) || defined(PLAYER_UI))
+#if !(defined(USE_SDL) || defined(PLAYER_UI) || defined(DREAMCAST))
 #  error "This build doesn't target a backend"
 #endif
 

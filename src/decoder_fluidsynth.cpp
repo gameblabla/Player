@@ -122,7 +122,11 @@ static bool load_default_sf(std::string& status_message, fluid_synth_t* syn) {
 	if (!preferred_soundfont.empty()) {
 		sf_paths.emplace_back(preferred_soundfont);
 	}
+#ifdef DREAMCAST
+	sf_paths.emplace_back("/cd/easyrpg.soundfont");
+#else
 	sf_paths.emplace_back("easyrpg.soundfont");
+#endif
 
 #if FLUIDSYNTH_VERSION_MAJOR >= 2
 	char* default_sf = nullptr;

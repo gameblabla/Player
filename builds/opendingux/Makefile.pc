@@ -1,0 +1,72 @@
+##################################################################
+#         Makefile for OpenDingux (Dingoo A320/GCW-Zero)         #
+#                            By Shin-NiL                         #
+#                     - Based on Rikku2000's -                   #
+##################################################################
+
+# Compiler Device option
+BUILD_TARGET ?= pc
+PROFILE ?= 0
+
+TARGET = pc/EasyRPG
+TOOLCHAINDIR ?= /opt/toolchains/dc/sh-elf
+SYSROOT =
+BINDIR = $(TOOLCHAINDIR)/bin
+
+CFLAGS = -std=gnu++17 -O2 -g3
+CFLAGS += -DOPENDINGUX  -DUSE_SDL=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1
+CFLAGS += -I/usr/include/SDL/  -I. -Isounddc -Iinclude
+
+PKG_CONFIG :=
+PNG_LIBS := 
+PIXMAN_CFLAGS := -I/usr/include/pixman-1
+PIXMAN_LIBS := -lpixman-1
+FREETYPE_CFLAGS := 
+ICU_CFLAGS := 
+ICU_LIBS := 
+LIBMPG123_CFLAGS := 
+LIBMPG123_LIBS :=  
+LIBSNDFILE_CFLAGS := 
+LIBSNDFILE_LIBS := 
+LIBSAMPLERATE_CFLAGS := 
+LIBSAMPLERATE_LIBS := 
+FLUIDLITE_CFLAGS :=
+FLUIDLITE_LIBS := 
+SPEEX_CFLAGS := 
+SPEEX_LIBS := 
+CXXFLAGS = 
+SDL_CONFIG = 
+SDL_TARGET = 1
+HUGE_PAGES = 0
+HOST = sh-elf-
+
+# Compiler headers
+INCLUDES = ../../src ../../lib/liblcf/src ../../lib/liblcf/src/generated
+INCDIR = $(foreach dir, $(INCLUDES), -I$(wildcard $(dir)))
+
+# Compiler source
+SOURCES = ../../src ../../src/platform/sdl ../../src/platform/opendingux ../../lib/liblcf/src ../../lib/liblcf/src/generated
+#./sounddc
+
+CPPFILES = $(foreach dir, $(SOURCES), $(wildcard $(dir)/*.cpp))
+
+OBJS = $(CPPFILES:.cpp=.o)
+
+# Compiler flags
+CFLAGS += -Wall -DNDEBUG $(PIXMAN_CFLAGS) $(FREETYPE_CFLAGS) $(ICU_CFLAGS) $(LIBMPG123_CFLAGS) $(LIBSNDFILE_CFLAGS) $(LIBSAMPLERATE_CFLAGS) $(FLUIDLITE_CFLAGS) $(SPEEX_CFLAGS)
+CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions 
+
+# Host compiler and extra flags
+CFLAGS += -DOPENDINGUX
+
+# Start compile
+$(TARGET): $(OBJS)
+	gcc $(CFLAGS) $(OBJS) -o $@ -lm -lstdc++ -lSDL -lz -lpixman-1 -lfmt -lpng
+
+.cpp.o:
+	g++ $(INCDIR) $(CXXFLAGS) -c $< -o $@
+	
+
+# Clean Project
+clean:
+	rm -f $(OBJS) $(TARGET) 

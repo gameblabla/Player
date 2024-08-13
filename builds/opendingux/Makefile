@@ -13,13 +13,13 @@ TOOLCHAINDIR ?= /opt/toolchains/dc/sh-elf
 SYSROOT =
 BINDIR = $(TOOLCHAINDIR)/bin
 
-CFLAGS = -std=gnu++17
-CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1
+CFLAGS = -std=gnu++17 -Oz -flto -fdata-sections -ffunction-sections -falign-functions=4 -falign-jumps=4 -falign-loops=4 -funsafe-math-optimizations -ffinite-math-only 
+CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLIBPNG_DEP=1 -DREAL_ASSERT=
 CFLAGS += -I/opt/toolchains/dc/kos/addons/include -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include -I/opt/toolchains/dc/kos/include -I/opt/toolchains/dc/sh-elf/sh-elf/include
-CFLAGS += -I/opt/toolchains/dc/kos-ports/include/SDL/ -I/opt/toolchains/dc/kos-ports/include/zlib/ -I/opt/toolchains/dc/kos-ports/include/png/
+CFLAGS += -I/opt/toolchains/dc/kos-ports/include/zlib/ -I/opt/toolchains/dc/kos-ports/include/png/ -I/opt/toolchains/dc/kos-ports/include/SDL/ -I. -Isounddc -Iinclude
 
 PKG_CONFIG :=
-PNG_LIBS := -lpng 
+PNG_LIBS := 
 PIXMAN_CFLAGS := -I/opt/toolchains/dc/kos-ports/include/pixman-1 -I/opt/toolchains/dc/kos-ports/include
 PIXMAN_LIBS := -lpixman-1
 FREETYPE_CFLAGS := 
@@ -46,24 +46,32 @@ INCLUDES = ../../src ../../lib/liblcf/src ../../lib/liblcf/src/generated
 INCDIR = $(foreach dir, $(INCLUDES), -I$(wildcard $(dir)))
 
 # Compiler source
-SOURCES = ../../src ../../src/platform/sdl ../../src/platform/opendingux ../../lib/liblcf/src ../../lib/liblcf/src/generated
+SOURCES = ../../src ../../src/platform/dreamcast ../../lib/liblcf/src ../../lib/liblcf/src/generated
+#./sounddc
+
 CPPFILES = $(foreach dir, $(SOURCES), $(wildcard $(dir)/*.cpp))
+CFILES = $(foreach dir, $(SOURCES), $(wildcard $(dir)/*.c))
+
 OBJS = $(CPPFILES:.cpp=.o)
+OBJS += $(CFILES:.c=.o)
 
 # Compiler flags
-CFLAGS += -Wall -DNDEBUG -DUSE_SDL=$(SDL_TARGET) $(PIXMAN_CFLAGS) $(FREETYPE_CFLAGS) $(ICU_CFLAGS) $(LIBMPG123_CFLAGS) $(LIBSNDFILE_CFLAGS) $(LIBSAMPLERATE_CFLAGS) $(FLUIDLITE_CFLAGS) $(SPEEX_CFLAGS)
-CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions
+CFLAGS += -Wall -DNDEBUG $(PIXMAN_CFLAGS) $(FREETYPE_CFLAGS) $(ICU_CFLAGS) $(LIBMPG123_CFLAGS) $(LIBSNDFILE_CFLAGS) $(LIBSAMPLERATE_CFLAGS) $(FLUIDLITE_CFLAGS) $(SPEEX_CFLAGS)
+CXXFLAGS += $(CFLAGS) -fno-rtti -fno-exceptions 
 
 # Host compiler and extra flags
 CFLAGS += -DOPENDINGUX
 
 # Start compile
 $(TARGET): $(OBJS)
-	kos-cc $(CFLAGS) $(OBJS) -o $@  -lSDL -lstdc++ -lpng -lz -lpixman-1 -lfmt -s
+	kos-cc $(CFLAGS) $(OBJS) -o $@  -lstdc++ -lSDLaudio  -lz -lpixman-1 -lfmt -lpng -Wl,--as-needed -Wl,--gc-sections -s -flto -Wl,-Map=output.map
 
 .cpp.o:
 	kos-c++ $(INCDIR) $(CXXFLAGS) -c $< -o $@
-
+	
+.c.o:
+	kos-cc $(INCDIR) $(CFLAGS) -c $< -o $@
+	
 pack:
 	rm -f IP.BIN
 	sh-elf-objcopy -R .stack -O binary dc/EasyRPG main.bin
