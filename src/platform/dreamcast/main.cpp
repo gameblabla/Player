@@ -81,12 +81,12 @@ extern "C" int main(int argc, char* argv[]) {
 #else
 	args.assign(argv, argv + argc);
 #endif
-
+/*
 #ifdef DREAMCAST
 	args.push_back("--project-path");
 	args.push_back("/cd/");
 #endif
-
+*/
 #if defined(__WIIU__) || defined(__ANDROID__)
 	Output::SetLogCallback(LogCallback);
 #endif

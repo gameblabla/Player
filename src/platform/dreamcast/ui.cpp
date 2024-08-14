@@ -50,11 +50,13 @@ cont_state_t *state;
 
 DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : BaseUi(cfg)
 {
-	BeginDisplayModeChange();
-		if (!RequestVideoMode(width, height, 1)) {
-			Output::Error("No suitable video resolution found. Aborting.");
-		}
-	EndDisplayModeChange();
+	current_display_mode.height = 320;
+	current_display_mode.width = 240;
+	
+	vid_set_mode(DM_320x240, PM_RGB0888);
+	
+	memset(vram_l, 0x44444444, (320*240)*4);
+	vid_waitvbl();
 
 	// Create the surface we draw on
 	DynamicFormat format = DynamicFormat(
@@ -64,6 +66,9 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 		0x000000FF,
 		0xFF000000,
 		PF::NoAlpha);
+		
+	memset(vram_l, 0x11111111, (320*240)*4);
+	vid_waitvbl();
 
 	Bitmap::SetFormat(Bitmap::ChooseFormat(format));
 	main_surface = Bitmap::Create(
@@ -72,6 +77,9 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 		false,
 		32
 	);
+	
+	memset(vram_l, 0x22222222, (320*240)*4);
+	vid_waitvbl();
 
 #ifdef SUPPORT_AUDIO
 	if (!Player::no_audio_flag) {
@@ -83,15 +91,6 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 
 DreamcastUi::~DreamcastUi() {
 	//Quit
-}
-
-bool DreamcastUi::RequestVideoMode(int width, int height, bool fullscreen) {
-	current_display_mode.height = height;
-	current_display_mode.width = width;
-	
-	vid_set_mode(DM_320x240, PM_RGB0888);
-	
-	return true;
 }
 
 void DreamcastUi::BeginDisplayModeChange() {
@@ -221,16 +220,8 @@ static inline void bit64_sq_cpy(void *dest, void *src, int n)
 }
 
 void DreamcastUi::UpdateDisplay() {
-	sdl_surface_bmp->BlitFast(0, 0, *main_surface, main_surface->GetRect(), Opacity::Opaque());
-	
-	/*dcache_flush_range((uint32_t)main_surface->pixels(),320*240*4);
-	while (!pvr_dma_ready());
-	pvr_dma_transfer(main_surface->pixels(), (uint32_t)vram_l, 320*240*4,PVR_DMA_VRAM32,-1,NULL,0);*/
-	
 	bit64_sq_cpy(vram_l, main_surface->pixels(), 320*240*4);
-	
 	vid_waitvbl();
-
 }
 
 void DreamcastUi::SetTitle(const std::string &title) {

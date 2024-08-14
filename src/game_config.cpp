@@ -24,7 +24,9 @@
 #include "input.h"
 #include <lcf/inireader.h>
 #include <cstring>
-
+#ifdef DREAMCAST
+#include <kos.h>
+#endif
 #ifdef _WIN32
 #  include <shlobj.h>
 #endif
@@ -95,6 +97,9 @@ Game_Config Game_Config::Create(CmdlineParser& cp) {
 		config_file = FileFinder::MakePath(config_path, config_name);
 	}
 
+#ifdef DREAMCAST
+	cfg.input.buttons = Input::GetDefaultButtonMappings();
+#else
 	auto cli_config = FileFinder::Root().OpenOrCreateInputStream(config_file);
 	if (!cli_config) {
 		config_path.clear();
@@ -108,7 +113,7 @@ Game_Config Game_Config::Create(CmdlineParser& cp) {
 	} else {
 		cfg.LoadFromStream(cli_config);
 	}
-
+#endif
 	cp.Rewind();
 	cfg.LoadFromArgs(cp);
 
@@ -151,7 +156,7 @@ FilesystemView Game_Config::GetGlobalConfigFilesystem() {
 			path = FileFinder::MakePath(path, FileFinder::MakePath(ORGANIZATION_NAME, APPLICATION_NAME));
 		}
 #elif defined(DREAMCAST)
-		path = "/ram/";
+		return {};
 #else
 		char* home = getenv("XDG_CONFIG_HOME");
 		if (home) {
@@ -282,7 +287,7 @@ void Game_Config::LoadFromArgs(CmdlineParser& cp) {
 		CmdlineArg arg;
 		long li_value = 0;
 		std::string str_value;
-
+#ifndef DREAMCAST
 		if (cp.ParseNext(arg, 0, {"--vsync", "--no-vsync"})) {
 			video.vsync.Set(arg.ArgIsOn());
 			continue;
@@ -415,12 +420,15 @@ void Game_Config::LoadFromArgs(CmdlineParser& cp) {
 			}
 			continue;
 		}
-
+#endif
 		cp.SkipNext();
 	}
 }
 
 void Game_Config::LoadFromStream(Filesystem_Stream::InputStream& is) {
+#ifdef DREAMCAST
+	return;
+#else
 	lcf::INIReader ini(is);
 
 	if (ini.ParseError()) {
@@ -513,9 +521,11 @@ void Game_Config::LoadFromStream(Filesystem_Stream::InputStream& is) {
 	player.font1_size.FromIni(ini);
 	player.font2.FromIni(ini);
 	player.font2_size.FromIni(ini);
+#endif
 }
 
 void Game_Config::WriteToStream(Filesystem_Stream::OutputStream& os) const {
+#ifndef DREAMCAST
 	/** VIDEO SECTION */
 
 	os << "[Video]\n";
@@ -600,4 +610,5 @@ void Game_Config::WriteToStream(Filesystem_Stream::OutputStream& os) const {
 	player.font2_size.ToIni(os);
 
 	os << "\n";
+#endif
 }

@@ -81,7 +81,7 @@ void Window_Settings::Push(UiMode ui, int arg) {
 
 	++stack_index;
 	REAL_ASSERT(stack_index < static_cast<int>(stack.size()));
-	stack[stack_index] = { ui, arg, 0, 0};
+	stack[stack_index] = { ui, arg, 0, 0, std::vector<Option>()};
 
 	Refresh();
 	RestorePosition();
@@ -511,7 +511,6 @@ void Window_Settings::RefreshLicense() {
 	AddOption(MenuItem("libpng", "For reading and writing PNG image files", "zlib"), [](){});
 	AddOption(MenuItem("zlib", "Implements deflate used in ZIP archives and PNG images", "zlib"), [](){});
 	AddOption(MenuItem("Pixman", "Pixel-manipulation library", "MIT"), [](){});
-	AddOption(MenuItem("fmtlib", "Text formatting library", "BSD"), [](){});
 	// No way to detect them - Used by liblcf
 	AddOption(MenuItem("expat", "XML parser", "MIT"), [](){});
 	AddOption(MenuItem("ICU", "Unicode library", "ICU"), [](){});

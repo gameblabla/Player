@@ -48,7 +48,7 @@ class PixmanImagePtr {
 		~PixmanImagePtr();
 
 		/** @return pointer to image */
-		pixman_image_t* get() const noexcept;
+		pixman_image_t*  __attribute__ ((aligned (4))) get() const noexcept;
 
 		/** @return reference to image */
 		pixman_image_t& operator*() const noexcept;
@@ -66,7 +66,7 @@ class PixmanImagePtr {
 		 */
 		void reset(pixman_image_t* img = nullptr) noexcept;
 	private:
-		pixman_image_t* _img = nullptr;
+		pixman_image_t* _img  __attribute__ ((aligned (4))) = nullptr;
 };
 
 inline bool operator==(const PixmanImagePtr& l, const PixmanImagePtr& r) { return l.get() == r.get(); }
