@@ -54,9 +54,6 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 	current_display_mode.width = 240;
 	
 	vid_set_mode(DM_320x240, PM_RGB0888);
-	
-	memset(vram_l, 0x44444444, (320*240)*4);
-	vid_waitvbl();
 
 	// Create the surface we draw on
 	DynamicFormat format = DynamicFormat(
@@ -66,9 +63,6 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 		0x000000FF,
 		0xFF000000,
 		PF::NoAlpha);
-		
-	memset(vram_l, 0x11111111, (320*240)*4);
-	vid_waitvbl();
 
 	Bitmap::SetFormat(Bitmap::ChooseFormat(format));
 	main_surface = Bitmap::Create(
@@ -77,9 +71,6 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 		false,
 		32
 	);
-	
-	memset(vram_l, 0x22222222, (320*240)*4);
-	vid_waitvbl();
 
 #ifdef SUPPORT_AUDIO
 	if (!Player::no_audio_flag) {

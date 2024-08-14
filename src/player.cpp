@@ -25,11 +25,6 @@
 #include <fstream>
 #include <memory>
 #include <thread>
-
-extern void print_string(const char *s,const uint32_t fg_color, const uint32_t bg_color, int32_t x, int32_t y) ;
-
-#define DRAW_STRING(s) 
-
 #ifdef _WIN32
 #  include "platform/windows/utils.h"
 #  include <windows.h>
@@ -199,11 +194,8 @@ void Player::Init(std::vector<std::string> args) {
 	if(! DisplayUi) {
 		DisplayUi = BaseUi::CreateUi(Player::screen_width, Player::screen_height, cfg);
 	}
-	
-	DRAW_STRING("Input::Init");
 
 	Input::Init(cfg.input, replay_input_path, record_input_path);
-	DRAW_STRING("Input::AddRecordingData");
 	
 	Input::AddRecordingData(Input::RecordingData::CommandLine, command_line);
 
@@ -212,71 +204,54 @@ void Player::Init(std::vector<std::string> args) {
 	speed_modifier_b = cfg.input.speed_modifier_b.Get();
 }
 
-#define RGBA(r, g, b, a) ((uint32_t)((r) << 24 | (g) << 16 | (b) << 8 | (a)))
-
 void Player::Run() {
 	Instrumentation::Init("EasyRPG-Player");
-	
-	DRAW_STRING("Scene::Push");
 
 	Scene::Push(std::make_shared<Scene_Logo>());
-	DRAW_STRING("Graphics::UpdateSceneCallback");
 	Graphics::UpdateSceneCallback();
 
 	reset_flag = false;
-	
-	DRAW_STRING("Game_Clock::ResetFrame");
 
 	Game_Clock::ResetFrame(Game_Clock::now());
 	
-	DRAW_STRING("Entering Loop");
-
 	// Main loop
-	while (1) {
+#if defined(USE_LIBRETRO) || defined(EMSCRIPTEN)
+	// emscripten implemented in main.cpp
+	// libretro invokes the MainLoop through a retro_run-callback
+#else
+	while (Transition::instance().IsActive() || (Scene::instance && Scene::instance->type != Scene::Null)) {
 		MainLoop();
 	}
+#endif
 }
 
 void Player::MainLoop() {
 	Instrumentation::FrameScope iframe;
 
-	DRAW_STRING("Game_Clock::now");
 	const auto frame_time = Game_Clock::now();
-	
-	DRAW_STRING("OnNextFrame");
 	Game_Clock::OnNextFrame(frame_time);
-
-	DRAW_STRING("UpdateInput");
 	Player::UpdateInput();
 
 	int num_updates = 0;
-	DRAW_STRING("NextGameTimeStep");
 	while (Game_Clock::NextGameTimeStep()) {
-		
-		DRAW_STRING("if (num_updates > 0) {");
 		if (num_updates > 0) {
 			Player::UpdateInput();
 		}
 
-		DRAW_STRING("old_instances.clear");
 		Scene::old_instances.clear();
 		Scene::instance->MainFunction();
 
-		DRAW_STRING("GetMessageOverlay().Update");
 		Graphics::GetMessageOverlay().Update();
 
 		++num_updates;
 	}
-	DRAW_STRING("Input::Update");
+
 	if (num_updates == 0) {
 		// If no logical frames ran, we need to update the system keys only.
 		Input::UpdateSystem();
 	}
 
-	DRAW_STRING("Player::Draw");
 	Player::Draw();
-
-	DRAW_STRING("Scene::old_instances.clear");
 	Scene::old_instances.clear();
 
 	if (!Transition::instance().IsActive() && Scene::instance->type == Scene::Null) {
@@ -284,7 +259,6 @@ void Player::MainLoop() {
 		return;
 	}
 
-	DRAW_STRING("auto frame_limit = DisplayUi->GetFrameLimit();");
 	auto frame_limit = DisplayUi->GetFrameLimit();
 	if (frame_limit == Game_Clock::duration()) {
 		return;
@@ -396,11 +370,8 @@ void Player::Update(bool update_scene) {
 }
 
 void Player::Draw() {
-	DRAW_STRING("Graphics::Update");
 	Graphics::Update();
-	DRAW_STRING("Graphics::Draw");
 	Graphics::Draw(*DisplayUi->GetDisplaySurface());
-	DRAW_STRING("DisplayUi->UpdateDisplay");
 	DisplayUi->UpdateDisplay();
 }
 

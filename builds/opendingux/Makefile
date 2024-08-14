@@ -13,7 +13,7 @@ TOOLCHAINDIR ?= /opt/toolchains/dc/sh-elf
 SYSROOT =
 BINDIR = $(TOOLCHAINDIR)/bin
 
-CFLAGS = -std=gnu++23 -Wno-unused-parameter -Wall -Wextra -Wstrict-aliasing
+CFLAGS = -std=gnu++23 -Wno-unused-parameter -Wall -Wextra -Wstrict-aliasing -Oz
 # -DHAVE_FLUIDLITE=1
 CFLAGS +=  -DLOW_MEMORY_DEVICES=1 -DDREAMCAST=1 -DWANT_DRWAV=1 -DSUPPORT_AUDIO=1 -DWANT_FMMIDI=1 -DSUPPORT_JOYSTICK=1 -DSUPPORT_JOYSTICK_AXIS=1 -DLIBPNG_DEP=1 -DNOLOGO=1
 CFLAGS += -I/opt/toolchains/dc/kos/addons/include -I/opt/toolchains/dc/kos/kernel/arch/dreamcast/include -I/opt/toolchains/dc/kos/include -I/opt/toolchains/dc/sh-elf/sh-elf/include
@@ -80,6 +80,8 @@ pack:
 	makeip ip.txt IP.BIN
 	mkisofs -V disc -G IP.BIN -joliet -rock -l -x cd -o "disc.iso" ./dc/cd
 	cdi4dc disc.iso disc.cdi -d
+
+
 
 # Clean Project
 clean:
