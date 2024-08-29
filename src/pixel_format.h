@@ -25,7 +25,6 @@
 #include <algorithm>
 #include "system.h"
 #include "utils.h"
-#include "opts.h"
 
 /** Enums. */
 namespace PF {
@@ -255,7 +254,7 @@ struct bits_traits<TPF, 24> {
 		p[TPF::endian(2)] = (pix >> 16) & 0xFF;
 	}
 	static inline void copy_pixel(uint8_t* dst, const uint8_t* src) {
-		MEMCPY_REAL(dst, src, 3);
+		std::memcpy(dst, src, 3);
 	}
 	static inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) {
 		for (int i = 0; i < n; i++)
@@ -604,7 +603,7 @@ public:
 	}
 
 	inline void copy_pixels(uint8_t* dst, const uint8_t* src, int n) const {
-		MEMCPY_REAL(dst, src, n * bytes);
+		std::memcpy(dst, src, n * bytes);
 	}
 
 	inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) const {
@@ -669,6 +668,9 @@ typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligne
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,0,8,8,8,16,8,24> format_R8G8B8A8_n;
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,24,8,16,8,8,8,0> format_A8B8G8R8_n;
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,8,8,16,8,24,8,0> format_A8R8G8B8_n;
+
+typedef PixelFormatT<16,PF::StaticMasks,PF::StaticAlpha,PF::Alpha,PF::IsAligned,5,10,5,5,5,0,1,15> format_A1R5G5B5_a;
+typedef PixelFormatT<16,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,5,10,5,5,5,0,1,15> format_A1R5G5B5_n;
 #else
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::Alpha,PF::IsAligned,8,8,8,16,8,24,8,0> format_B8G8R8A8_a;
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::Alpha,PF::IsAligned,8,24,8,16,8,8,8,0> format_R8G8B8A8_a;
@@ -680,18 +682,5 @@ typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligne
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,0,8,8,8,16,8,24> format_A8B8G8R8_n;
 typedef PixelFormatT<32,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,16,8,8,8,0,8,24> format_A8R8G8B8_n;
 #endif
-
-typedef PixelFormatT< 8,PF::StaticMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,8,0,8,0,8,0,0,0> format_L8;
-
-typedef PixelFormatT<32,PF::DynamicMasks,PF::StaticAlpha,PF::Alpha,PF::IsAligned,0,0,0,0,0,0,0,0> format_dynamic_32_a;
-typedef PixelFormatT<32,PF::DynamicMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,0,0,0,0,0,0,0,0> format_dynamic_32_n;
-typedef PixelFormatT<32,PF::DynamicMasks,PF::DynamicAlpha,PF::NoAlpha,PF::IsAligned,0,0,0,0,0,0,0,0> format_dynamic_32_d;
-
-typedef PixelFormatT<24,PF::DynamicMasks,PF::StaticAlpha,PF::NoAlpha,PF::IsAligned,0,0,0,0,0,0,0,0> format_dynamic_24_n;
-typedef PixelFormatT<24,PF::DynamicMasks,PF::DynamicAlpha,PF::NoAlpha,PF::IsAligned,0,0,0,0,0,0,0,0> format_dynamic_24_d;
-
-typedef PixelFormatT<16,PF::DynamicMasks,PF::StaticAlpha,PF::Alpha,PF::NotAligned,0,0,0,0,0,0,0,0> format_dynamic_16_a;
-typedef PixelFormatT<16,PF::DynamicMasks,PF::StaticAlpha,PF::NoAlpha,PF::NotAligned,0,0,0,0,0,0,0,0> format_dynamic_16_n;
-typedef PixelFormatT<16,PF::DynamicMasks,PF::DynamicAlpha,PF::NoAlpha,PF::NotAligned,0,0,0,0,0,0,0,0> format_dynamic_16_d;
 
 #endif
