@@ -31,11 +31,17 @@
 #  include <coreinit/debug.h>
 #endif
 
-#ifdef DREAMCAST
-#include <kos.h>
-KOS_INIT_FLAGS(INIT_DEFAULT);
-#endif
 
+#include <kos.h>
+#include <kos.h>
+#include <dc/sd.h>
+#include <kos/blockdev.h>
+#include <fat/fs_fat.h>
+#include <ext2/fs_ext2.h>
+KOS_INIT_FLAGS(INIT_DEFAULT);
+
+kos_blockdev_t sd_dev;
+uint8 partition_type;
 
 #if defined(__ANDROID__) || defined(__WIIU__)
 static void LogCallback(LogLevel lvl, std::string const& msg, LogCallbackUserData /* userdata */) {
@@ -87,9 +93,35 @@ extern "C" int main(int argc, char* argv[]) {
 	args.push_back("/cd/");
 #endif
 */
-#if defined(__WIIU__) || defined(__ANDROID__)
-	Output::SetLogCallback(LogCallback);
-#endif
+	cont_btn_callback(0, CONT_START | CONT_A | CONT_B | CONT_X | CONT_Y, (void (*)(unsigned char, long  unsigned int))arch_exit);
+	if(sd_init()) 
+	{
+		printf("No SD card detected. Make sure to have SD card !\n");
+		auto savefs = FileFinder::Root().Create(FileFinder::MakeCanonical("/ram/", 0));
+		FileFinder::SetSaveFilesystem(savefs);
+	}
+	else
+	{
+		sd_blockdev_for_partition(0, &sd_dev, &partition_type);
+		if (partition_type == 0x04 || partition_type == 0x06 || partition_type == 0x0B || partition_type == 0x0C) 
+		{
+			fs_fat_init();
+			fs_fat_mount("/sd", &sd_dev, FS_FAT_MOUNT_READWRITE);
+			//args.push_back("--save-path");
+			//args.push_back("/sd");
+			auto savefs = FileFinder::Root().Create(FileFinder::MakeCanonical("/sd/", 0));
+			FileFinder::SetSaveFilesystem(savefs);
+			printf("SD card init !\n");
+		}
+		else
+		{
+			printf("Only FAT32 SD is supported\n");
+			auto savefs = FileFinder::Root().Create(FileFinder::MakeCanonical("/ram/", 0));
+			FileFinder::SetSaveFilesystem(savefs);
+			//args.push_back("--save-path");
+			//args.push_back("/ram");
+		}
+	}
 
 	Player::Init(std::move(args));
 	Player::Run();

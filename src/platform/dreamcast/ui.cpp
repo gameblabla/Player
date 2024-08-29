@@ -46,31 +46,64 @@ AudioInterface& DreamcastUi::GetAudio() {
 mouse_state_t *mstate;
 maple_device_t *cont, *kbd,  *mouse;
 cont_state_t *state;
+pvr_ptr_t front_tex;
 
+pvr_poly_cxt_t cxt;
+pvr_poly_hdr_t hdr;
+pvr_vertex_t vert;
+uint8_t* pix_dc;
+
+#define RGBA_CODEPATH 1
 
 DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : BaseUi(cfg)
 {
+#ifdef RGBA_CODEPATH
 	current_display_mode.height = 320;
 	current_display_mode.width = 240;
 	
-	vid_set_mode(DM_320x240, PM_RGB0888);
+	vid_set_mode(DM_320x240, PM_RGB888P);
 
 	// Create the surface we draw on
-	DynamicFormat format = DynamicFormat(
+	/*DynamicFormat format = DynamicFormat(
 		32,
 		0x00FF0000,
 		0x0000FF00,
 		0x000000FF,
 		0xFF000000,
+		PF::NoAlpha);*/
+		
+	DynamicFormat format = DynamicFormat(
+		24,
+		0x00FF0000,
+		0x0000FF00,
+		0x000000FF,
+		0x00000000,
 		PF::NoAlpha);
 
 	Bitmap::SetFormat(Bitmap::ChooseFormat(format));
-	main_surface = Bitmap::Create(
-		SCREEN_TARGET_WIDTH,
-		SCREEN_TARGET_HEIGHT,
-		false,
-		32
-	);
+
+	pix_dc = (uint8_t*)aligned_alloc(32, (320 * 240)*3);
+
+	main_surface = Bitmap::Create(pix_dc, 320, 240, 320*3, format);
+#else
+	current_display_mode.height = 320;
+	current_display_mode.width = 240;
+
+    /* init kos  */
+    vid_set_mode(DM_640x480, PM_RGB888P);
+	pvr_init_defaults();
+    pvr_dma_init();
+    
+    front_tex = pvr_mem_malloc((512*256)*2);
+    
+    pix_dc = (uint8_t*)aligned_alloc(32, (512 * 240)*2);
+
+	// Create the surface we draw on
+	DynamicFormat format = format_A1R5G5B5_n().format();
+	Bitmap::SetFormat(Bitmap::ChooseFormat(format));
+
+	main_surface = Bitmap::Create(pix_dc, 320, 240, 1024, format);
+#endif
 
 #ifdef SUPPORT_AUDIO
 	if (!Player::no_audio_flag) {
@@ -96,7 +129,7 @@ void DreamcastUi::EndDisplayModeChange() {
 
 bool DreamcastUi::RefreshDisplayMode() {
 	//current_display_mode.bpp = sdl_surface->format->BitsPerPixel;
-	current_display_mode.bpp = 4;
+	//current_display_mode.bpp = 2;
 	return true;
 }
 
@@ -210,9 +243,62 @@ static inline void bit64_sq_cpy(void *dest, void *src, int n)
     *((uint32 *)(0xe0000020)) = 0;
 }
 
+
 void DreamcastUi::UpdateDisplay() {
+#ifdef RGBA_CODEPATH
 	bit64_sq_cpy(vram_l, main_surface->pixels(), 320*240*4);
 	vid_waitvbl();
+#else
+	bit64_sq_cpy(front_tex, pix_dc, 512*240*2);
+	
+    pvr_wait_ready();
+    pvr_scene_begin();
+
+    pvr_list_begin(PVR_LIST_OP_POLY);
+
+	pvr_poly_cxt_txr(&cxt, PVR_LIST_OP_POLY, PVR_TXRFMT_ARGB1555|PVR_TXRFMT_NONTWIDDLED, 512, 256, front_tex, PVR_FILTER_NEAREST);
+
+    pvr_poly_compile(&hdr, &cxt);
+    pvr_prim(&hdr, sizeof(hdr));
+
+    vert.argb = PVR_PACK_COLOR(1.0f, 1.0f, 1.0f, 1.0f);    
+    vert.oargb = 0;
+    vert.flags = PVR_CMD_VERTEX;
+    
+    vert.x = 0;
+    vert.y = 0;
+    vert.z = 1;
+    vert.u = 0.0;
+    vert.v = 0.0;
+    pvr_prim(&vert, sizeof(vert));
+    
+    vert.x = 640+240+90+34+13+4+2+1;
+    vert.y = 0;
+    vert.z = 1;
+    vert.u = 1.0;
+    vert.v = 0.0;
+    pvr_prim(&vert, sizeof(vert));
+    
+    vert.x = 0;
+    vert.y = 512;
+    vert.z = 1;
+    vert.u = 0.0;
+    vert.v = 1.0;
+    pvr_prim(&vert, sizeof(vert));
+    
+    vert.x = 640+240+90+34+13+4+2+1;
+    vert.y = 512;
+    vert.z = 1;
+    vert.u = 1.0;
+    vert.v = 1.0;
+    vert.flags = PVR_CMD_VERTEX_EOL;
+    pvr_prim(&vert, sizeof(vert));
+	
+
+    pvr_list_finish();
+
+    pvr_scene_finish();
+#endif
 }
 
 void DreamcastUi::SetTitle(const std::string &title) {

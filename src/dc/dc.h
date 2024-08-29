@@ -3,7 +3,7 @@
 
 #include "mem_dc.h"
 
-#if !defined(DREAMCAST) && !defined(NOOPT)
+#if !defined(DREAMCAST)
 
 #ifdef __cplusplus
 #define FLOOR_REAL std::floor

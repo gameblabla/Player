@@ -29,6 +29,7 @@
 #include "game_system.h"
 #include "drawable_mgr.h"
 #include "baseui.h"
+#include "opts.h"
 
 // Blocks subtiles IDs
 // Mess with this code and you will die in 3 days...
@@ -207,8 +208,8 @@ static uint32_t MakeAbTileHash(int id, int anim_step) {
 
 void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_oy) {
 	// Get the number of tiles that can be displayed on window
-	int tiles_x = (int)ceil(Player::screen_width / (float)TILE_SIZE);
-	int tiles_y = (int)ceil(Player::screen_height / (float)TILE_SIZE);
+	int tiles_x = (int)ceil(DIVIDE_REAL(Player::screen_width,TILE_SIZE));
+	int tiles_y = (int)ceil(DIVIDE_REAL(Player::screen_height,TILE_SIZE));
 
 	// If ox or oy are not equal to the tile size draw the next tile too
 	// to prevent black (empty) tiles at the borders
@@ -223,8 +224,8 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 	const bool loop_v = Game_Map::LoopVertical();
 
 	auto div_rounding_down = [](int n, int m) {
-		if (n >= 0) return n / m;
-		return (n - m + 1) / m;
+		if (n >= 0) return DIVIDE_REAL(n,m);
+		return DIVIDE_REAL((n - m + 1), m);
 	};
 	auto mod = [](int n, int m) {
 		int rem = n % m;
@@ -233,7 +234,7 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 
 	// FIXME: When Game_Map singleton is made an object we can remove this null check
 	const auto frames = Main_Data::game_system ? Main_Data::game_system->GetFrameCounter() : 0;
-	auto animation_step_c = (frames / 6) % 4;
+	auto animation_step_c = frames / 6 % 4;
 	auto animation_step_ab = frames / animation_speed;
 	if (animation_type) {
 		animation_step_ab %= 3;
@@ -275,7 +276,8 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 
 			// Draw the sublayer if its z is being draw now
 			if (z_order == tile.z) {
-				if (layer == 0) {
+				if (layer == 0) 
+				{
 					// If lower layer
 					bool allow_fast_blit = (tile.z == TileBelow);
 
@@ -289,11 +291,11 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 						if (id < 96) {
 							// If from first column of the block
 							col = 12 + id % 6;
-							row = id / 6;
+							row = DIVIDE_REAL(id,6);
 						} else {
 							// If from second column of the block
 							col = 18 + (id - 96) % 6;
-							row = (id - 96) / 6;
+							row = DIVIDE_REAL((id - 96),6);
 						}
 
 						auto tone_hash = MakeETileHash(id);
@@ -302,7 +304,7 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 						// If Block C
 
 						// Get the tile coordinates from chipset
-						int col = 3 + (tile.ID - BLOCK_C) / 50;
+						int col = 3 + DIVIDE_REAL((tile.ID - BLOCK_C),50);
 						int row = 4 + animation_step_c;
 
 						auto tone_hash = MakeCTileHash(tile.ID, animation_step_c);
@@ -331,7 +333,9 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 						auto tone_hash = MakeDTileHash(tile.ID);
 						DrawTile(dst, *autotiles_d_screen, *autotiles_d_screen_effect, map_draw_x, map_draw_y, row, col, tone_hash, allow_fast_blit);
 					}
-				} else {
+				} 
+				else 
+				{
 					// If upper layer
 
 					// Check that block F is being drawn
@@ -343,31 +347,31 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 						if (id < 48) {
 							// If from first column of the block
 							col = 18 + id % 6;
-							row = 8 + id / 6;
+							row = 8 + DIVIDE_REAL(id, 6);
 						} else {
 							// If from second column of the block
 							col = 24 + (id - 48) % 6;
-							row = (id - 48) / 6;
+							row = DIVIDE_REAL((id - 48) ,6);
 						}
 
 						auto tone_hash = MakeFTileHash(id);
 						DrawTile(dst, *chipset, *chipset_effect, map_draw_x, map_draw_y, row, col, tone_hash);
 					}
-				}
+				} //
 			}
 		}
 	}
 }
 
 TilemapLayer::TileXY TilemapLayer::GetCachedAutotileAB(short ID, short animID) {
-	short block = ID / 1000;
-	short b_subtile = (ID - block * 1000) / 50;
+	short block = DIVIDE_REAL(ID,1000);
+	short b_subtile = DIVIDE_REAL((ID - block * 1000) ,50);
 	short a_subtile = ID - block * 1000 - b_subtile * 50;
 	return autotiles_ab[animID][block][b_subtile][a_subtile];
 }
 
 TilemapLayer::TileXY TilemapLayer::GetCachedAutotileD(short ID) {
-	short block = (ID - 4000) / 50;
+	short block = DIVIDE_REAL((ID - 4000) ,50);
 	short subtile = ID - 4000 - block * 50;
 	return autotiles_d[block][subtile];
 }
@@ -394,9 +398,9 @@ void TilemapLayer::CreateTileCache(const std::vector<short>& nmap_data) {
 				} else { // Lower layer
 					int chip_index =
 						tile.ID >= BLOCK_E ? substitutions[tile.ID - BLOCK_E] + 18 :
-						tile.ID >= BLOCK_D ? (tile.ID - BLOCK_D) / 50 + 6 :
-						tile.ID >= BLOCK_C ? (tile.ID - BLOCK_C) / 50 + 3 :
-						tile.ID / 1000;
+						tile.ID >= BLOCK_D ? DIVIDE_REAL((tile.ID - BLOCK_D) , 50) + 6 :
+						tile.ID >= BLOCK_C ? DIVIDE_REAL((tile.ID - BLOCK_C) , 50) + 3 :
+						DIVIDE_REAL(tile.ID, 1000);
 					if ((passable[chip_index] & (Passable::Wall | Passable::Above)) != 0)
 						tile.z = TileAbove; // Upper sublayer
 					else
@@ -414,10 +418,10 @@ void TilemapLayer::GenerateAutotileAB(short ID, short animID) {
 	//	1: A1 + Upper B (Grass + Coast)
 	//	2: A2 + Upper B (Snow + Coast)
 	//	3: A1 + Lower B (Grass + Ocean/Deep water)
-	short block = ID / 1000;
+	short block = DIVIDE_REAL(ID ,1000);
 
 	// Calculate the B block combination
-	short b_subtile = (ID - block * 1000) / 50;
+	short b_subtile = DIVIDE_REAL((ID - block * 1000) , 50);
 	if (b_subtile >= TILE_SIZE) {
 		Output::Warning("Invalid AB autotile ID: {} (b_subtile = {})",
 						ID, b_subtile);
@@ -509,7 +513,7 @@ void TilemapLayer::GenerateAutotileAB(short ID, short animID) {
 
 void TilemapLayer::GenerateAutotileD(short ID) {
 	// Calculate the D block id
-	short block = (ID - 4000) / 50;
+	short block = DIVIDE_REAL((ID - 4000) , 50);
 
 	// Calculate the D block combination
 	short subtile = ID - 4000 - block * 50;
@@ -529,11 +533,11 @@ void TilemapLayer::GenerateAutotileD(short ID) {
 	if (block < 4) {
 		// If from first column
 		block_x = (block % 2) * 3;
-		block_y = 8 + (block / 2) * 4;
+		block_y = 8 + (block >> 1) * 4;
 	} else {
 		// If from second column
 		block_x = 6 + (block % 2) * 3;
-		block_y = ((block - 4) / 2) * 4;
+		block_y = ((block - 4) >> 1) * 4;
 	}
 
 	// Calculate D block subtiles
@@ -574,7 +578,7 @@ BitmapRef TilemapLayer::GenerateAutotiles(int count, const std::unordered_map<ui
 	int rows = (count + TILES_PER_ROW - 1) / TILES_PER_ROW;
 	BitmapRef tiles = Bitmap::Create(TILES_PER_ROW * TILE_SIZE, rows * TILE_SIZE);
 	tiles->Clear();
-	Rect rect(0, 0, TILE_SIZE/2, TILE_SIZE/2);
+	Rect rect(0, 0, TILE_SIZE>>1, TILE_SIZE>>1);
 
 	for (auto& p: map) {
 		uint32_t quarters_hash = p.first;
@@ -593,10 +597,10 @@ BitmapRef TilemapLayer::GenerateAutotiles(int count, const std::unordered_map<ui
 				quarters_hash &= mask;
 				quarters_hash <<= 4;
 
-				rect.x = (x * 2 + i) * (TILE_SIZE/2);
-				rect.y = (y * 2 + j) * (TILE_SIZE/2);
+				rect.x = (x * 2 + i) * (TILE_SIZE>>1);
+				rect.y = (y * 2 + j) * (TILE_SIZE>>1);
 
-				tiles->BlitFast((dst.x * 2 + i) * (TILE_SIZE / 2), (dst.y * 2 + j) * (TILE_SIZE / 2), *chipset, rect, 255);
+				tiles->BlitFast((dst.x * 2 + i) * (TILE_SIZE >>1), (dst.y * 2 + j) * (TILE_SIZE >>1), *chipset, rect, 255);
 			}
 		}
 	}
