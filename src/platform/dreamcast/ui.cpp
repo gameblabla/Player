@@ -52,9 +52,6 @@ pvr_poly_cxt_t cxt;
 pvr_poly_hdr_t hdr;
 pvr_vertex_t vert;
 uint8_t* pix_dc;
-
-#define RGBA_CODEPATH 1
-
 DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : BaseUi(cfg)
 {
 #ifdef RGBA_CODEPATH

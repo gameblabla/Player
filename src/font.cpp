@@ -401,7 +401,7 @@ Font::GlyphRet FTFont::vRender(char32_t glyph) const {
 
 template<typename T>
 void put_pixel(BitmapRef bm, FT_Bitmap* ft_bitmap) {
-	size_t const pitch = std::abs(ft_bitmap->pitch);
+	size_t const pitch = /*std::abs(*/ft_bitmap->pitch/*)*/;
 	const int width = ft_bitmap->width;
 	const int height = ft_bitmap->rows;
 
@@ -477,11 +477,11 @@ Font::GlyphRet FTFont::vRenderShaped(char32_t glyph) const {
 		has_color = true;
 	} else {
 		bm = Bitmap::Create(width, height);
-		if (bm->bpp() == 2) {
-			put_pixel<uint16_t>(bm, ft_bitmap);
-		} else {
+		#ifdef RGBA_CODEPATH
 			put_pixel<uint32_t>(bm, ft_bitmap);
-		}
+		#else
+			put_pixel<uint16_t>(bm, ft_bitmap);
+		#endif
 	}
 
 	Point advance;

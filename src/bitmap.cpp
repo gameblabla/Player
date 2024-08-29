@@ -41,7 +41,7 @@
 #include "util_macro.h"
 #include "bitmap_hslrgb.h"
 #include <iostream>
-
+#include "opts.h"
 BitmapRef Bitmap::Create(int width, int height, const Color& color) {
 	BitmapRef surface = Bitmap::Create(width, height, true);
 	surface->Fill(color);
@@ -222,11 +222,11 @@ ImageOpacity Bitmap::ComputeImageOpacityT() const {
 }
 
 ImageOpacity Bitmap::ComputeImageOpacity() const {
-	if (bpp() == 2) {
-		return ComputeImageOpacityT<uint16_t>();
-	} else {
+	#ifdef RGBA_CODEPATH
 		return ComputeImageOpacityT<uint32_t>();
-	}
+	#else
+		return ComputeImageOpacityT<uint16_t>();
+	#endif
 }
 
 template<typename T>
@@ -263,11 +263,11 @@ ImageOpacity Bitmap::ComputeImageOpacityT(Rect rect) const {
 }
 
 ImageOpacity Bitmap::ComputeImageOpacity(Rect rect) const {
-	if (bpp() == 2) {
-		return ComputeImageOpacityT<uint16_t>(rect);
-	} else {
+	#ifdef RGBA_CODEPATH
 		return ComputeImageOpacityT<uint32_t>(rect);
-	}
+	#else
+		return ComputeImageOpacityT<uint16_t>(rect);
+	#endif
 }
 
 void Bitmap::CheckPixels(uint32_t flags) {
@@ -371,7 +371,7 @@ Point Bitmap::TextDraw(Rect const& rect, int color, StringView text, Text::Align
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: assert(false);
+	default: REAL_ASSERT(false);
 	}
 
 	return {};
@@ -402,7 +402,7 @@ Point Bitmap::TextDraw(Rect const& rect, Color color, StringView text, Text::Ali
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: assert(false);
+	default: REAL_ASSERT(false);
 	}
 
 	return {};
@@ -914,12 +914,11 @@ void Bitmap::ToneBlit(int x, int y, Bitmap const& src, Rect const& src_rect, con
 		x, y,
 		src_rect.width, src_rect.height);
 	}
-
-	if (bpp() == 2) {
-		return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
-	} else {
-		return ToneBlitT<uint32_t>(x, y, src, src_rect, tone, opacity, src_opacity);
-	}
+#ifdef RGBA_CODEPATH
+	return ToneBlitT<uint32_t>(x, y, src, src_rect, tone, opacity, src_opacity);
+#else
+	return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
+#endif
 }
 
 template<typename T>
@@ -1105,7 +1104,7 @@ void Bitmap::Flip(bool horizontal, bool vertical) {
 
 	auto temp = PixmanImagePtr{ pixman_image_create_bits(pixman_format, w, h, nullptr, p) };
 
-	std::memcpy(pixman_image_get_data(temp.get()),
+	MEMCPY_REAL(pixman_image_get_data(temp.get()),
 			pixman_image_get_data(bitmap.get()),
 			p * h);
 
