@@ -58,30 +58,22 @@ DreamcastUi::DreamcastUi(long width, long height, const Game_Config& cfg) : Base
 	current_display_mode.height = 320;
 	current_display_mode.width = 240;
 	
-	vid_set_mode(DM_320x240, PM_RGB888P);
+	vid_set_mode(DM_320x240, PM_RGB0888);
 
 	// Create the surface we draw on
-	/*DynamicFormat format = DynamicFormat(
+	DynamicFormat format = DynamicFormat(
 		32,
 		0x00FF0000,
 		0x0000FF00,
 		0x000000FF,
 		0xFF000000,
-		PF::NoAlpha);*/
-		
-	DynamicFormat format = DynamicFormat(
-		24,
-		0x00FF0000,
-		0x0000FF00,
-		0x000000FF,
-		0x00000000,
-		PF::NoAlpha);
+		PF::Alpha);
 
 	Bitmap::SetFormat(Bitmap::ChooseFormat(format));
 
-	pix_dc = (uint8_t*)aligned_alloc(32, (320 * 240)*3);
+	pix_dc = (uint8_t*)aligned_alloc(32, (320 * 240)*4);
 
-	main_surface = Bitmap::Create(pix_dc, 320, 240, 320*3, format);
+	main_surface = Bitmap::Create(pix_dc, 320, 240, 320*4, format);
 #else
 	current_display_mode.height = 320;
 	current_display_mode.width = 240;

@@ -22,13 +22,12 @@
 #include <algorithm>
 #include <iostream>
 #include <pixman.h>
-#include <unordered_map>
 
+#include "opacity.h"
 #include "pixel_format.h"
 #include "utils.h"
 #include "cache.h"
 #include "bitmap.h"
-#include "filefinder.h"
 #include "options.h"
 #include <lcf/data.h>
 #include "output.h"
@@ -38,10 +37,10 @@
 #include "transform.h"
 #include "font.h"
 #include "output.h"
-#include "util_macro.h"
 #include "bitmap_hslrgb.h"
-#include <iostream>
+#include "bitmap_blit.h"
 #include "opts.h"
+
 BitmapRef Bitmap::Create(int width, int height, const Color& color) {
 	BitmapRef surface = Bitmap::Create(width, height, true);
 	surface->Fill(color);
@@ -68,8 +67,8 @@ BitmapRef Bitmap::Create(const uint8_t* data, unsigned bytes, bool transparent, 
 	return bmp;
 }
 
-BitmapRef Bitmap::Create(Bitmap const& source, Rect const& src_rect, bool transparent) {
-	return std::make_shared<Bitmap>(source, src_rect, transparent);
+BitmapRef Bitmap::Create(Bitmap const& source, Rect const& src_rect, bool transparent, uint32_t flags) {
+	return std::make_shared<Bitmap>(source, src_rect, transparent, flags);
 }
 
 BitmapRef Bitmap::Create(int width, int height, bool transparent, int /* bpp */) {
@@ -131,7 +130,7 @@ Bitmap::Bitmap(Filesystem_Stream::InputStream stream, bool transparent, uint32_t
 
 	original_bpp = image_out.bpp;
 
-	filename = ToString(stream.GetName());
+	id = ToString(stream.GetName());
 }
 
 Bitmap::Bitmap(const uint8_t* data, unsigned bytes, bool transparent, uint32_t flags) {
@@ -165,13 +164,15 @@ Bitmap::Bitmap(const uint8_t* data, unsigned bytes, bool transparent, uint32_t f
 	CheckPixels(flags);
 }
 
-Bitmap::Bitmap(Bitmap const& source, Rect const& src_rect, bool transparent) {
+Bitmap::Bitmap(Bitmap const& source, Rect const& src_rect, bool transparent, uint32_t flags) {
 	format = (transparent ? pixel_format : opaque_pixel_format);
 	pixman_format = find_format(format);
 
 	Init(src_rect.width, src_rect.height, (void *) NULL);
 
 	Blit(0, 0, source, src_rect, Opacity::Opaque());
+
+	CheckPixels(flags);
 }
 
 bool Bitmap::WritePNG(std::ostream& os) const {
@@ -202,7 +203,7 @@ ImageOpacity Bitmap::ComputeImageOpacityT() const {
 	bool alpha_1bit = true;
 
 	auto* p = reinterpret_cast<const T*>(pixels());
-	const auto mask = pixel_format.rgba_to_uint32_t(0, 0, 0, 0xFF);
+	const auto mask = format.rgba_to_uint32_t(0, 0, 0, 0xFF);
 
 	int n = GetSize() / sizeof(T);
 	for (int i = 0; i < n; ++i ) {
@@ -222,11 +223,11 @@ ImageOpacity Bitmap::ComputeImageOpacityT() const {
 }
 
 ImageOpacity Bitmap::ComputeImageOpacity() const {
-	#ifdef RGBA_CODEPATH
-		return ComputeImageOpacityT<uint32_t>();
-	#else
+	if (bpp() == 2) {
 		return ComputeImageOpacityT<uint16_t>();
-	#endif
+	} else {
+		return ComputeImageOpacityT<uint32_t>();
+	}
 }
 
 template<typename T>
@@ -240,7 +241,7 @@ ImageOpacity Bitmap::ComputeImageOpacityT(Rect rect) const {
 
 	auto* p = reinterpret_cast<const T*>(pixels());
 	const int stride = pitch() / sizeof(T);
-	const auto mask = pixel_format.rgba_to_uint32_t(0, 0, 0, 0xFF);
+	const auto mask = format.rgba_to_uint32_t(0, 0, 0, 0xFF);
 
 	int xend = (rect.x + rect.width);
 	int yend = (rect.y + rect.height);
@@ -263,11 +264,11 @@ ImageOpacity Bitmap::ComputeImageOpacityT(Rect rect) const {
 }
 
 ImageOpacity Bitmap::ComputeImageOpacity(Rect rect) const {
-	#ifdef RGBA_CODEPATH
-		return ComputeImageOpacityT<uint32_t>(rect);
-	#else
+	if (bpp() == 2) {
 		return ComputeImageOpacityT<uint16_t>(rect);
-	#endif
+	} else {
+		return ComputeImageOpacityT<uint32_t>(rect);
+	}
 }
 
 void Bitmap::CheckPixels(uint32_t flags) {
@@ -300,7 +301,9 @@ void Bitmap::CheckPixels(uint32_t flags) {
 	if (flags & Flag_ReadOnly) {
 		read_only = true;
 
-		image_opacity = ComputeImageOpacity();
+		if (GetTransparent()) {
+			image_opacity = ComputeImageOpacity();
+		}
 	}
 }
 
@@ -371,7 +374,7 @@ Point Bitmap::TextDraw(Rect const& rect, int color, StringView text, Text::Align
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: REAL_ASSERT(false);
+	default: assert(false);
 	}
 
 	return {};
@@ -402,7 +405,7 @@ Point Bitmap::TextDraw(Rect const& rect, Color color, StringView text, Text::Ali
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
-	default: REAL_ASSERT(false);
+	default: assert(false);
 	}
 
 	return {};
@@ -547,6 +550,10 @@ void Bitmap::Init(int width, int height, void* data, int pitch, bool destroy) {
 
 	if (data != NULL && destroy)
 		pixman_image_set_destroy_function(bitmap.get(), destroy_func, data);
+
+	if (!GetTransparent()) {
+		image_opacity = ImageOpacity::Opaque;
+	}
 }
 
 void Bitmap::ConvertImage(int& width, int& height, void*& pixels, bool transparent) {
@@ -626,13 +633,15 @@ namespace {
 } // anonymous namespace
 
 void Bitmap::Blit(int x, int y, Bitmap const& src, Rect const& src_rect, Opacity const& opacity, Bitmap::BlendMode blend_mode) {
-	if (opacity.IsTransparent()) {
+	auto pixman_op = src.GetOperator(opacity, blend_mode);
+
+	if (BitmapBlit::Blit(*this, x, y, src, src_rect, opacity, pixman_op)) {
 		return;
 	}
 
 	auto mask = CreateMask(opacity, src_rect);
 
-	pixman_image_composite32(src.GetOperator(mask.get(), blend_mode),
+	pixman_image_composite32(pixman_op,
 							 src.bitmap.get(),
 							 mask.get(), bitmap.get(),
 							 src_rect.x, src_rect.y,
@@ -642,7 +651,7 @@ void Bitmap::Blit(int x, int y, Bitmap const& src, Rect const& src_rect, Opacity
 }
 
 void Bitmap::BlitFast(int x, int y, Bitmap const & src, Rect const & src_rect, Opacity const & opacity) {
-	if (opacity.IsTransparent()) {
+	if (BitmapBlit::BlitFast(*this, x, y, src, src_rect, opacity)) {
 		return;
 	}
 
@@ -681,7 +690,7 @@ void Bitmap::TiledBlit(int ox, int oy, Rect const& src_rect, Bitmap const& src, 
 
 	auto mask = CreateMask(opacity, src_rect);
 
-	pixman_image_composite32(src.GetOperator(mask.get(), blend_mode),
+	pixman_image_composite32(src.GetOperator(opacity, blend_mode),
 							 src_bm.get(), mask.get(), bitmap.get(),
 							 ox, oy,
 							 0, 0,
@@ -707,7 +716,7 @@ void Bitmap::StretchBlit(Rect const& dst_rect, Bitmap const& src, Rect const& sr
 
 	auto mask = CreateMask(opacity, src_rect, &xform);
 
-	pixman_image_composite32(src.GetOperator(mask.get(), blend_mode),
+	pixman_image_composite32(src.GetOperator(opacity, blend_mode),
 							 src.bitmap.get(), mask.get(), bitmap.get(),
 							 src_rect.x / zoom_x, src_rect.y / zoom_y,
 							 0, 0,
@@ -742,7 +751,7 @@ void Bitmap::WaverBlit(int x, int y, double zoom_x, double zoom_y, Bitmap const&
 		const double sy = (i - yclip) * (2 * M_PI) / (32.0 * zoom_y);
 		const int offset = 2 * zoom_x * depth * std::sin(phase + sy);
 
-		pixman_image_composite32(src.GetOperator(mask.get(), blend_mode),
+		pixman_image_composite32(src.GetOperator(opacity, blend_mode),
 								 src.bitmap.get(), mask.get(), bitmap.get(),
 								 xoff, yoff + i,
 								 0, i,
@@ -789,22 +798,16 @@ void Bitmap::Clear() {
 		return;
 	}
 
-	memset(pixels(), '\0', height() * pitch());
+	MEMSET_REAL(pixels(), '\0', height() * pitch());
 }
 
 void Bitmap::ClearRect(Rect const& dst_rect) {
-	pixman_color_t pcolor = {};
-	pixman_box32_t box = {
-		dst_rect.x,
-		dst_rect.y,
-		dst_rect.x + dst_rect.width,
-		dst_rect.y + dst_rect.height
-	};
+	if (dst_rect == GetRect()) {
+		Clear();
+		return;
+	}
 
-	box.x2 = Utils::Clamp<int32_t>(box.x2, 0, width());
-	box.y2 = Utils::Clamp<int32_t>(box.y2, 0, height());
-
-	pixman_image_fill_boxes(PIXMAN_OP_CLEAR, bitmap.get(), &pcolor, 1, &box);
+	BitmapBlit::ClearRect(*this, dst_rect);
 }
 
 // Hard light lookup table mapping source color to destination color
@@ -914,11 +917,12 @@ void Bitmap::ToneBlit(int x, int y, Bitmap const& src, Rect const& src_rect, con
 		x, y,
 		src_rect.width, src_rect.height);
 	}
-#ifdef RGBA_CODEPATH
-	return ToneBlitT<uint32_t>(x, y, src, src_rect, tone, opacity, src_opacity);
-#else
-	return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
-#endif
+
+	if (bpp() == 2) {
+		return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
+	} else {
+		return ToneBlitT<uint32_t>(x, y, src, src_rect, tone, opacity, src_opacity);
+	}
 }
 
 template<typename T>
@@ -1223,7 +1227,7 @@ void Bitmap::RotateZoomOpacityBlit(int x, int y, int ox, int oy,
 
 	// OP_SRC draws a black rectangle around the rotated image making this operator unusable here
 	blend_mode = (blend_mode == BlendMode::Default ? BlendMode::Normal : blend_mode);
-	pixman_image_composite32(GetOperator(mask.get(), blend_mode),
+	pixman_image_composite32(GetOperator(opacity, blend_mode),
 							 src_img, mask.get(), bitmap.get(),
 							 dst_rect.x, dst_rect.y,
 							 dst_rect.x, dst_rect.y,
@@ -1250,7 +1254,7 @@ void Bitmap::ZoomOpacityBlit(int x, int y, int ox, int oy,
 	StretchBlit(dst_rect, src, src_rect, opacity, blend_mode);
 }
 
-pixman_op_t Bitmap::GetOperator(pixman_image_t* mask, Bitmap::BlendMode blend_mode) const {
+pixman_op_t Bitmap::GetOperator(Opacity const& opacity, Bitmap::BlendMode blend_mode) const {
 	if (blend_mode != BlendMode::Default) {
 		switch (blend_mode) {
 			case BlendMode::Normal:
@@ -1288,7 +1292,9 @@ pixman_op_t Bitmap::GetOperator(pixman_image_t* mask, Bitmap::BlendMode blend_mo
 		}
 	}
 
-	if (!mask && (!GetTransparent() || GetImageOpacity() == ImageOpacity::Opaque)) {
+	bool has_mask = !opacity.IsOpaque() && !opacity.IsTransparent();
+
+	if (!has_mask && GetImageOpacity() == ImageOpacity::Opaque) {
 		return PIXMAN_OP_SRC;
 	}
 
@@ -1304,7 +1310,7 @@ void Bitmap::EdgeMirrorBlit(int x, int y, Bitmap const& src, Rect const& src_rec
 	const auto dst_rect = GetRect();
 
 	auto draw = [&](int x, int y) {
-		pixman_image_composite32(src.GetOperator(mask.get()),
+		pixman_image_composite32(src.GetOperator(opacity),
 				src.bitmap.get(),
 				mask.get(), bitmap.get(),
 				src_rect.x, src_rect.y,

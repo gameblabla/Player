@@ -25,6 +25,7 @@
 #include <algorithm>
 #include "system.h"
 #include "utils.h"
+#include "opts.h"
 
 /** Enums. */
 namespace PF {
@@ -69,11 +70,11 @@ struct Component {
 		byte = shift / 8;
 	}
 
-	constexpr bool operator==(const Component& c) {
+	constexpr bool operator==(const Component& c) const {
 		return mask == c.mask;
 	}
 
-	constexpr bool operator!=(const Component& c) {
+	constexpr bool operator!=(const Component& c) const {
 		return mask != c.mask;
 	}
 
@@ -159,6 +160,10 @@ public:
 		alpha_type = _alpha_type;
 	}
 
+	constexpr bool rgb_equal(const DynamicFormat& f) const {
+		return r == f.r && g == f.g && b == f.b;
+	}
+
 	constexpr int code(bool shifts) const {
 		int x = (int) alpha_type | ((bits - 1) << 2);
 		if (!shifts)
@@ -189,11 +194,11 @@ public:
 		return r.pack(_r) | g.pack(_g) | b.pack(_b) | a.pack(_a);
 	}
 
-	constexpr bool operator==(const DynamicFormat& f) {
+	constexpr bool operator==(const DynamicFormat& f) const {
 		return r ==  f.r && g == f.g && b == f.b && a == f.a && alpha_type == f.alpha_type;
 	}
 
-	constexpr bool operator!=(const DynamicFormat& f) {
+	constexpr bool operator!=(const DynamicFormat& f) const {
 		return r !=  f.r || g != f.g || b != f.b || a != f.a || alpha_type != f.alpha_type;
 	}
 };
@@ -254,7 +259,7 @@ struct bits_traits<TPF, 24> {
 		p[TPF::endian(2)] = (pix >> 16) & 0xFF;
 	}
 	static inline void copy_pixel(uint8_t* dst, const uint8_t* src) {
-		std::memcpy(dst, src, 3);
+		MEMCPY_REAL(dst, src, 3);
 	}
 	static inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) {
 		for (int i = 0; i < n; i++)
@@ -603,7 +608,7 @@ public:
 	}
 
 	inline void copy_pixels(uint8_t* dst, const uint8_t* src, int n) const {
-		std::memcpy(dst, src, n * bytes);
+		MEMCPY_REAL(dst, src, n * bytes);
 	}
 
 	inline void set_pixels(uint8_t* dst, const uint8_t* src, int n) const {

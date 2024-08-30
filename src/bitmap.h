@@ -21,8 +21,6 @@
 // Headers
 #include <cstdint>
 #include <string>
-#include <map>
-#include <vector>
 #include <cassert>
 #include <pixman.h>
 
@@ -78,8 +76,9 @@ public:
 	 * @param source source bitmap.
 	 * @param src_rect rect to copy from source bitmap.
 	 * @param transparent allow transparency on bitmap.
+	 * @param flags bitmap flags.
 	 */
-	static BitmapRef Create(Bitmap const& source, Rect const& src_rect, bool transparent = true);
+	static BitmapRef Create(Bitmap const& source, Rect const& src_rect, bool transparent = true, uint32_t flags = 0);
 
 	/**
 	 * Creates a surface.
@@ -105,7 +104,7 @@ public:
 	Bitmap(int width, int height, bool transparent);
 	Bitmap(Filesystem_Stream::InputStream stream, bool transparent, uint32_t flags);
 	Bitmap(const uint8_t* data, unsigned bytes, bool transparent, uint32_t flags);
-	Bitmap(Bitmap const& source, Rect const& src_rect, bool transparent);
+	Bitmap(Bitmap const& source, Rect const& src_rect, bool transparent, uint32_t flags);
 	Bitmap(void *pixels, int width, int height, int pitch, const DynamicFormat& format);
 
 	/**
@@ -217,12 +216,21 @@ public:
 	Color GetShadowColor() const;
 
 	/**
-	 * Gets the filename this bitmap was loaded from.
-	 * This will be empty when the origin was not a file.
+	 * Returns an identifier for the bitmap.
+	 * When the bitmap was loaded from a file this contains the filename.
+	 * In all other cases this is implementation defined (and can be empty).
 	 *
-	 * @return filename
+	 * @return Bitmap identifier
 	 */
-	StringView GetFilename() const;
+	StringView GetId() const;
+
+	/**
+	 * Sets the identifier of the bitmap.
+	 * To avoid bugs the function will reject changing non-empty IDs.
+	 *
+	 * @param id new identifier
+	 */
+	void SetId(std::string id);
 
 	/**
 	 * Gets bpp of the source image.
@@ -604,15 +612,15 @@ public:
 	ImageOpacity ComputeImageOpacity() const;
 	ImageOpacity ComputeImageOpacity(Rect rect) const;
 
-protected:
 	DynamicFormat format;
 
+protected:
 	ImageOpacity image_opacity = ImageOpacity::Alpha_8Bit;
 	TileOpacity tile_opacity;
 	Color bg_color, sh_color;
 	FontRef font;
 
-	std::string filename;
+	std::string id;
 
 	/** Bpp of the source image */
 	int original_bpp;
@@ -659,7 +667,7 @@ protected:
 	 * @param blend_mode When >= 0: Force this blend mode as operator
 	 * @return blend mode
 	 */
-	pixman_op_t GetOperator(pixman_image_t* mask = nullptr, BlendMode blend_mode = BlendMode::Default) const;
+	pixman_op_t GetOperator(Opacity const& opacity = Opacity::Opaque(), BlendMode blend_mode = BlendMode::Default) const;
 	bool read_only = false;
 };
 
@@ -702,8 +710,13 @@ inline bool Bitmap::GetTransparent() const {
 	return format.alpha_type != PF::NoAlpha;
 }
 
-inline StringView Bitmap::GetFilename() const {
-	return filename;
+inline StringView Bitmap::GetId() const {
+	return id;
+}
+
+inline void Bitmap::SetId(std::string id) {
+	//assert(this->id.empty());
+	this->id = id;
 }
 
 inline FontRef Bitmap::GetFont() const {
