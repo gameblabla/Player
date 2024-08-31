@@ -14,6 +14,51 @@
  * You should have received a copy of the GNU General Public License
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#ifdef LOW_MEMORY_DEVICES
+
+
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <string>
+#include <vector>
+
+#include "rtp.h"
+static std::pair<int, int> get_table_idx(const char* const lookup_table[16], const int lookup_table_idx[16], StringView category) {
+
+}
+
+template <typename T>
+static void detect_helper(const FilesystemView& fs, std::vector<struct RTP::RtpHitInfo>& hit_list,
+		T rtp_table, int num_rtps, int offset, const std::pair<int, int>& range, Span<StringView> ext_list, int miss_limit) {
+}
+
+std::vector<RTP::RtpHitInfo> RTP::Detect(const FilesystemView& fs, int version, int miss_limit) {
+}
+
+template <typename T>
+static std::vector<RTP::Type> lookup_any_to_rtp_helper(T rtp_table, const std::pair<int, int>& range,
+		StringView src_name, int num_rtps, int offset) {
+}
+
+std::vector<RTP::Type> RTP::LookupAnyToRtp(StringView src_category, StringView src_name, int version) {
+	
+}
+
+template <typename T>
+static std::string lookup_rtp_to_rtp_helper(T rtp_table, const std::pair<int, int>& range,
+		StringView src_name, int src_index, int dst_index, bool* is_rtp_asset) {
+	return "";
+}
+
+std::string RTP::LookupRtpToRtp(StringView src_category, StringView src_name, RTP::Type src_rtp,
+		RTP::Type target_rtp, bool* is_rtp_asset) {
+	// ensure both 2k or 2k3
+	return "";
+}
+
+#else
 
 #include <algorithm>
 #include <array>
@@ -215,3 +260,4 @@ std::string RTP::LookupRtpToRtp(StringView src_category, StringView src_name, RT
 		return lookup_rtp_to_rtp_helper(rtp_table_2k3, tbl_idx, src_name, (int)src_rtp - num_2k_rtps, (int)target_rtp - num_2k_rtps, is_rtp_asset);
 	}
 }
+#endif
