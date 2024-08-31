@@ -62,8 +62,6 @@ Window_BattleStatus::Window_BattleStatus(int ix, int iy, int iwidth, int iheight
 }
 
 void Window_BattleStatus::Refresh() {
-	contents->Clear();
-
 	if (enemy) {
 		item_max = Main_Data::game_enemyparty->GetBattlerCount();
 	}
@@ -72,6 +70,14 @@ void Window_BattleStatus::Refresh() {
 	}
 
 	item_max = std::min(item_max, 4);
+
+	if (item_max != item_max_prev) {
+		Rect clear_rect = contents->GetRect();
+		clear_rect.y = menu_item_height / 8 + (4 - item_max) * menu_item_height;
+		contents->ClearRect(clear_rect);
+	}
+
+	item_max_prev = item_max;
 
 	for (int i = 0; i < item_max; i++) {
 		// The party only contains valid battlers
@@ -88,6 +94,15 @@ void Window_BattleStatus::Refresh() {
 		}
 		else {
 			int y = menu_item_height / 8 + i * menu_item_height;
+
+			if (data_cache[i].HasChanged(*actor)) {
+				Rect clear_rect = contents->GetRect();
+				clear_rect.y = y;
+				clear_rect.height = menu_item_height;
+				contents->ClearRect(clear_rect);
+			} else {
+				continue;
+			}
 
 			DrawActorName(*actor, 4, y);
 			if (Feature::HasRpg2kBattleSystem()) {
@@ -112,6 +127,8 @@ void Window_BattleStatus::Refresh() {
 
 void Window_BattleStatus::RefreshGauge() {
 	if (Feature::HasRpg2k3BattleSystem()) {
+		contents->Clear();
+
 		if (lcf::Data::battlecommands.battle_type == lcf::rpg::BattleCommands::BattleType_alternative) {
 			if (lcf::Data::battlecommands.window_size == lcf::rpg::BattleCommands::WindowSize_small) {
 				contents->ClearRect(Rect(192, 0, 45, 58));
@@ -191,7 +208,7 @@ void Window_BattleStatus::RefreshGauge() {
 
 void Window_BattleStatus::DrawGaugeSystem2(int x, int y, int cur_value, int max_value, int which) {
 	BitmapRef system2 = Cache::System2();
-	REAL_ASSERT(system2);
+	assert(system2);
 
 	if (max_value == 0) {
 		return;
@@ -216,7 +233,7 @@ void Window_BattleStatus::DrawGaugeSystem2(int x, int y, int cur_value, int max_
 
 void Window_BattleStatus::DrawNumberSystem2(int x, int y, int value) {
 	BitmapRef system2 = Cache::System2();
-	REAL_ASSERT(system2);
+	assert(system2);
 
 	bool handle_zero = false;
 
@@ -333,7 +350,7 @@ bool Window_BattleStatus::IsChoiceValid(const Game_Battler& battler) const {
 		case ChoiceMode_None:
 			return false;
 		default:
-			REAL_ASSERT(false && "Invalid Choice");
+			assert(false && "Invalid Choice");
 			return false;
 	}
 }
@@ -359,4 +376,17 @@ void Window_BattleStatus::RefreshActiveFromValid() {
 		SetActive(false);
 	}
 	UpdateCursorRect();
+}
+
+bool Window_BattleStatus::ActorDataCache::HasChanged(const Game_Battler& battler) {
+	if (battler.GetName() == name && battler.GetHp() == hp && battler.GetSp() == sp && battler.GetSignificantState()== state) {
+		return false;
+	}
+
+	name = ToString(battler.GetName());
+	hp = battler.GetHp();
+	sp = battler.GetSp();
+	state = battler.GetSignificantState();
+
+	return true;
 }

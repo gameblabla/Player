@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <zlib.h>
+#include <miniz.h>
 
 namespace {
 	// hashes of known RPG_RT startup logos

@@ -146,7 +146,7 @@ Bitmap::Bitmap(const uint8_t* data, unsigned bytes, bool transparent, uint32_t f
 	else if (bytes > 2 && strncmp((char*) data, "BM", 2) == 0)
 		img_okay = ImageBMP::Read(data, bytes, transparent, image_out);
 	else if (bytes > 4 && strncmp((char*)(data + 1), "PNG", 3) == 0)
-		img_okay = ImagePNG::Read((const void*) data, transparent, image_out);
+		img_okay = ImagePNG::Read((const void*) data, bytes, transparent, image_out);
 	else
 		Output::Warning("Unsupported image (Magic: {:02X})", bytes >= 4 ? *reinterpret_cast<const uint32_t*>(data) : 0);
 
@@ -223,11 +223,15 @@ ImageOpacity Bitmap::ComputeImageOpacityT() const {
 }
 
 ImageOpacity Bitmap::ComputeImageOpacity() const {
+#ifdef DREAMCAST
+	return ComputeImageOpacityT<uint16_t>();
+#else
 	if (bpp() == 2) {
 		return ComputeImageOpacityT<uint16_t>();
 	} else {
 		return ComputeImageOpacityT<uint32_t>();
 	}
+#endif
 }
 
 template<typename T>
@@ -918,11 +922,15 @@ void Bitmap::ToneBlit(int x, int y, Bitmap const& src, Rect const& src_rect, con
 		src_rect.width, src_rect.height);
 	}
 
+#ifdef DREAMCAST
+	return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
+#else
 	if (bpp() == 2) {
 		return ToneBlitT<uint16_t>(x, y, src, src_rect, tone, opacity, src_opacity);
 	} else {
 		return ToneBlitT<uint32_t>(x, y, src, src_rect, tone, opacity, src_opacity);
 	}
+#endif
 }
 
 template<typename T>

@@ -16,7 +16,6 @@
  */
 
 // Headers
-#include <png.h>
 #include <cstdlib>
 #include <cstring>
 #include <csetjmp>
@@ -25,272 +24,89 @@
 
 #include "output.h"
 #include "image_png.h"
-#include "opts.h"
 
-static void read_data(png_structp png_ptr, png_bytep data, png_size_t length) {
-	png_bytep* bufp = (png_bytep*) png_get_io_ptr(png_ptr);
-	MEMCPY_REAL(data, *bufp, length);
-	*bufp += length;
+#include "spng.h"
+
+static const char* const ERROR_MSG = "Error reading PNG data.";
+
+static bool ReadPNGData(const unsigned char* png_data, size_t len, bool transparent, ImageOut& output) {
+    spng_ctx *ctx = spng_ctx_new(0);
+    unsigned char* pixel_buffer = nullptr;
+    size_t image_size = 0;
+
+    if (!ctx) {
+        Output::Warning(ERROR_MSG);
+        return false;
+    }
+
+    // Set an input buffer
+    if (spng_set_png_buffer(ctx, png_data, len) != 0) {
+        goto error;
+    }
+
+    // Retrieve the image header information
+    struct spng_ihdr ihdr;
+    if (spng_get_ihdr(ctx, &ihdr) != 0) {
+        goto error;
+    }
+
+    // Decode image to buffer
+    image_size = ihdr.width * ihdr.height * 4; // RGBA8
+    pixel_buffer = (unsigned char*)malloc(image_size);
+    if (!pixel_buffer) {
+        goto error;
+    }
+
+    if (spng_decode_image(ctx, pixel_buffer, image_size, SPNG_FMT_RGBA8, SPNG_DECODE_TRNS) != 0) {
+		free(pixel_buffer);
+        goto error;
+    }
+
+    output.bpp = 32;
+
+    // Check for indexed color
+    if (ihdr.color_type == SPNG_COLOR_TYPE_INDEXED) {
+        // Get the palette
+        struct spng_plte plte = {0};
+        if (spng_get_plte(ctx, &plte) == 0 && plte.n_entries > 0) {
+            if (transparent) {
+                uint32_t index_color = *(uint32_t*)(&plte.entries[0]);
+                for (size_t i = 0; i < image_size; i+=4) {
+                    uint32_t* pixel = (uint32_t*)&pixel_buffer[i];
+                    if (*pixel == index_color) {
+                        *pixel &= 0x00FFFFFF; // Set alpha channel to 0
+                    }
+                }
+            }
+            output.bpp = 8;
+        }
+    }
+
+    // Set output image properties
+    output.pixels = pixel_buffer;
+    output.width = ihdr.width;
+    output.height = ihdr.height;
+
+    spng_ctx_free(ctx);
+    return true;
+
+error:
+    Output::Warning(ERROR_MSG);
+	spng_ctx_free(ctx);
+    return false;
 }
 
-static void read_data_istream(png_structp png_ptr, png_bytep data, png_size_t length) {
-	auto* bufp = reinterpret_cast<Filesystem_Stream::InputStream*>(png_get_io_ptr(png_ptr));
-	if (bufp != nullptr && *bufp) {
-		bufp->read(reinterpret_cast<char*>(data), length);
-	}
-}
-
-static void on_png_warning(png_structp, png_const_charp warn_msg) {
-	Output::Debug("libpng: {}", warn_msg);
-}
-
-static void on_png_error(png_structp, png_const_charp error_msg) {
-	Output::Warning("libpng: {}", error_msg);
-}
-
-static bool ReadPNGWithReadFunction(png_voidp,png_rw_ptr, bool, ImageOut&);
-static void ReadPalettedData(png_struct*, png_info*, png_uint_32, png_uint_32, bool, uint32_t*);
-static void ReadGrayData(png_struct*, png_info*, png_uint_32, png_uint_32, bool, uint32_t*);
-static void ReadGrayAlphaData(png_struct*, png_info*, png_uint_32, png_uint_32, uint32_t*);
-static void ReadRGBData(png_struct*, png_info*, png_uint_32, png_uint_32, uint32_t*);
-static void ReadRGBAData(png_struct*, png_info*, png_uint_32, png_uint_32, uint32_t*);
-
-bool ImagePNG::Read(const void* buffer, bool transparent, ImageOut& output) {
-	return ReadPNGWithReadFunction((png_voidp)&buffer, read_data, transparent, output);
+bool ImagePNG::Read(const void* buffer, unsigned len, bool transparent, ImageOut& output)  {
+    const unsigned char* png_data = static_cast<const unsigned char*>(buffer);
+    return ReadPNGData(png_data, len, transparent, output);
 }
 
 bool ImagePNG::Read(Filesystem_Stream::InputStream& stream, bool transparent, ImageOut& output) {
-	return ReadPNGWithReadFunction(&stream, read_data_istream, transparent, output);
-}
-
-static bool ReadPNGWithReadFunction(png_voidp user_data, png_rw_ptr fn, bool transparent, ImageOut& output) {
-	output.pixels = nullptr;
-
-	png_struct *png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, on_png_error, on_png_warning);
-	if (png_ptr == NULL) {
-		Output::Warning("Couldn't allocate PNG structure");
-		return false;
-	}
-
-	png_info *info_ptr = png_create_info_struct(png_ptr);
-	if (info_ptr == NULL) {
-		Output::Warning("Couldn't allocate PNG info structure");
-		return false;
-	}
-
-	if (setjmp(png_jmpbuf(png_ptr))) {
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-		return false;
-	}
-
-	png_set_read_fn(png_ptr, user_data, fn);
-
-	png_read_info(png_ptr, info_ptr);
-
-	png_uint_32 w, h;
-	int bit_depth, color_type;
-	png_get_IHDR(png_ptr, info_ptr, &w, &h,
-				 &bit_depth, &color_type, NULL, NULL, NULL);
-
-	output.pixels = malloc(w * h * 4);
-	if (!output.pixels) {
-		Output::Warning("Error allocating PNG pixel buffer.");
-		return false;
-	}
-
-	switch (color_type) {
-		case PNG_COLOR_TYPE_PALETTE:
-			ReadPalettedData(png_ptr, info_ptr, w, h, transparent, (uint32_t*)output.pixels);
-			output.bpp = 8;
-			break;
-		case PNG_COLOR_TYPE_GRAY:
-			ReadGrayData(png_ptr, info_ptr, w, h, transparent, (uint32_t*)output.pixels);
-			output.bpp = 8;
-			break;
-		case PNG_COLOR_TYPE_GRAY_ALPHA:
-			ReadGrayAlphaData(png_ptr, info_ptr, w, h, (uint32_t*)output.pixels);
-			output.bpp = 8;
-			break;
-		case PNG_COLOR_TYPE_RGB:
-			ReadRGBData(png_ptr, info_ptr, w, h, (uint32_t*)output.pixels);
-			output.bpp = 24;
-			break;
-		case PNG_COLOR_TYPE_RGB_ALPHA:
-			ReadRGBAData(png_ptr, info_ptr, w, h, (uint32_t*)output.pixels);
-			output.bpp = 32;
-			break;
-	}
-
-	png_read_end(png_ptr, NULL);
-	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-
-	output.width = w;
-	output.height = h;
-	return true;
-}
-
-static void ReadPalettedData(
-	png_struct* png_ptr, png_info* info_ptr,
-	png_uint_32 w, png_uint_32 h,
-	bool transparent,
-	uint32_t* pixels
-) {
-	// For transparent images, all the colors are opaque, except the
-	// color with index 0. So we'll need to do index->RGB conversion
-	// on our own.
-	png_set_packing(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
-
-	if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE)) {
-		Output::Warning("Palette PNG without PLTE block");
-		return;
-	}
-
-	png_colorp palette;
-	int num_palette;
-	png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
-
-	for (png_uint_32 y = 0; y < h; y++) {
-		// We read the indices (w bytes) into the end of the pixel
-		// data for this row (4w bytes), then scan over them
-		// converting them into RGBA values. Putting them at the end
-		// gives us enough room that we don't overwrite an index
-		// we'll need later with an RGBA value.
-
-		uint32_t* beginning_of_row = pixels + y * w;
-
-		uint8_t* indices = (uint8_t*)beginning_of_row + w * 3;
-		png_read_row(png_ptr, (png_bytep)indices, NULL);
-
-		uint32_t* dst = beginning_of_row;
-		for (png_uint_32 x = 0; x < w; x++, dst++) {
-			uint8_t idx = indices[x];
-			png_color& color = palette[idx];
-			uint8_t alpha = (idx == 0 && transparent) ? 0 : 255;
-			uint8_t rgba[4] = { color.red, color.green, color.blue, alpha };
-			*dst = *(uint32_t*)rgba;
-		}
-	}
-}
-
-static void ReadGrayData(
-	png_struct* png_ptr, png_info* info_ptr,
-	png_uint_32 w, png_uint_32 h,
-	bool transparent,
-	uint32_t* pixels
-) {
-	png_set_strip_16(png_ptr);
-	png_set_expand(png_ptr);
-	png_set_gray_to_rgb(png_ptr);
-	png_set_filler(png_ptr, 0xFF, PNG_FILLER_AFTER);
-	png_read_update_info(png_ptr, info_ptr);
-
-	for (png_uint_32 y = 0; y < h; y++) {
-		png_bytep dst = (png_bytep) pixels + y * w * 4;
-		png_read_row(png_ptr, dst, NULL);
-	}
-
-	// Black pixels are transparent
-	if (transparent) {
-		uint8_t ck1[4] = {0, 0, 0, 255};
-		uint8_t ck2[4] = {0, 0, 0,   0};
-		uint32_t srckey = *(uint32_t*)ck1;
-		uint32_t dstkey = *(uint32_t*)ck2;
-		uint32_t* p = (uint32_t*) pixels;
-		for (unsigned i = 0; i < w * h; i++, p++)
-			if (*p == srckey)
-				*p = dstkey;
-	}
-}
-
-static void ReadGrayAlphaData(
-	png_struct* png_ptr, png_info* info_ptr,
-	png_uint_32 w, png_uint_32 h,
-	uint32_t* pixels
-) {
-	png_set_strip_16(png_ptr);
-	png_set_gray_to_rgb(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
-
-	for (png_uint_32 y = 0; y < h; y++) {
-		png_bytep dst = (png_bytep) pixels + y * w * 4;
-		png_read_row(png_ptr, dst, NULL);
-	}
-}
-
-static void ReadRGBData(
-	png_struct* png_ptr, png_info* info_ptr,
-	png_uint_32 w, png_uint_32 h,
-	uint32_t* pixels
-) {
-	png_set_strip_16(png_ptr);
-	png_set_filler(png_ptr, 0xFF, PNG_FILLER_AFTER);
-	png_read_update_info(png_ptr, info_ptr);
-
-	for (png_uint_32 y = 0; y < h; y++) {
-		png_bytep dst = (png_bytep) pixels + y * w * 4;
-		png_read_row(png_ptr, dst, NULL);
-	}
-}
-
-static void ReadRGBAData(
-	png_struct* png_ptr, png_info* info_ptr,
-	png_uint_32 w, png_uint_32 h,
-	uint32_t* pixels
-) {
-	png_set_strip_16(png_ptr);
-	png_read_update_info(png_ptr, info_ptr);
-
-	for (png_uint_32 y = 0; y < h; y++) {
-		png_bytep dst = (png_bytep) pixels + y * w * 4;
-		png_read_row(png_ptr, dst, NULL);
-	}
-}
-
-static void write_data(png_structp out_ptr, png_bytep data, png_size_t len) {
-	reinterpret_cast<Filesystem_Stream::OutputStream*>(png_get_io_ptr(out_ptr))->write(reinterpret_cast<char const*>(data), len);
-}
-static void flush_stream(png_structp out_ptr) {
-	reinterpret_cast<Filesystem_Stream::OutputStream*>(png_get_io_ptr(out_ptr))->flush();
+    std::vector<unsigned char> png_data((std::istreambuf_iterator<char>(stream)),
+                                         std::istreambuf_iterator<char>());
+    return ReadPNGData(png_data.data(), png_data.size(), transparent, output);
 }
 
 bool ImagePNG::Write(std::ostream& os, uint32_t width, uint32_t height, uint32_t* data) {
-	png_structp write = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (!write) {
-		Output::Warning("Bitmap::WritePNG: error in png_create_write");
-		return false;
-	}
-
-	png_infop info = png_create_info_struct(write);
-	if (!info) {
-		png_destroy_write_struct(&write, &info);
-		Output::Warning("ImagePNG::WritePNG: error in png_create_info_struct");
-		return false;
-	}
-
-	png_bytep* ptrs = new png_bytep[height];
-	for (size_t i = 0; i < height; ++i) {
-		ptrs[i] = reinterpret_cast<png_bytep>(&data[width*i]);
-	}
-
-	if (setjmp(png_jmpbuf(write))) {
-		png_destroy_write_struct(&write, &info);
-		delete [] ptrs;
-		Output::Warning("ImagePNG::WritePNG: error writing PNG file");
-		return false;
-	}
-
-	png_set_write_fn(write, &os, &write_data, &flush_stream);
-
-	png_set_IHDR(write, info, width, height, 8,
-				 PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-				 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	png_write_info(write, info);
-	png_write_image(write, ptrs);
-	png_write_end(write, NULL);
-
-	png_destroy_write_struct(&write, &info);
-	delete [] ptrs;
-
-	return true;
+	return false;
 }

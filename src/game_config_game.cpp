@@ -61,6 +61,7 @@ Game_ConfigGame Game_ConfigGame::Create(CmdlineParser& cp) {
 }
 
 void Game_ConfigGame::LoadFromArgs(CmdlineParser& cp) {
+#ifndef LOW_MEMORY_DEVICES
 	cp.Rewind();
 
 	while (!cp.Done()) {
@@ -180,6 +181,7 @@ void Game_ConfigGame::LoadFromArgs(CmdlineParser& cp) {
 
 		cp.SkipNext();
 	}
+#endif
 }
 
 void Game_ConfigGame::LoadFromStream(Filesystem_Stream::InputStream& is) {

@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <random>
 #include <cctype>
-#include <zlib.h>
+#include <miniz.h>
 
 namespace {
 	char Lower(char c) {

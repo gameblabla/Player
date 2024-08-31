@@ -14,7 +14,81 @@
  * You should have received a copy of the GNU General Public License
  * along with EasyRPG Player. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef ZIP_SUPPORT
+#include "filesystem_zip.h"
+#include "filefinder.h"
+#include "output.h"
+#include "utils.h"
 
+#include <zlib.h>
+#include <lcf/encoder.h>
+#include <lcf/reader_util.h>
+#include <lcf/scope_guard.h>
+#include <iostream>
+#include <sstream>
+#include "fake_assert.h"
+#include <algorithm>
+#include <format>
+
+static std::string normalize_path(StringView path) {
+	return "";
+}
+
+ZipFilesystem::ZipFilesystem(std::string base_path, FilesystemView parent_fs, StringView enc) :
+	Filesystem(base_path, parent_fs) {
+}
+
+bool ZipFilesystem::FindCentralDirectory(std::istream& zipfile, uint32_t& offset, uint32_t& size, uint16_t& num_entries) const {
+
+		return false;
+}
+
+bool ZipFilesystem::ReadCentralDirectoryEntry(std::istream& zipfile, std::string& filename, ZipEntry& entry, bool& is_utf8) const {
+
+	return false;
+}
+
+bool ZipFilesystem::ReadLocalHeader(std::istream& zipfile, StorageMethod& method, ZipEntry& entry) const {
+	return false;
+}
+
+bool ZipFilesystem::IsFile(StringView path) const {
+
+	return false;
+}
+
+bool ZipFilesystem::IsDirectory(StringView path, bool) const {
+	return false;
+}
+
+bool ZipFilesystem::Exists(StringView path) const {
+	return 0;
+}
+
+int64_t ZipFilesystem::GetFilesize(StringView path) const {
+
+	return 0;
+}
+
+std::streambuf* ZipFilesystem::CreateInputStreambuffer(StringView path, std::ios_base::openmode) const {
+
+	return nullptr;
+}
+
+bool ZipFilesystem::GetDirectoryContent(StringView path, std::vector<DirectoryTree::Entry>& entries) const {
+		return false;
+}
+
+const ZipFilesystem::ZipEntry* ZipFilesystem::Find(StringView what) const {
+
+	return nullptr;
+}
+
+std::string ZipFilesystem::Describe() const {
+	return "";
+}
+
+#else
 #include "filesystem_zip.h"
 #include "filefinder.h"
 #include "output.h"
@@ -482,3 +556,5 @@ const ZipFilesystem::ZipEntry* ZipFilesystem::Find(StringView what) const {
 std::string ZipFilesystem::Describe() const {
 	return std::format("[Zip] {} ({})", GetPath(), encoding);
 }
+
+#endif

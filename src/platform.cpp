@@ -52,13 +52,8 @@ bool Platform::File::Exists() const {
 	struct SceIoStat sb;
 	return (::sceIoGetstat(filename.c_str(), &sb) >= 0);
 #elif defined(DREAMCAST)
-	DIR* dir = opendir(filename.c_str());
-	if (dir)
-	{
-		 closedir(dir);
-		 return 1;
-	}
-	return 0;
+	struct stat buffer;
+	return (stat(filename.c_str(), &buffer) == 0);
 #else
 	return access(filename.c_str(), F_OK) != -1;
 #endif

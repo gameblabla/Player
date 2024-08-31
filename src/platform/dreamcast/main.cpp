@@ -94,7 +94,9 @@ extern "C" int main(int argc, char* argv[]) {
 #endif
 */
 	cont_btn_callback(0, CONT_START | CONT_A | CONT_B | CONT_X | CONT_Y, (void (*)(unsigned char, long  unsigned int))arch_exit);
-	if(sd_init()) 
+	auto savefs = FileFinder::Root().Create(FileFinder::MakeCanonical("/vmu/a1/", 0));
+	FileFinder::SetSaveFilesystem(savefs);
+	/*if(sd_init()) 
 	{
 		printf("No SD card detected. Make sure to have SD card !\n");
 		auto savefs = FileFinder::Root().Create(FileFinder::MakeCanonical("/ram/", 0));
@@ -121,7 +123,7 @@ extern "C" int main(int argc, char* argv[]) {
 			//args.push_back("--save-path");
 			//args.push_back("/ram");
 		}
-	}
+	}*/
 
 	Player::Init(std::move(args));
 	Player::Run();

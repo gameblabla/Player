@@ -19,11 +19,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <istream>
-#include <zlib.h>
 #include <vector>
 #include "output.h"
 #include "image_xyz.h"
-
+#include "miniz.h"
 bool ImageXYZ::Read(const uint8_t* data, unsigned len, bool transparent, ImageOut& output) {
 	output.pixels = nullptr;
 
@@ -39,8 +38,8 @@ bool ImageXYZ::Read(const uint8_t* data, unsigned len, bool transparent, ImageOu
 	uLongf dst_size = 768 + (w * h);
 	std::vector<Bytef> dst_buffer(dst_size);
 
-	int status = uncompress(&dst_buffer.front(), &dst_size, src_buffer, src_size);
-	if (status != Z_OK) {
+	int status = mz_uncompress(&dst_buffer.front(), &dst_size, src_buffer, src_size);
+	if (status != MZ_OK) {
 		Output::Warning("Error decompressing XYZ file.");
 		return false;
 	}
