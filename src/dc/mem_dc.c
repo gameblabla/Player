@@ -72,7 +72,7 @@ void * memsetasm (void *dest, const uint8_t val, size_t len)
 
 
 // Ian micheal optimized SQ function
-void bit64_sq_cpy(void *dest, void *src, int n)
+void bit64_sq_cpy(void *dest, const void *src, size_t n)
 {
     uint32 *d, *s;
     uint32 r0, r1, r2, r3, r4, r5, r6, r7;
