@@ -31,6 +31,7 @@
 #include "bitmap.h"
 #include <lcf/reader_util.h>
 #include "output.h"
+#include "opts.h"
 
 #ifdef EMSCRIPTEN
 #  include <emscripten.h>
@@ -140,7 +141,7 @@ void Scene_File::Start() {
 	down_arrow = Scene_File::MakeArrowSprite(true);
 
 	index = latest_slot;
-	top_index = std::max(0, index - 2);
+	top_index = MAX_REAL_INT(0, index - 2);
 
 	RefreshWindows();
 
@@ -244,11 +245,11 @@ void Scene_File::vUpdate() {
 
 	if (index > top_index + 2) {
 		MoveFileWindows((top_index + 2 - index) * 64, 7);
-		top_index = std::max(top_index, index - 3 + 1);
+		top_index = MAX_REAL_INT(top_index, index - 3 + 1);
 	}
 	else if (index < top_index) {
 		MoveFileWindows((top_index - index) * 64, 7);
-		top_index = std::min(top_index, index);
+		top_index = MIN_REAL_INT(top_index, index);
 	}
 
 	//top_index = std::min(top_index, std::max(top_index, index - 3 + 1));

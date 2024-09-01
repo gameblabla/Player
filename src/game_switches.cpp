@@ -20,6 +20,7 @@
 #include "output.h"
 #include <lcf/reader_util.h>
 #include <lcf/data.h>
+#include "opts.h"
 
 constexpr int Game_Switches::kMaxWarnings;
 
@@ -53,7 +54,7 @@ void Game_Switches::SetRange(int first_id, int last_id, bool value) {
 	if (last_id > static_cast<int>(ss.size())) {
 		ss.resize(last_id, false);
 	}
-	for (int i = std::max(0, first_id - 1); i < last_id; ++i) {
+	for (int i = MAX_REAL_INT(0, first_id - 1); i < last_id; ++i) {
 		ss[i] = value;
 	}
 }
@@ -83,7 +84,7 @@ void Game_Switches::FlipRange(int first_id, int last_id) {
 	if (last_id > static_cast<int>(ss.size())) {
 		ss.resize(last_id);
 	}
-	for (int i = std::max(0, first_id - 1); i < last_id; ++i) {
+	for (int i = MAX_REAL_INT(0, first_id - 1); i < last_id; ++i) {
 		ss[i].flip();
 	}
 }

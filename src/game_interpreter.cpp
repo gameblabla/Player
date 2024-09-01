@@ -68,6 +68,7 @@
 #include "baseui.h"
 #include "algo.h"
 #include "rand.h"
+#include "opts.h"
 
 enum BranchSubcommand {
 	eOptionBranchElse = 1
@@ -1784,7 +1785,7 @@ int Game_Interpreter::ValueOrVariableBitfield(lcf::rpg::EventCommand const& com,
 
 	REAL_ASSERT(mode_idx != val_idx);
 
-	if (static_cast<int>(com.parameters.size()) > std::max(mode_idx, val_idx)) {
+	if (static_cast<int>(com.parameters.size()) > MAX_REAL_INT(mode_idx, val_idx)) {
 		return ValueOrVariableBitfield(com.parameters[mode_idx], shift, com.parameters[val_idx]);
 	}
 
@@ -1798,7 +1799,7 @@ StringView Game_Interpreter::CommandStringOrVariable(lcf::rpg::EventCommand cons
 
 	REAL_ASSERT(mode_idx != val_idx);
 
-	if (static_cast<int>(com.parameters.size()) > std::max(mode_idx, val_idx)) {
+	if (static_cast<int>(com.parameters.size()) > MAX_REAL_INT(mode_idx, val_idx)) {
 		return Main_Data::game_strings->GetWithMode(ToString(com.string), com.parameters[mode_idx], com.parameters[val_idx], *Main_Data::game_variables);
 	}
 
@@ -1812,7 +1813,7 @@ StringView Game_Interpreter::CommandStringOrVariableBitfield(lcf::rpg::EventComm
 
 	REAL_ASSERT(mode_idx != val_idx);
 
-	if (static_cast<int>(com.parameters.size()) >= std::max(mode_idx, val_idx) + 1) {
+	if (static_cast<int>(com.parameters.size()) >= MAX_REAL_INT(mode_idx, val_idx) + 1) {
 		int mode = com.parameters[mode_idx];
 		return Main_Data::game_strings->GetWithMode(ToString(com.string), (mode & (0xF << shift * 4)) >> shift * 4, com.parameters[val_idx], *Main_Data::game_variables);
 	}

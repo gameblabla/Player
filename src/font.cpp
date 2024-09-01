@@ -580,7 +580,7 @@ void FTFont::SetSize(int height, bool create) {
 				--pt;
 			}
 
-			height = std::max<int>(1, pt);
+			height = MAX_REAL_INT(1, pt);
 		}
 
 		FT_Set_Pixel_Sizes(face, 0, height);

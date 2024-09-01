@@ -32,6 +32,7 @@
 #include "main_data.h"
 #include "pending_message.h"
 #include "text.h"
+#include "opts.h"
 
 class DynRpgText;
 
@@ -235,7 +236,7 @@ private:
 			t = pm.GetLines().front();
 
 			Rect r = Text::GetSize(*font, t);
-			width = std::max(width, r.width);
+			width = MAX_REAL_INT(width, r.width);
 			height += r.height + 2;
 		}
 

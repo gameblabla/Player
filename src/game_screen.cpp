@@ -35,7 +35,7 @@
 #include "flash.h"
 #include "shake.h"
 #include "rand.h"
-
+#include "opts.h"
 Game_Screen::Game_Screen()
 {
 }
@@ -277,8 +277,13 @@ void Game_Screen::UpdateSandstorm() {
 		} else if (Rand::PercentChance(10)) {
 			p.t = 80;
 
-			auto c = std::cos(dist(rng));
-			auto s = std::sin(dist(rng));
+#ifdef DREAMCAST
+			float c, s;
+			fsincosr(dist(rng), &c, &s);
+#else
+			auto c = COS_REAL(dist(rng));
+			auto s = SIN_REAL(dist(rng));
+#endif
 			auto d = Rand::GetRandomNumber(16, 95);
 
 			p.x = static_cast<int>(d * c * 2.0f) * Player::screen_width / 320 + Player::screen_width / 2;

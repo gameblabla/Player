@@ -19,7 +19,6 @@
 #include "pixel_format.h"
 #include <pixman.h>
 #include "opts.h"
-#include "fake_assert.h"
 namespace {
 
 bool AdjustRects(Bitmap const& dest, Rect& dst_rect, Bitmap const& src, Rect& src_rect, Opacity const& opacity) {
@@ -37,7 +36,7 @@ int GetMaskValue(Opacity const& opacity) {
 		return -1;
 	}
 
-	REAL_ASSERT(!opacity.IsSplit());
+	assert(!opacity.IsSplit());
 
 	return opacity.Value();
 }
@@ -71,42 +70,41 @@ bool BlitT(Bitmap& dest, Rect const& dst_rect, Bitmap const& src, Rect const& sr
 
 	if (mask >= 0) {
 		// Alpha blending required (slow)
-		const uint8_t rshift = format.r_shift();
-		const uint8_t gshift = format.g_shift();
-		const uint8_t bshift = format.b_shift();
-		const uint8_t ashift = format.a_shift();
-		const uint8_t bits = format.r_bits();
-		const uint16_t pxmax = (1 << bits);
-		const uint8_t pxmask = pxmax - 1;
+		const uint_fast8_t rshift = format.r_shift();
+		const uint_fast8_t gshift = format.g_shift();
+		const uint_fast8_t bshift = format.b_shift();
+		const uint_fast8_t ashift = format.a_shift();
+		const uint_fast8_t bits = format.r_bits();
+		const uint_fast16_t pxmax = (1 << bits);
+		const uint_fast8_t pxmask = pxmax - 1;
 
-		uint8_t rs, gs, bs; // src colors
-		uint8_t rd, gd, bd; // dest colors
+		uint_fast8_t rs, gs, bs; // src colors
+		uint_fast8_t rd, gd, bd; // dest colors
 
-		mask = DIVIDE_REAL( mask, DIVIDE_REAL(256 , pxmax)); // Reduce range to [0 - 32] (5 bit)
+		mask = DIVIDE_REAL(mask, DIVIDE_REAL(256 , pxmax)); // Reduce range to [0 - 32] (5 bit)
 
-		auto set_pixel_fn = [&]() {
-			pixel_type src_pixel = *src_pixels;
-			pixel_type dst_pixel = *dst_pixels;
+		auto set_pixel_fn = [&](pixel_type* src_pixel, pixel_type* dst_pixel) {
+			pixel_type src_p = *src_pixel;
+			pixel_type dst_p = *dst_pixel;
 
-			rs = (src_pixel >> rshift) & pxmask;
-			gs = (src_pixel >> gshift) & pxmask;
-			bs = (src_pixel >> bshift) & pxmask;
+			rs = (src_p >> rshift) & pxmask;
+			gs = (src_p >> gshift) & pxmask;
+			bs = (src_p >> bshift) & pxmask;
 
-			rd = (dst_pixel >> rshift) & pxmask;
-			gd = (dst_pixel >> gshift) & pxmask;
-			bd = (dst_pixel >> bshift) & pxmask;
+			rd = (dst_p >> rshift) & pxmask;
+			gd = (dst_p >> gshift) & pxmask;
+			bd = (dst_p >> bshift) & pxmask;
 
-			rd = DIVIDE_REAL(FMAC(rs, mask, (pxmax - mask) * rd) , pxmax);
-			gd = DIVIDE_REAL(FMAC(gs, mask, (pxmax - mask) * gd) , pxmax);
-			bd = DIVIDE_REAL(FMAC(bs, mask, (pxmax - mask) * bd) , pxmax);
-
-			*dst_pixels = (rd << rshift ) | (gd << gshift) | (bd << bshift) | (1 << ashift);
+			rd = (rs * mask + ((pxmax - mask) * rd)) >> bits;
+			gd = (gs * mask + ((pxmax - mask) * gd)) >> bits;
+			bd = (bs * mask + ((pxmax - mask) * bd)) >> bits;
+			*dst_pixel = (rd << rshift ) | (gd << gshift) | (bd << bshift) | (1 << ashift);
 		};
 
 		if (!src.GetTransparent()) {
 			for (y = 0; y < src_rect.height; ++y) {
 				for (x = 0; x < src_rect.width; ++x) {
-					set_pixel_fn();
+					set_pixel_fn(src_pixels, dst_pixels);
 
 					++src_pixels;
 					++dst_pixels;
@@ -116,11 +114,101 @@ bool BlitT(Bitmap& dest, Rect const& dst_rect, Bitmap const& src, Rect const& sr
 				dst_pixels += dst_advance;
 			}
 		} else {
-			for (y = 0; y < src_rect.height; ++y) {
-				for (x = 0; x < src_rect.width; ++x) {
-					// Transparent pixels are skipped
+			// Transparent pixels are skipped
+			auto& runs = src.GetRuns();
+
+			if (!runs.empty()) {
+				auto run_it = runs.begin();
+
+				uint16_t x_begin = src_rect.x;
+				uint16_t x_end = src_rect.x + src_rect.width;
+
+				for (int y = src_rect.y; y < src_rect.y + src_rect.height; ++y) {
+					for (; run_it != runs.end(); ++run_it) {
+						if (run_it->y < y) {
+							continue;
+						}
+
+						if (run_it->y > y) {
+							break;
+						}
+
+						if (run_it->x_begin <= x_begin && run_it->x_end > x_begin ||
+							run_it->x_begin >= x_begin && run_it->x_end <= x_end ||
+							run_it->x_begin < x_end && run_it->x_end >= x_end) {
+
+							uint16_t x_begin_cp = MAX_REAL(run_it->x_begin, x_begin);
+							uint16_t x_end_cp = MIN_REAL(run_it->x_end, x_end);
+							uint16_t amount = (x_end_cp - x_begin_cp);
+
+							for (x = 0; x < amount; ++x) {
+								auto off = x_begin_cp - x_begin + x;
+								set_pixel_fn(src_pixels + off, dst_pixels + off);
+							}
+						}
+					}
+
+					src_pixels += src_w;
+					dst_pixels += dst_w;
+				}
+			} else {
+				for (y = 0; y < src_rect.height; ++y) {
+					for (x = 0; x < src_rect.width; ++x) {
+						if ((*src_pixels & amask) != 0) {
+							set_pixel_fn(src_pixels, dst_pixels);
+						}
+
+						++src_pixels;
+						++dst_pixels;
+					}
+
+					src_pixels += src_advance;
+					dst_pixels += dst_advance;
+				}
+			}
+		}
+	} else {
+		auto& runs = src.GetRuns();
+
+		if (!runs.empty()) {
+			auto run_it = runs.begin();
+
+			uint16_t x_begin = src_rect.x;
+			uint16_t x_end = src_rect.x + src_rect.width;
+
+			for (int y = src_rect.y; y < src_rect.y + src_rect.height; ++y) {
+				for (; run_it != runs.end(); ++run_it) {
+					if (run_it->y < y) {
+						continue;
+					}
+
+					if (run_it->y > y) {
+						break;
+					}
+
+					if (run_it->x_begin <= x_begin && run_it->x_end > x_begin ||
+						run_it->x_begin >= x_begin && run_it->x_end <= x_end ||
+						run_it->x_begin < x_end && run_it->x_end >= x_end) {
+
+						uint16_t x_begin_cp = MAX_REAL_INT(run_it->x_begin, x_begin);
+						uint16_t x_end_cp = MIN_REAL_INT(run_it->x_end, x_end);
+						uint16_t amount = (x_end_cp - x_begin_cp) * bpp;
+
+						MEMCPY_REAL(
+							dst_pixels + x_begin_cp - x_begin,
+							src_pixels + x_begin_cp - x_begin,
+							amount);
+					}
+				}
+
+				src_pixels += src_w;
+				dst_pixels += dst_w;
+			}
+		} else {
+			for (int y = 0; y < src_rect.height; ++y) {
+				for (int x = 0; x < src_rect.width; ++x) {
 					if ((*src_pixels & amask) != 0) {
-						set_pixel_fn();
+						*(pixel_type*)(dst_pixels) = *src_pixels;
 					}
 
 					++src_pixels;
@@ -130,20 +218,6 @@ bool BlitT(Bitmap& dest, Rect const& dst_rect, Bitmap const& src, Rect const& sr
 				src_pixels += src_advance;
 				dst_pixels += dst_advance;
 			}
-		}
-	} else {
-		for (int y = 0; y < src_rect.height; ++y) {
-			for (int x = 0; x < src_rect.width; ++x) {
-				if ((*src_pixels & amask) != 0) {
-					*(pixel_type*)(dst_pixels) = *src_pixels;
-				}
-
-				++src_pixels;
-				++dst_pixels;
-			}
-
-			src_pixels += src_advance;
-			dst_pixels += dst_advance;
 		}
 	}
 

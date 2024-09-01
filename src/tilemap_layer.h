@@ -30,6 +30,8 @@
 #include "opacity.h"
 #include "span.h"
 
+#include "opts.h"
+
 class TilemapLayer;
 
 /**
@@ -240,7 +242,7 @@ inline int TilemapLayer::GetAnimationSpeed() const {
 }
 
 inline void TilemapLayer::SetAnimationSpeed(int speed) {
-	animation_speed = std::max(1, speed);
+	animation_speed = MAX_REAL_INT(1, speed);
 }
 
 inline int TilemapLayer::GetAnimationType() const {

@@ -20,12 +20,13 @@
 #include "color.h"
 #include "bitmap.h"
 #include "util_macro.h"
+#include "opts.h"
 
 static int CalculateWidth(const std::vector<std::string>& commands, int width) {
 	if (width < 0) {
 		width = 0;
 		for (size_t i = 0; i < commands.size(); ++i) {
-			width += std::max(width, Text::GetSize(*Font::Default(), commands[i]).width) + 16;
+			width +=MAX_REAL_INT(width, Text::GetSize(*Font::Default(), commands[i]).width) + 16;
 		}
 	}
 	return width;

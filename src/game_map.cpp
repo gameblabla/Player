@@ -57,6 +57,8 @@
 #include "scene_gameover.h"
 #include "feature.h"
 
+#include "opts.h"
+
 namespace {
 	// Intended bad value, Game_Map::Init sets them correctly
 	int screen_width = -1;

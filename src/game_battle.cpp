@@ -36,6 +36,8 @@
 #include "output.h"
 #include "utils.h"
 #include "rand.h"
+#include "utils.h"
+#include "opts.h"
 
 namespace Game_Battle {
 	const lcf::rpg::Troop* troop = nullptr;
@@ -384,7 +386,7 @@ Point Game_Battle::CalculateBaseGridPosition(
 	const auto tdy = grid_tables[table_y][party_size - 1][party_idx];
 
 	pos.x = static_cast<int>((1.0 - tdx) * (grid_inclination / 1000.0));
-	pos.y = grid_top_y + static_cast<int>(std::sin(grid_elongation / 1000.0) * 120.0 * tdy);
+	pos.y = grid_top_y + static_cast<int>(SIN_REAL(grid_elongation / 1000.0) * 120.0 * tdy);
 
 	return pos;
 }

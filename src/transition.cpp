@@ -37,6 +37,8 @@
 #include "output.h"
 #include "rand.h"
 
+#include "opts.h"
+
 int Transition::GetDefaultFrames(Transition::Type type)
 {
 	switch (type) {
@@ -160,8 +162,8 @@ void Transition::SetAttributesTransitions() {
 		if (scene != nullptr && scene->type == Scene::Map) {
 			auto map = static_cast<Scene_Map*>(scene);
 
-			zoom_position[0] = std::max(0, std::min(Main_Data::game_player->GetScreenX() + map->spriteset->GetRenderOx(), (int)Player::screen_width));
-			zoom_position[1] = std::max(0, std::min(Main_Data::game_player->GetScreenY() - 8 + map->spriteset->GetRenderOy(), (int)Player::screen_height));
+			zoom_position[0] = MAX_REAL_INT(0, MIN_REAL_INT(Main_Data::game_player->GetScreenX() + map->spriteset->GetRenderOx(), (int)Player::screen_width));
+			zoom_position[1] = MAX_REAL_INT(0, MIN_REAL_INT(Main_Data::game_player->GetScreenY() - 8 + map->spriteset->GetRenderOy(), (int)Player::screen_height));
 		}
 		else {
 			zoom_position[0] = Player::screen_width / 2;
@@ -332,16 +334,16 @@ void Transition::Draw(Bitmap& dst) {
 		for (int i = 0; i < 2; i++) {
 			z_min = z_length[i] / 4;
 			z_max = z_length[i] * 3 / 4;
-			z_pos[i] = std::max(z_min, std::min((int)zoom_position[i], z_max)) * percentage / 100;
+			z_pos[i] = MAX_REAL_INT(z_min, MIN_REAL_INT((int)zoom_position[i], z_max)) * percentage / 100;
 			z_size[i] = z_length[i] * (100 - percentage) / 100;
 
 			z_percent = (zoom_position[i] < z_min) ? (100 * zoom_position[i] / z_min - 100) :
 				(zoom_position[i] > z_max) ? (100 * (zoom_position[i] - z_max) / (z_length[i] - z_max)) : 0;
 
 			if (z_percent != 0 && percentage > 0) {
-				z_fixed_pos = z_pos[i] * std::abs(z_percent) / percentage;
-				z_fixed_size = z_length[i] * (100 - std::abs(z_percent)) / 100;
-				z_pos[i] += percentage < std::abs(z_percent) ? (z_percent > 0 ? 1 : 0) * (z_length[i] - z_size[i]) - z_pos[i] :
+				z_fixed_pos = z_pos[i] * ABS_REAL(z_percent) / percentage;
+				z_fixed_size = z_length[i] * (100 - ABS_REAL(z_percent)) / 100;
+				z_pos[i] += percentage < ABS_REAL(z_percent) ? (z_percent > 0 ? 1 : 0) * (z_length[i] - z_size[i]) - z_pos[i] :
 					(z_percent > 0 ? z_length[i] - z_fixed_pos - z_fixed_size : -z_fixed_pos);
 			}
 		}

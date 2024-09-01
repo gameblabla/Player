@@ -30,6 +30,7 @@
 #include "player.h"
 #include "attribute.h"
 #include "rand.h"
+#include "opts.h"
 
 Game_Enemy::Game_Enemy(const lcf::rpg::TroopMember* member)
 	: troop_member(member)
@@ -177,7 +178,7 @@ int Game_Enemy::GetFlyingOffset() const {
 	}
 
 	const auto frame = GetBattleFrameCounter();
-	auto offset = Utils::RoundTo<int>(std::sin(2 * M_PI * static_cast<double>(frame) / 256.0) * 4.0);
+	auto offset = Utils::RoundTo<int>(SIN_REAL(2 * M_PI * static_cast<double>(frame) / 256.0) * 4.0);
 	return offset;
 }
 

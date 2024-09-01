@@ -24,7 +24,7 @@
 #include "font.h"
 #include "text.h"
 #include "compiler.h"
-
+#include "opts.h"
 #include <cctype>
 #include <iterator>
 
@@ -202,7 +202,7 @@ Rect Text::GetSize(const Font& font, StringView text) {
 			if (EP_UNLIKELY(Utils::IsControlCharacter(ret.ch))) {
 				rect_tmp = GetSize(font, ret.ch, ret.is_exfont);
 				rect.width += rect_tmp.width;
-				rect.height = std::max(rect.height, rect_tmp.height);
+				rect.height = MAX_REAL_INT(rect.height, rect_tmp.height);
 				continue;
 			}
 
@@ -214,13 +214,13 @@ Rect Text::GetSize(const Font& font, StringView text) {
 					for (const auto& ch: shape_ret) {
 						Rect size = font.GetSize(ch);
 						rect.width += ch.offset.x + size.width;
-						rect.height = std::max(rect.height, size.height);
+						rect.height = MAX_REAL_INT(rect.height, size.height);
 					}
 				}
 
 				rect_tmp = GetSize(font, ret.ch, ret.is_exfont);
 				rect.width += rect_tmp.width;
-				rect.height = std::max(rect.height, rect_tmp.height);
+				rect.height = MAX_REAL_INT(rect.height, rect_tmp.height);
 				continue;
 			}
 
@@ -233,7 +233,7 @@ Rect Text::GetSize(const Font& font, StringView text) {
 			for (const auto& ch: shape_ret) {
 				Rect size = font.GetSize(ch);
 				rect.width += ch.offset.x + size.width;
-				rect.height = std::max(rect.height, size.height);
+				rect.height = MAX_REAL_INT(rect.height, size.height);
 			}
 		}
 	} else {
@@ -247,7 +247,7 @@ Rect Text::GetSize(const Font& font, StringView text) {
 
 			rect_tmp = GetSize(font, ret.ch, ret.is_exfont);
 			rect.width += rect_tmp.width;
-			rect.height = std::max(rect.height, rect_tmp.height);
+			rect.height = MAX_REAL_INT(rect.height, rect_tmp.height);
 		}
 	}
 

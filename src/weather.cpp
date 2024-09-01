@@ -28,6 +28,7 @@
 #include "player.h"
 #include "output.h"
 #include "rand.h"
+#include "opts.h"
 
 Weather::Weather() :
 	Drawable(Priority_Weather, Drawable::Flags::Shared)
@@ -84,8 +85,8 @@ static constexpr Rect MakeMaxBitmapRect(std::initializer_list<Rect> list) {
 	int max_w = 0;
 	int max_h = 0;
 	for (auto& rect: list) {
-		max_w = std::max(rect.width, max_w);
-		max_h = std::max(rect.height, max_h);
+		max_w = std::min(rect.width, max_w);
+		max_h = std::min(rect.height, max_h);
 	}
 	return Rect{ 0, 0, max_w, max_h };
 }
@@ -344,7 +345,7 @@ void Weather::DrawFogOverlay(Bitmap& dst, const Bitmap& overlay) {
 	const int bx = shake_x - (fog_bg_frames / 4) % sr.width;
 	// Front layer moves vertically up and down using this algorithm. And it uses the background frame counter!
 	// Confirmed to be matching RPG_RT
-	const int fy = shake_y - Utils::RoundTo<int>(std::sin(fog_bg_frames * M_PI / 4096.0) * (sr.height / 2)) - (sr.height / 4);
+	const int fy = shake_y - Utils::RoundTo<int>(SIN_REAL(fog_bg_frames * M_PI / 4096.0) * (sr.height / 2)) - (sr.height / 4);
 	// Back layer never moves vertically
 	const int by = shake_y;
 

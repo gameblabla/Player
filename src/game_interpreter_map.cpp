@@ -625,9 +625,9 @@ bool Game_Interpreter_Map::CommandPanScreen(lcf::rpg::EventCommand const& com) {
 		speed = Utils::Clamp<int>(com.parameters[3], 1, 6);
 		waiting_pan_screen = com.parameters[4] != 0;
 		player.ResetPan(speed);
-		distance = std::max(
-				std::abs(player.GetPanX() - player.GetTargetPanX())
-				, std::abs(player.GetPanY() - player.GetTargetPanY()));
+		distance = MAX_REAL_INT(
+				ABS_REAL(player.GetPanX() - player.GetTargetPanX())
+				, ABS_REAL(player.GetPanY() - player.GetTargetPanY()));
 		distance /= SCREEN_TILE_SIZE;
 		break;
 	}

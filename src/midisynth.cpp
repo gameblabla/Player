@@ -84,8 +84,17 @@ namespace midisynth{
             }else{
                 panpot = panpot * (16384 - master_balance) / 8192 + (master_balance - 8192) * 2;
             }
-            int_least32_t left = static_cast<int_least32_t>(volume * std::cos(std::max<int_least32_t>(0, panpot - 1) * (M_PI / 2 / 16382)));
-            int_least32_t right = static_cast<int_least32_t>(volume * std::sin(std::max<int_least32_t>(0, panpot - 1) * (M_PI / 2 / 16382)));
+            
+#ifdef DREAMCAST
+			float cos_midi, sin_midi;
+			float angle = (MAX_REAL(0, panpot - 1) * (M_PI / 2 / 16382));
+			fsincosr(angle, &cos_midi, &sin_midi);
+            int_least32_t left = static_cast<int_least32_t>(volume * cos_midi);
+            int_least32_t right = static_cast<int_least32_t>(volume * sin_midi);
+#else
+            int_least32_t left = static_cast<int_least32_t>(volume * COS_REAL(MAX_REAL_INT(0, panpot - 1) * (M_PI / 2 / 16382)));
+            int_least32_t right = static_cast<int_least32_t>(volume * SIN_REAL(MAX_REAL_INT(0, panpot - 1) * (M_PI / 2 / 16382)));
+#endif
             bool ret = note->synthesize(out, samples, rate, left, right);
             if(ret){
                 ++i;
@@ -482,7 +491,7 @@ namespace midisynth{
             all_sound_off();
             active_sensing = -1;
         }else if(active_sensing > 0){
-            active_sensing = std::max(0.0f, active_sensing - samples / rate);
+            active_sensing = MAX_REAL_INT(0.0f, active_sensing - samples / rate);
         }
         int_least32_t volume = static_cast<int_least32_t>(main_volume) * master_volume / 16384;
         int num_notes = 0;
@@ -830,9 +839,9 @@ namespace midisynth{
         this->fSR = static_cast<uint_least32_t>(fSR);
         this->fRR = static_cast<uint_least32_t>(fRR);
         this->fOR = static_cast<uint_least32_t>(envelope_table.RR[63][0] / rate);
-        this->fSS = std::max(this->fDR, fSL);
-        this->fDRR = std::max(this->fDR, this->fRR);
-        this->fDSS = std::max(this->fDRR, this->fSS);
+        this->fSS = MAX_REAL_INT(this->fDR, fSL);
+        this->fDRR = MAX_REAL_INT(this->fDR, this->fRR);
+        this->fDSS = MAX_REAL_INT(this->fDRR, this->fSS);
     }
     // Key-off. Gets into release step.
     void envelope_generator::key_off()

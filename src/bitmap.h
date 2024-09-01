@@ -34,7 +34,6 @@
 #include "opacity.h"
 #include "filesystem_stream.h"
 #include "string_view.h"
-#include "opts.h"
 
 struct Transform;
 
@@ -149,6 +148,8 @@ public:
 		// Special handling for chipset graphic.
 		// Generates a tile opacity list.
 		Flag_Chipset = 1 << 2,
+		// Special handling for charset graphic.
+		Flag_Charset = 1 << 4,
 		// Bitmap will not be written to. This allows blit optimisations because the
 		// opacity information will not change.
 		Flag_ReadOnly = 1 << 16
@@ -615,9 +616,19 @@ public:
 
 	DynamicFormat format;
 
+	struct Run {
+		uint16_t y;
+		uint16_t x_begin;
+		uint16_t x_end;
+	};
+
+	const std::vector<Run>& GetRuns() const;
+	void ComputeRuns();
+
 protected:
 	ImageOpacity image_opacity = ImageOpacity::Alpha_8Bit;
 	TileOpacity tile_opacity;
+	std::vector<Run> runs;
 	Color bg_color, sh_color;
 	FontRef font;
 
@@ -640,21 +651,24 @@ protected:
 	ImageOpacity ComputeImageOpacityT(Rect rect) const;
 
 	template<typename T>
+	void ComputeRunsT();
+
+	template<typename T>
 	void ToneBlitT(int x, int y, Bitmap const& src, Rect const& src_rect, const Tone &tone, Opacity const& opacity, ImageOpacity const& src_opacity);
 
 	static PixmanImagePtr GetSubimage(Bitmap const& src, const Rect& src_rect);
 	static inline void MultiplyAlpha(uint8_t &r, uint8_t &g, uint8_t &b, const uint8_t &a) {
-		r = (uint8_t)((int)DIVIDE_REAL(r * a , 0xFF));
-		g = (uint8_t)((int)DIVIDE_REAL(g * a , 0xFF));
-		b = (uint8_t)((int)DIVIDE_REAL(b * a , 0xFF));
+		r = (uint8_t)((int)r * a / 0xFF);
+		g = (uint8_t)((int)g * a / 0xFF);
+		b = (uint8_t)((int)b * a / 0xFF);
 	}
 	static inline void DivideAlpha(uint8_t &r, uint8_t &g, uint8_t &b, const uint8_t &a) {
 		if (a == 0)
 			r = g = b = 0;
 		else {
-			r = (uint8_t)((int)DIVIDE_REAL(r * 0xFF , a));
-			g = (uint8_t)((int)DIVIDE_REAL(g * 0xFF , a));
-			b = (uint8_t)((int)DIVIDE_REAL(b * 0xFF , a));
+			r = (uint8_t)((int)r * 0xFF / a);
+			g = (uint8_t)((int)g * 0xFF / a);
+			b = (uint8_t)((int)b * 0xFF / a);
 		}
 	}
 
@@ -716,7 +730,7 @@ inline StringView Bitmap::GetId() const {
 }
 
 inline void Bitmap::SetId(std::string id) {
-	//assert(this->id.empty());
+	assert(this->id.empty());
 	this->id = id;
 }
 
@@ -726,6 +740,10 @@ inline FontRef Bitmap::GetFont() const {
 
 inline void Bitmap::SetFont(FontRef font) {
 	this->font = font;
+}
+
+inline const std::vector<Bitmap::Run>& Bitmap::GetRuns() const {
+	return runs;
 }
 
 inline int Bitmap::GetOriginalBpp() const {

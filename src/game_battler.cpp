@@ -43,6 +43,7 @@
 #include "attribute.h"
 #include "algo.h"
 #include "rand.h"
+#include "opts.h"
 
 Game_Battler::Game_Battler() {
 }

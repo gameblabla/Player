@@ -23,7 +23,7 @@
 #include "utils.h"
 #include "rand.h"
 #include <cmath>
-
+#include "opts.h"
 constexpr int Game_Variables::max_warnings;
 constexpr Game_Variables::Var_t Game_Variables::min_2k;
 constexpr Game_Variables::Var_t Game_Variables::max_2k;
@@ -198,7 +198,7 @@ void Game_Variables::PrepareArray(const int first_id_a, const int last_id_a, con
 template <typename V, typename F>
 void Game_Variables::WriteRange(const int first_id, const int last_id, V&& value, F&& op) {
 	auto& vv = _variables;
-	for (int i = std::max(0, first_id - 1); i < last_id; ++i) {
+	for (int i = MAX_REAL_INT(0, first_id - 1); i < last_id; ++i) {
 		auto& v = vv[i];
 		v = Utils::Clamp(op(v, value()), _min, _max);
 	}
@@ -207,8 +207,8 @@ void Game_Variables::WriteRange(const int first_id, const int last_id, V&& value
 template <typename F>
 void Game_Variables::WriteArray(const int first_id_a, const int last_id_a, const int first_id_b, F&& op) {
 	auto& vv = _variables;
-	int out_b = std::max(0, first_id_b - 1);
-	for (int i = std::max(0, first_id_a - 1); i < last_id_a; ++i) {
+	int out_b = MAX_REAL_INT(0, first_id_b - 1);
+	for (int i = MAX_REAL_INT(0, first_id_a - 1); i < last_id_a; ++i) {
 		auto& v_a = vv[i];
 		auto v_b = vv[out_b++];
 		v_a = Utils::Clamp(op(v_a, v_b), _min, _max);
@@ -500,7 +500,7 @@ void Game_Variables::EnumerateRange(int first_id, int last_id, Var_t value) {
 void Game_Variables::SortRange(int first_id, int last_id, bool asc) {
 	PrepareRange(first_id, last_id, "Invalid write sort(var[{},{}])!");
 	auto& vv = _variables;
-	int i = std::max(0, first_id - 1);
+	int i = MAX_REAL_INT(0, first_id - 1);
 	if (i < last_id) {
 		auto sorter = [&](auto&& fn) {
 			std::stable_sort(vv.begin() + i, vv.begin() + last_id, fn);
@@ -516,7 +516,7 @@ void Game_Variables::SortRange(int first_id, int last_id, bool asc) {
 void Game_Variables::ShuffleRange(int first_id, int last_id) {
 	PrepareRange(first_id, last_id, "Invalid write shuffle(var[{},{}])!");
 	auto& vv = _variables;
-	for (int i = std::max(0, first_id - 1); i < last_id; ++i) {
+	for (int i = MAX_REAL_INT(0, first_id - 1); i < last_id; ++i) {
 		int rnd_num = Rand::GetRandomNumber(first_id, last_id) - 1;
 		std::swap(vv[i], vv[rnd_num]);
 	}
@@ -530,9 +530,9 @@ void Game_Variables::SetArray(int first_id_a, int last_id_a, int first_id_b) {
 		WriteArray(first_id_a, last_id_a, first_id_b, VarSet);
 	} else {
 		auto& vv = _variables;
-		const int steps = std::max(0, last_id_a - first_id_a + 1);
-		int out_b = std::max(0, first_id_b + steps - 2);
-		int out_a = std::max(0, last_id_a - 1);
+		const int steps = MAX_REAL_INT(0, last_id_a - first_id_a + 1);
+		int out_b = MAX_REAL_INT(0, first_id_b + steps - 2);
+		int out_a = MAX_REAL_INT(0, last_id_a - 1);
 		for (int i = 0; i < steps; ++i) {
 			auto& v_a = vv[out_a--];
 			auto v_b = vv[out_b--];
@@ -594,9 +594,9 @@ void Game_Variables::BitShiftRightArray(int first_id_a, int last_id_a, int first
 void Game_Variables::SwapArray(int first_id_a, int last_id_a, int first_id_b) {
 	PrepareArray(first_id_a, last_id_a, first_id_b, "Invalid write var[{},{}] <-> var[{},{}]!");
 	auto& vv = _variables;
-	const int steps = std::max(0, last_id_a - first_id_a + 1);
-	int out_b = std::max(0, first_id_b + steps - 2);
-	int out_a = std::max(0, last_id_a - 1);
+	const int steps = MAX_REAL_INT(0, last_id_a - first_id_a + 1);
+	int out_b = MAX_REAL_INT(0, first_id_b + steps - 2);
+	int out_a = MAX_REAL_INT(0, last_id_a - 1);
 	for (int i = 0; i < steps; ++i) {
 		std::swap(vv[out_a--], vv[out_b--]);
 	}
@@ -614,6 +614,6 @@ StringView Game_Variables::GetName(int _id) const {
 }
 
 int Game_Variables::GetMaxDigits() const {
-	auto val = std::max(std::llabs(_max), std::llabs(_min));
+	auto val = MAX_REAL_INT(std::llabs(_max), std::llabs(_min));
 	return static_cast<int>(std::log10(val) + 1);
 }

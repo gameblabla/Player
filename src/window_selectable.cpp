@@ -21,7 +21,7 @@
 #include "input.h"
 #include "util_macro.h"
 #include "bitmap.h"
-
+#include "opts.h"
 constexpr int arrow_animation_frames = 20;
 
 // Constructor
@@ -29,8 +29,8 @@ Window_Selectable::Window_Selectable(int ix, int iy, int iwidth, int iheight) :
 	Window_Base(ix, iy, iwidth, iheight) { }
 
 void Window_Selectable::CreateContents() {
-	int w = std::max(0, width - border_x * 2);
-	int h = std::max(0, std::max(height - border_y * 2, GetRowMax() * menu_item_height));
+	int w = MAX_REAL_INT(0, width - border_x * 2);
+	int h = MAX_REAL_INT(0, std::max(height - border_y * 2, GetRowMax() * menu_item_height));
 
 	SetContents(Bitmap::Create(w, h));
 }

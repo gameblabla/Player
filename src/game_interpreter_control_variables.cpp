@@ -32,6 +32,7 @@
 #include <cmath>
 #include <cstdint>
 #include <lcf/rpg/savepartylocation.h>
+#include "opts.h"
 
 int ControlVariables::Random(int value, int value2) {
 	int rmax = std::max(value, value2);
@@ -364,7 +365,7 @@ int ControlVariables::Pow(int arg1, int arg2) {
 
 int ControlVariables::Sqrt(int arg, int mul) {
 	// This is not how negative sqrt works, just following the implementation here
-	int res = static_cast<int>(sqrt(abs(arg)) * mul);
+	int res = static_cast<int>(SQRTF_REAL(ABS_REAL(arg)) * mul);
 	if (arg < 0) {
 		res = -res;
 	}
@@ -376,7 +377,7 @@ int ControlVariables::Sin(int arg1, int arg2, int mul) {
 	if (arg2 != 0) {
 		res /= static_cast<float>(arg2);
 	}
-	return static_cast<int>(std::sin(res * M_PI / 180.f) * mul);
+	return static_cast<int>(SIN_REAL(res * M_PI / 180.f) * mul);
 }
 
 int ControlVariables::Cos(int arg1, int arg2, int mul) {
@@ -384,7 +385,7 @@ int ControlVariables::Cos(int arg1, int arg2, int mul) {
 	if (arg2 != 0) {
 		res /= static_cast<float>(arg2);
 	}
-	return static_cast<int>(std::cos(res * M_PI / 180.f) * mul);
+	return static_cast<int>(COS_REAL(res * M_PI / 180.f) * mul);
 }
 
 int ControlVariables::Atan2(int arg1, int arg2, int mul) {

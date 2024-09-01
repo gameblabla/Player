@@ -841,9 +841,9 @@ bool Player::ChangeResolution(int width, int height) {
 
 	Player::screen_width = width;
 	Player::screen_height = height;
-	Player::menu_offset_x = std::max<int>((Player::screen_width - MENU_WIDTH) / 2, 0);
-	Player::menu_offset_y = std::max<int>((Player::screen_height - MENU_HEIGHT) / 2, 0);
-	Player::message_box_offset_x = std::max<int>((Player::screen_width - MENU_WIDTH) / 2, 0);
+	Player::menu_offset_x = MAX_REAL_INT((Player::screen_width - MENU_WIDTH) / 2, 0);
+	Player::menu_offset_y = MAX_REAL_INT((Player::screen_height - MENU_HEIGHT) / 2, 0);
+	Player::message_box_offset_x = MAX_REAL_INT((Player::screen_width - MENU_WIDTH) / 2, 0);
 
 	Graphics::GetMessageOverlay().OnResolutionChange();
 

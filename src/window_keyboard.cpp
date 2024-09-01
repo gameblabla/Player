@@ -23,6 +23,7 @@
 #include "input.h"
 #include "bitmap.h"
 #include "font.h"
+#include "opts.h"
 
 const char* const Window_Keyboard::DONE = "<Done>";
 const char* const Window_Keyboard::SPACE = "SPACE";
