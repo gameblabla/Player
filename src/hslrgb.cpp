@@ -18,7 +18,7 @@
 // Headers
 #include "hslrgb.h"
 #include "util_macro.h"
-
+#include "opts.h"
 struct ColorHSL {
 	double h;
 	double s;
@@ -32,9 +32,9 @@ ColorHSL RGB2HSL(Color col) {
 	ColorHSL ncol;
 	double vmin, vmax, delta;
 	double r, g, b;
-	r = col.red / 255.0;
-	g = col.green / 255.0;
-	b = col.blue / 255.0;
+	r = DIVIDE_REAL(col.red , 255.0);
+	g = DIVIDE_REAL(col.green , 255.0);
+	b = DIVIDE_REAL(col.blue , 255.0);
 	vmin = min(min(r, g), b);
 	vmax = max(max(r, g), b);
 	delta = vmax - vmin;
@@ -49,15 +49,15 @@ ColorHSL RGB2HSL(Color col) {
 		} else {
 			ncol.s = delta / (2 - vmax - vmin);
 		}
-		dr = (((vmax - r) / 6) + (delta / 2)) / delta;
-		dg = (((vmax - g) / 6) + (delta / 2)) / delta;
-		db = (((vmax - b) / 6) + (delta / 2)) / delta;
+		dr = ((DIVIDE_REAL((vmax - r) , 6)) + (delta / 2)) / delta;
+		dg = ((DIVIDE_REAL((vmax - g) , 6)) + (delta / 2)) / delta;
+		db = ((DIVIDE_REAL((vmax - b) , 6)) + (delta / 2)) / delta;
 		if (r == vmax) {
 			ncol.h = db - dg;
 		} else if (g == vmax) {
-			ncol.h = (1.0 / 3) + dr - db;
+			ncol.h = (DIVIDE_REAL(1.0 , 3)) + dr - db;
 		} else if (b == vmax) {
-			ncol.h = (2.0 / 3) + dg - dr;
+			ncol.h = (DIVIDE_REAL(2.0 , 3)) + dg - dr;
 		}
 	}
 	return ncol;
@@ -71,7 +71,7 @@ double Hue_2_RGB(double v1, double v2, double vH) {
 	if (vH > 1) vH -= 1;
 	if ((6 * vH) < 1) return (v1 + (v2 - v1) * 6 * vH);
 	if ((2 * vH) < 1) return (v2);
-	if ((3 * vH) < 2) return (v1 + (v2 - v1) * ((2.0 / 3) - vH ) * 6);
+	if ((3 * vH) < 2) return (v1 + (v2 - v1) * ((DIVIDE_REAL(2.0 , 3)) - vH ) * 6);
 	return v1;
 }
 
@@ -103,7 +103,7 @@ Color RGBAdjustHSL(Color col, double h, double s, double l) {
 	ColorHSL hsl;
 	Color rgb = col;
 	hsl = RGB2HSL(rgb);
-	hsl.h = hsl.h + h / 360.0;
+	hsl.h = DIVIDE_REAL(hsl.h + h , 360.0);
 	while (hsl.h > 1) hsl.h -= 1;
 	while (hsl.h < 0) hsl.h += 1;
 	hsl.s = hsl.s + s;

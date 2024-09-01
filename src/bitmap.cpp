@@ -205,7 +205,7 @@ ImageOpacity Bitmap::ComputeImageOpacityT() const {
 	auto* p = reinterpret_cast<const T*>(pixels());
 	const auto mask = format.rgba_to_uint32_t(0, 0, 0, 0xFF);
 
-	int n = GetSize() / sizeof(T);
+	int n = DIVIDE_REAL(GetSize() , sizeof(T));
 	for (int i = 0; i < n; ++i ) {
 		auto px = p[i] & mask;
 		bool transp = (px == 0);
@@ -244,7 +244,7 @@ ImageOpacity Bitmap::ComputeImageOpacityT(Rect rect) const {
 	rect = full_rect.GetSubRect(rect);
 
 	auto* p = reinterpret_cast<const T*>(pixels());
-	const int stride = pitch() / sizeof(T);
+	const int stride = DIVIDE_REAL(pitch(), sizeof(T));
 	const auto mask = format.rgba_to_uint32_t(0, 0, 0, 0xFF);
 
 	int xend = (rect.x + rect.width);
@@ -289,8 +289,8 @@ void Bitmap::CheckPixels(uint32_t flags) {
 	}
 
 	if (flags & Flag_Chipset) {
-		const int h = height() / TILE_SIZE;
-		const int w = width() / TILE_SIZE;
+		const int h = DIVIDE_REAL(height() , TILE_SIZE);
+		const int w = DIVIDE_REAL(width() , TILE_SIZE);
 		tile_opacity = TileOpacity(w, h);
 
 		for (int ty = 0; ty < h; ++ty) {
@@ -333,11 +333,11 @@ void Bitmap::HueChangeBlit(int x, int y, Bitmap const& src, Rect const& src_rect
 	if (!Rect::AdjustRectangles(dst_rect, src_rect, GetRect()))
 		return;
 
-	int hue  = (int) (hue_ / 60.0 * 0x100);
+	int hue  = (int) (DIVIDE_REAL(hue_ , 60.0) * 0x100);
 	if (hue < 0)
-		hue += ((-hue + 0x5FF) / 0x600) * 0x600;
+		hue += (DIVIDE_REAL((-hue + 0x5FF) , 0x600)) * 0x600;
 	else if (hue > 0x600)
-		hue -= (hue / 0x600) * 0x600;
+		hue -= (DIVIDE_REAL(hue , 0x600)) * 0x600;
 
 	DynamicFormat format(32,8,24,8,16,8,8,8,0,PF::Alpha);
 	std::vector<uint32_t> pixels;
@@ -367,7 +367,7 @@ Point Bitmap::TextDraw(Rect const& rect, int color, StringView text, Text::Align
 	case Text::AlignCenter: {
 		auto f = font ? font : Font::Default();
 		Rect text_rect = Text::GetSize(*f, text);
-		int dx = rect.x + (rect.width - text_rect.width) / 2;
+		int dx = rect.x + (rect.width - text_rect.width) >> 1;
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
@@ -398,7 +398,7 @@ Point Bitmap::TextDraw(Rect const& rect, Color color, StringView text, Text::Ali
 	case Text::AlignCenter: {
 		auto f = font ? font : Font::Default();
 		Rect text_rect = Text::GetSize(*f, text);
-		int dx = rect.x + (rect.width - text_rect.width) / 2;
+		int dx = rect.x + (rect.width - text_rect.width) >> 1;
 		return TextDraw(dx, rect.y, color, text);
 		break;
 	}
@@ -593,7 +593,7 @@ void const* Bitmap::pixels() const {
 }
 
 int Bitmap::bpp() const {
-	return (pixman_image_get_depth(bitmap.get()) + 7) / 8;
+	return (pixman_image_get_depth(bitmap.get()) + 7) >> 3;
 }
 
 int Bitmap::width() const {
@@ -685,8 +685,8 @@ void Bitmap::TiledBlit(int ox, int oy, Rect const& src_rect, Bitmap const& src, 
 
 	if (ox >= src_rect.width)	ox %= src_rect.width;
 	if (oy >= src_rect.height)	oy %= src_rect.height;
-	if (ox < 0) ox += src_rect.width  * ((-ox + src_rect.width  - 1) / src_rect.width);
-	if (oy < 0) oy += src_rect.height * ((-oy + src_rect.height - 1) / src_rect.height);
+	if (ox < 0) ox += src_rect.width  * (DIVIDE_REAL((-ox + src_rect.width  - 1) , src_rect.width));
+	if (oy < 0) oy += src_rect.height * (DIVIDE_REAL((-oy + src_rect.height - 1) , src_rect.height));
 
 	auto src_bm = GetSubimage(src, src_rect);
 
@@ -711,8 +711,8 @@ void Bitmap::StretchBlit(Rect const& dst_rect, Bitmap const& src, Rect const& sr
 		return;
 	}
 
-	double zoom_x = (double)src_rect.width  / dst_rect.width;
-	double zoom_y = (double)src_rect.height / dst_rect.height;
+	double zoom_x = (double)DIVIDE_REAL(src_rect.width  , dst_rect.width);
+	double zoom_y = (double)DIVIDE_REAL(src_rect.height , dst_rect.height);
 
 	Transform xform = Transform::Scale(zoom_x, zoom_y);
 
@@ -722,7 +722,7 @@ void Bitmap::StretchBlit(Rect const& dst_rect, Bitmap const& src, Rect const& sr
 
 	pixman_image_composite32(src.GetOperator(opacity, blend_mode),
 							 src.bitmap.get(), mask.get(), bitmap.get(),
-							 src_rect.x / zoom_x, src_rect.y / zoom_y,
+							 DIVIDE_REAL(src_rect.x , zoom_x), DIVIDE_REAL(src_rect.y , zoom_y),
 							 0, 0,
 							 dst_rect.x, dst_rect.y,
 							 dst_rect.width, dst_rect.height);
@@ -741,8 +741,8 @@ void Bitmap::WaverBlit(int x, int y, double zoom_x, double zoom_y, Bitmap const&
 
 	auto mask = CreateMask(opacity, src_rect, &xform);
 
-	int height = static_cast<int>(std::floor(src_rect.height * zoom_y));
-	int width  = static_cast<int>(std::floor(src_rect.width * zoom_x));
+	int height = static_cast<int>(FLOOR_REAL(src_rect.height * zoom_y));
+	int width  = static_cast<int>(FLOOR_REAL(src_rect.width * zoom_x));
 	const auto xoff = src_rect.x * zoom_x;
 	const auto yoff = src_rect.y * zoom_y;
 	const auto yclip = y < 0 ? -y : 0;
@@ -752,7 +752,7 @@ void Bitmap::WaverBlit(int x, int y, double zoom_x, double zoom_y, Bitmap const&
 		// RPG_RT starts the effect from the top of the screen even if the image is clipped. The result
 		// is that moving images which cross the top of the screen can appear to go too fast or too slow
 		// in RPT_RT. The (i - yclip) is RPG_RT compatible behavior. Just (i) would be more correct.
-		const double sy = (i - yclip) * (2 * M_PI) / (32.0 * zoom_y);
+		const double sy = DIVIDE_REAL((i - yclip) * (2 * M_PI) , (32.0 * zoom_y));
 		const int offset = 2 * zoom_x * depth * std::sin(phase + sy);
 
 		pixman_image_composite32(src.GetOperator(opacity, blend_mode),
@@ -877,9 +877,9 @@ static inline void color_tone_alpha(T &src_pixel, const Tone& tone, const Dynami
 	uint8_t r, g, b, a;
 	format.uint32_to_rgba(src_pixel, r, g, b, a);
 	src_pixel = format.rgba_to_uint32_t(
-		hard_light.table[tone.red][r] * a / 255,
-		hard_light.table[tone.green][g] * a / 255,
-		hard_light.table[tone.blue][b] * a / 255,
+		DIVIDE_REAL(hard_light.table[tone.red][r] * a , 255),
+		DIVIDE_REAL(hard_light.table[tone.green][g] * a , 255),
+		DIVIDE_REAL(hard_light.table[tone.blue][b] * a , 255),
 		a
 	);
 }
@@ -935,7 +935,7 @@ void Bitmap::ToneBlit(int x, int y, Bitmap const& src, Rect const& src_rect, con
 
 template<typename T>
 void Bitmap::ToneBlitT(int x, int y, Bitmap const& src, Rect const& src_rect, const Tone &tone, Opacity const& opacity, ImageOpacity const& src_opacity) {
-	int next_row = pitch() / sizeof(T);
+	int next_row = DIVIDE_REAL(pitch() , sizeof(T));
 	T* pixels = (T*)this->pixels();
 	pixels = pixels + (y - 1) * next_row + x;
 
@@ -1116,7 +1116,7 @@ void Bitmap::Flip(bool horizontal, bool vertical) {
 
 	auto temp = PixmanImagePtr{ pixman_image_create_bits(pixman_format, w, h, nullptr, p) };
 
-	MEMCPY_REAL(pixman_image_get_data(temp.get()),
+	SUPER_MEMCPY_REAL(pixman_image_get_data(temp.get()),
 			pixman_image_get_data(bitmap.get()),
 			p * h);
 
@@ -1255,10 +1255,10 @@ void Bitmap::ZoomOpacityBlit(int x, int y, int ox, int oy,
 	}
 
 	Rect dst_rect(
-		x - static_cast<int>(std::floor(ox * zoom_x)),
-		y - static_cast<int>(std::floor(oy * zoom_y)),
-		static_cast<int>(std::floor(src_rect.width * zoom_x)),
-		static_cast<int>(std::floor(src_rect.height * zoom_y)));
+		x - static_cast<int>(FLOOR_REAL(ox * zoom_x)),
+		y - static_cast<int>(FLOOR_REAL(oy * zoom_y)),
+		static_cast<int>(FLOOR_REAL(src_rect.width * zoom_x)),
+		static_cast<int>(FLOOR_REAL(src_rect.height * zoom_y)));
 	StretchBlit(dst_rect, src, src_rect, opacity, blend_mode);
 }
 

@@ -2027,8 +2027,8 @@ bool Game_Interpreter::CommandSimulatedAttack(lcf::rpg::EventCommand const& com)
 
 	for (const auto& actor : GetActors(com.parameters[0], com.parameters[1])) {
 		int result = atk;
-		result -= (actor->GetDef() * def) / 400;
-		result -= (actor->GetSpi() * spi) / 800;
+		result -= DIVIDE_REAL((actor->GetDef() * def) , 400);
+		result -= DIVIDE_REAL((actor->GetSpi() * spi) , 800);
 		result = std::max(result, 0);
 		result = Algo::VarianceAdjustEffect(result, var);
 

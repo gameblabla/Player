@@ -207,7 +207,7 @@ Window_Keyboard::Window_Keyboard(int ix, int iy, int iwidth, int iheight, const 
 	SetContents(Bitmap::Create(width - 16, height - 16));
 
 	row_spacing = 16;
-	col_spacing = (contents->GetWidth() - 2 * border_x) / col_max;
+	col_spacing = DIVIDE_REAL((contents->GetWidth() - 2 * border_x) , col_max);
 
 	mode = Letter;
 	next_mode = Symbol;

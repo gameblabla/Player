@@ -123,7 +123,7 @@ void Transition::SetAttributesTransitions() {
 	int w, h, beg_i, mid_i, end_i, length;
 
 	zoom_position = std::vector<int>(2);
-	random_blocks = std::vector<uint32_t>(Player::screen_width * Player::screen_height / (size_random_blocks * size_random_blocks));
+	random_blocks = std::vector<uint32_t>(Player::screen_width * DIVIDE_REAL(Player::screen_height , (size_random_blocks * size_random_blocks)));
 	for (uint32_t i = 0; i < random_blocks.size(); i++) {
 		random_blocks[i] = i;
 	}

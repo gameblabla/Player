@@ -48,6 +48,8 @@ public:
 	bool SetFormat(int frequency, AudioDecoder::Format format, int channels) override;
 
 	int GetTicks() const override;
+	
+	int64_t total_decoded_samples = 0; // Track total samples decoded
 
 	static bool IsMp3(Filesystem_Stream::InputStream& stream);
 private:

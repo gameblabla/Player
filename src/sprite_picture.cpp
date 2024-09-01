@@ -24,7 +24,7 @@
 #include "game_windows.h"
 #include "player.h"
 #include "bitmap.h"
-
+#include "opts.h"
 Sprite_Picture::Sprite_Picture(int pic_id, Drawable::Flags flags)
 	: Sprite(flags),
 	pic_id(pic_id),
@@ -113,10 +113,10 @@ void Sprite_Picture::Draw(Bitmap& dst) {
 		SetY(y);
 	}
 
-	SetZoomX(data.current_magnify / 100.0);
-	SetZoomY(data.current_magnify / 100.0);
+	SetZoomX(DIVIDE_REAL(data.current_magnify , 100.0));
+	SetZoomY(DIVIDE_REAL(data.current_magnify , 100.0));
 	if (Player::IsPatchManiac()) {
-		SetZoomY(data.maniac_current_magnify_height / 100.0);
+		SetZoomY(DIVIDE_REAL(data.maniac_current_magnify_height , 100.0));
 	}
 
 	auto sr = GetSrcRect();
@@ -124,9 +124,9 @@ void Sprite_Picture::Draw(Bitmap& dst) {
 	SetOy(sr.height / 2);
 
 	if (data.effect_mode == lcf::rpg::SavePicture::Effect_maniac_fixed_angle) {
-		SetAngle(data.current_rotation * (2 * M_PI) / 360);
+		SetAngle(DIVIDE_REAL(data.current_rotation * (2 * M_PI) , 360));
 	} else if (data.effect_mode != lcf::rpg::SavePicture::Effect_wave) {
-		SetAngle(data.current_rotation * (2 * M_PI) / 256);
+		SetAngle(DIVIDE_REAL(data.current_rotation * (2 * M_PI) , 256));
 	} else {
 		SetAngle(0.0);
 	}
@@ -138,8 +138,8 @@ void Sprite_Picture::Draw(Bitmap& dst) {
 	const auto bottom_trans = feature_bottom_trans ? data.current_bot_trans : top_trans;
 
 	SetOpacity(
-		(int)(255 * (100 - top_trans) / 100),
-		(int)(255 * (100 - bottom_trans) / 100));
+		(int)(DIVIDE_REAL(255 * (100 - top_trans) , 100)),
+		(int)(DIVIDE_REAL(255 * (100 - bottom_trans) , 100)));
 
 	if (bottom_trans != top_trans) {
 		SetBushDepth(GetHeight() / 2);
@@ -147,10 +147,10 @@ void Sprite_Picture::Draw(Bitmap& dst) {
 		SetBushDepth(0);
 	}
 
-	auto tone = Tone((int) (data.current_red * 128 / 100),
-			(int) (data.current_green * 128 / 100),
-			(int) (data.current_blue * 128 / 100),
-			(int) (data.current_sat * 128 / 100));
+	auto tone = Tone((int) (DIVIDE_REAL(data.current_red * 128 , 100)),
+			(int) (DIVIDE_REAL(data.current_green * 128 , 100)),
+			(int) (DIVIDE_REAL(data.current_blue * 128 , 100)),
+			(int) (DIVIDE_REAL(data.current_sat * 128 , 100)));
 	if (data.flags.affected_by_tint) {
 		auto screen_tone = Main_Data::game_screen->GetTone();
 		tone = Blend(tone, screen_tone);

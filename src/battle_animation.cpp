@@ -112,18 +112,18 @@ void BattleAnimation::DrawAt(Bitmap& dst, int x, int y) {
 		SetX(cell.x + x);
 		SetY(cell.y + y);
 		int sx = cell.cell_id % 5;
-		int sy = cell.cell_id / 5;
+		int sy = DIVIDE_REAL(cell.cell_id , 5);
 		int size = animation.large ? 128 : 96;
 		SetSrcRect(Rect(sx * size, sy * size, size, size));
 		SetOx(size / 2);
 		SetOy(size / 2);
-		SetTone(Tone(cell.tone_red * 128 / 100,
-			cell.tone_green * 128 / 100,
-			cell.tone_blue * 128 / 100,
-			cell.tone_gray * 128 / 100));
-		SetOpacity(255 * (100 - cell.transparency) / 100);
-		SetZoomX(cell.zoom / 100.0);
-		SetZoomY(cell.zoom / 100.0);
+		SetTone(Tone(DIVIDE_REAL(cell.tone_red * 128 , 100),
+			DIVIDE_REAL(cell.tone_green * 128 , 100),
+			DIVIDE_REAL(cell.tone_blue * 128 , 100),
+			DIVIDE_REAL(cell.tone_gray * 128 , 100)));
+		SetOpacity(DIVIDE_REAL(255 * (100 - cell.transparency) , 100));
+		SetZoomX(DIVIDE_REAL(cell.zoom , 100.0));
+		SetZoomY(DIVIDE_REAL(cell.zoom , 100.0));
 		SetFlipX(invert);
 		Sprite::Draw(dst);
 	}

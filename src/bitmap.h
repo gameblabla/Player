@@ -34,6 +34,7 @@
 #include "opacity.h"
 #include "filesystem_stream.h"
 #include "string_view.h"
+#include "opts.h"
 
 struct Transform;
 
@@ -643,17 +644,17 @@ protected:
 
 	static PixmanImagePtr GetSubimage(Bitmap const& src, const Rect& src_rect);
 	static inline void MultiplyAlpha(uint8_t &r, uint8_t &g, uint8_t &b, const uint8_t &a) {
-		r = (uint8_t)((int)r * a / 0xFF);
-		g = (uint8_t)((int)g * a / 0xFF);
-		b = (uint8_t)((int)b * a / 0xFF);
+		r = (uint8_t)((int)DIVIDE_REAL(r * a , 0xFF));
+		g = (uint8_t)((int)DIVIDE_REAL(g * a , 0xFF));
+		b = (uint8_t)((int)DIVIDE_REAL(b * a , 0xFF));
 	}
 	static inline void DivideAlpha(uint8_t &r, uint8_t &g, uint8_t &b, const uint8_t &a) {
 		if (a == 0)
 			r = g = b = 0;
 		else {
-			r = (uint8_t)((int)r * 0xFF / a);
-			g = (uint8_t)((int)g * 0xFF / a);
-			b = (uint8_t)((int)b * 0xFF / a);
+			r = (uint8_t)((int)DIVIDE_REAL(r * 0xFF , a));
+			g = (uint8_t)((int)DIVIDE_REAL(g * 0xFF , a));
+			b = (uint8_t)((int)DIVIDE_REAL(b * 0xFF , a));
 		}
 	}
 
