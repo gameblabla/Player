@@ -24,6 +24,7 @@
 #include "window.h"
 #include "bitmap.h"
 #include "drawable_mgr.h"
+#include "opts.h"
 
 constexpr int arrow_animation_frames = 20;
 
@@ -70,9 +71,9 @@ void Window::Draw(Bitmap& dst) {
 
 				Rect src_rect(0, height / 2 - ianimation_count, width, ianimation_count * 2);
 
-				dst.Blit(x, y + src_rect.y, *background, src_rect, back_opacity * opacity / 255);
+				dst.Blit(x, y + src_rect.y, *background, src_rect, back_opacity * DIVIDE_REAL(opacity , 255));
 			} else {
-				dst.Blit(x, y, *background, background->GetRect(), back_opacity * opacity / 255);
+				dst.Blit(x, y, *background, background->GetRect(), back_opacity * DIVIDE_REAL(opacity , 255));
 			}
 		}
 

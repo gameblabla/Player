@@ -36,6 +36,7 @@
 #include "shake.h"
 #include "rand.h"
 #include "opts.h"
+
 Game_Screen::Game_Screen()
 {
 }

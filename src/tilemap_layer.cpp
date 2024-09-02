@@ -208,8 +208,10 @@ static uint32_t MakeAbTileHash(int id, int anim_step) {
 
 void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_oy) {
 	// Get the number of tiles that can be displayed on window
-	float tiles_x = CEIL_REAL(DIVIDE_REAL(Player::screen_width,TILE_SIZE));
-	float tiles_y = CEIL_REAL(DIVIDE_REAL(Player::screen_height,TILE_SIZE));
+	DEFAULT_TO_FASTEST width_tile = DIVIDE_REAL(Player::screen_width,TILE_SIZE);
+	DEFAULT_TO_FASTEST height_tile = DIVIDE_REAL(Player::screen_height,TILE_SIZE);
+	DEFAULT_TO_FASTEST tiles_x = (DEFAULT_TO_FASTEST) CEIL_REAL(width_tile);
+	DEFAULT_TO_FASTEST tiles_y = (DEFAULT_TO_FASTEST) CEIL_REAL(height_tile);
 
 	// If ox or oy are not equal to the tile size draw the next tile too
 	// to prevent black (empty) tiles at the borders
@@ -260,8 +262,8 @@ void TilemapLayer::Draw(Bitmap& dst, uint8_t z_order, int render_ox, int render_
 			if (loop_h) map_x = mod(map_x, width);
 			if (loop_v) map_y = mod(map_y, height);
 
-			int map_draw_x = x * TILE_SIZE - mod_ox;
-			int map_draw_y = y * TILE_SIZE - mod_oy;
+			int map_draw_x = MATH_fmac_Dec(x, TILE_SIZE, mod_ox);
+			int map_draw_y = MATH_fmac_Dec(y, TILE_SIZE, mod_oy);
 
 			bool out_of_bounds =
 				map_x < 0 || map_x >= width ||

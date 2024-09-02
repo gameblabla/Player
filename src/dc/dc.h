@@ -37,13 +37,15 @@
 #define FMAC(a, b, c) ((a) * (b) + (c))
 #define FMAC_DEC(a, b, c) ((a) * (b) - (c))
 
+#define DEFAULT_TO_FASTEST int
+
 #else
 #include "sh4_math.h"
 #include <dc/fmath.h>
 #define FLOOR_REAL MATH_Fast_Floorf
 // MATH_Very_Fast_Floorf doesn't work properly with Dusk Child
 
-#define CEIL_REAL MATH_Very_Fast_Ceilf
+#define CEIL_REAL MATH_Fast_Ceilf
 #define MIN_REAL MATH_Fast_Fminf
 #define MAX_REAL MATH_Fast_Fmaxf
 
@@ -63,6 +65,8 @@
 
 #define FMAC(a, b, c) MATH_fmac(a,b,c)
 #define FMAC_DEC(a, b, c) MATH_fmac_Dec(a,b,c)
+
+#define DEFAULT_TO_FASTEST float
 
 #endif
 
